@@ -3,7 +3,7 @@ class CreateSiteContents < ActiveRecord::Migration[8.0]
     create_table :site_contents do |t|
       t.string :page_name
       t.text :content
-      t.references :updated_by, null: false, foreign_key: true
+      t.references :updated_by, null: true, foreign_key: { to_table: :admins }
       t.datetime :updated_at
 
       t.timestamps
