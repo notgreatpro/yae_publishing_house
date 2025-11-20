@@ -12,7 +12,7 @@ class CreateProducts < ActiveRecord::Migration[8.0]
       t.integer :pages
       t.string :language
       t.string :cover_image_url
-      t.references :created_by, null: false, foreign_key: true
+      t.references :created_by, null: true, foreign_key: { to_table: :admins }
 
       t.timestamps
     end
