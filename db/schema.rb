@@ -1,0 +1,138 @@
+# This file is auto-generated from the current state of the database. Instead
+# of editing this file, please use the migrations feature of Active Record to
+# incrementally modify your database, and then regenerate this schema definition.
+#
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
+#
+# It's strongly recommended that you check this file into your version control system.
+
+ActiveRecord::Schema[8.0].define(version: 2025_11_20_040114) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
+
+  create_table "admins", force: :cascade do |t|
+    t.string "username"
+    t.string "password_digest"
+    t.string "email"
+    t.string "full_name"
+    t.string "role"
+    t.datetime "last_login"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "authors", force: :cascade do |t|
+    t.string "author_name"
+    t.text "biography"
+    t.string "nationality"
+    t.bigint "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_authors_on_created_by_id"
+  end
+
+  create_table "categories", force: :cascade do |t|
+    t.string "category_name"
+    t.text "description"
+    t.bigint "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_categories_on_created_by_id"
+  end
+
+  create_table "customers", force: :cascade do |t|
+    t.string "email"
+    t.string "password_digest"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "phone"
+    t.string "shipping_address"
+    t.string "city"
+    t.string "country"
+    t.string "postal_code"
+    t.datetime "last_login"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "order_items", force: :cascade do |t|
+    t.bigint "order_id", null: false
+    t.bigint "product_id", null: false
+    t.integer "quantity"
+    t.decimal "price_at_purchase"
+    t.decimal "subtotal"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_order_items_on_order_id"
+    t.index ["product_id"], name: "index_order_items_on_product_id"
+  end
+
+  create_table "orders", force: :cascade do |t|
+    t.bigint "customer_id", null: false
+    t.datetime "order_date"
+    t.decimal "total_amount"
+    t.string "order_status"
+    t.string "payment_method"
+    t.string "shipping_address"
+    t.string "city"
+    t.string "country"
+    t.string "postal_code"
+    t.datetime "shipped_date"
+    t.datetime "delivered_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["customer_id"], name: "index_orders_on_customer_id"
+  end
+
+  create_table "product_authors", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.bigint "author_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_product_authors_on_author_id"
+    t.index ["product_id"], name: "index_product_authors_on_product_id"
+  end
+
+  create_table "products", force: :cascade do |t|
+    t.string "title"
+    t.string "isbn"
+    t.text "description"
+    t.decimal "current_price"
+    t.integer "stock_quantity"
+    t.bigint "category_id", null: false
+    t.string "publisher"
+    t.date "publication_date"
+    t.integer "pages"
+    t.string "language"
+    t.string "cover_image_url"
+    t.bigint "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_products_on_category_id"
+    t.index ["created_by_id"], name: "index_products_on_created_by_id"
+  end
+
+  create_table "site_contents", force: :cascade do |t|
+    t.string "page_name"
+    t.text "content"
+    t.bigint "updated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["updated_by_id"], name: "index_site_contents_on_updated_by_id"
+  end
+
+  add_foreign_key "authors", "admins", column: "created_by_id"
+  add_foreign_key "categories", "admins", column: "created_by_id"
+  add_foreign_key "order_items", "orders"
+  add_foreign_key "order_items", "products"
+  add_foreign_key "orders", "customers"
+  add_foreign_key "product_authors", "authors"
+  add_foreign_key "product_authors", "products"
+  add_foreign_key "products", "admins", column: "created_by_id"
+  add_foreign_key "products", "categories"
+  add_foreign_key "site_contents", "admins", column: "updated_by_id"
+end
