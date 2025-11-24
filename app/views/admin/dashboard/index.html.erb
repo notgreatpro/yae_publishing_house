@@ -3,7 +3,8 @@
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
   <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 8px;">
     <h3 style="margin: 0 0 0.5rem 0; color: #1976d2;">📚 Products</h3>
-    <p style="font-size: 2rem; font-weight: bold; margin: 0;"><%= @total_products %></p>
+    <p style="font-size: 2rem; font-weight: bold; margin: 0 0 0.5rem 0;"><%= @total_products %></p>
+    <%= link_to "Manage Products →", admin_products_path, style: "color: #1976d2; text-decoration: none; font-weight: bold;" %>
   </div>
 
   <div style="background: #f3e5f5; padding: 1.5rem; border-radius: 8px;">
@@ -24,5 +25,8 @@
 
 <div style="margin-top: 2rem;">
   <h2>Quick Actions</h2>
-  <p style="color: #666;">Product and category management coming soon...</p>
+  <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+    <%= link_to "📚 Manage Products", admin_products_path, style: "background: #5b7c99; color: white; padding: 1rem 1.5rem; border-radius: 4px; text-decoration: none; font-weight: bold;" %>
+    <%= link_to "➕ Add New Product", new_admin_product_path, style: "background: #28a745; color: white; padding: 1rem 1.5rem; border-radius: 4px; text-decoration: none; font-weight: bold;" %>
+  </div>
 </div>
