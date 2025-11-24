@@ -1,5 +1,5 @@
 # app/controllers/admin/base_controller.rb
-class Admin::BaseController < ApplicationController
+class Admin::DashboardController < ApplicationController
   before_action :require_admin
 
   layout "admin" # Use a custom layout for admin area if desired

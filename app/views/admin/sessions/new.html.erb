@@ -1,0 +1,15 @@
+<h1>Admin Login</h1>
+<% if flash[:alert] %>
+  <div style="color:red"><%= flash[:alert] %></div>
+<% end %>
+<%= form_with url: admin_login_path, local: true do |f| %>
+  <div>
+    <%= label_tag :username %><br>
+    <%= text_field_tag :username %>
+  </div>
+  <div>
+    <%= label_tag :password %><br>
+    <%= password_field_tag :password %>
+  </div>
+  <%= submit_tag "Log In" %>
+<% end %>

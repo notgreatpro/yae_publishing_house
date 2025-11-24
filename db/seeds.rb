@@ -20,12 +20,12 @@ puts "✅ Database cleaned!"
 # Create Admin
 puts "\n👑 Creating Admin Account..."
 admin = Admin.create!(
-  username: "yaemiko",
-  email: "yaemiko@narukami.shrine",
+  username: "YPHAdmin",
+  email: "admin@yaepublishinghouse.com",
   full_name: "Yae Miko",
   role: "super_admin",
-  password: "YaeMiko2024!",
-  password_confirmation: "YaeMiko2024!"
+  password: "$TimeToRead$",
+  password_confirmation: "$TimeToRead$"
 )
 puts "✅ Admin created: #{admin.username}"
 
@@ -271,6 +271,6 @@ puts "  📚 Products: #{Product.count}"
 puts "  🔗 Product-Author Links: #{ProductAuthor.count}"
 puts "  📄 Site Content Pages: #{SiteContent.count}"
 puts "\n🔐 Admin Login:"
-puts "  Username: yaemiko"
-puts "  Password: YaeMiko2024!"
+puts "  Username: YPHAdmin"
+puts "  Password: $TimeToRead$"
 puts "\n✨ May the Sacred Sakura bless your publishing ventures! ✨"
