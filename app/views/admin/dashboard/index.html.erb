@@ -1,2 +1,9 @@
-<h1>Admin::Dashboard#index</h1>
-<p>Find me in app/views/admin/dashboard/index.html.erb</p>
+<!-- app/views/admin/dashboard/index.html.erb -->
+<h1>Admin Dashboard</h1>
+<p>Welcome, <%= current_admin.full_name %>!</p>
+<ul>
+  <li>Total Books: <%= Product.count %></li>
+  <li>Total Orders: <%= Order.count %></li>
+  <li>Total Customers: <%= Customer.count %></li>
+  <li>Total Authors: <%= Author.count %></li>
+</ul>
