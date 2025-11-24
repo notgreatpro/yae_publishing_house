@@ -1,6 +1,12 @@
 Rails.application.routes.draw do
   # Admin namespace
   namespace :admin do
+    get "products/index"
+    get "products/new"
+    get "products/create"
+    get "products/edit"
+    get "products/update"
+    get "products/destroy"
     get 'login', to: 'sessions#new'
     post 'login', to: 'sessions#create'
     delete 'logout', to: 'sessions#destroy'
