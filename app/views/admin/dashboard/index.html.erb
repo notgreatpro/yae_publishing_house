@@ -1,9 +1,28 @@
-<!-- app/views/admin/dashboard/index.html.erb -->
-<h1>Admin Dashboard</h1>
-<p>Welcome, <%= current_admin.full_name %>!</p>
-<ul>
-  <li>Total Books: <%= Product.count %></li>
-  <li>Total Orders: <%= Order.count %></li>
-  <li>Total Customers: <%= Customer.count %></li>
-  <li>Total Authors: <%= Author.count %></li>
-</ul>
+<h1>📊 Admin Dashboard</h1>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
+  <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 8px;">
+    <h3 style="margin: 0 0 0.5rem 0; color: #1976d2;">📚 Products</h3>
+    <p style="font-size: 2rem; font-weight: bold; margin: 0;"><%= @total_products %></p>
+  </div>
+
+  <div style="background: #f3e5f5; padding: 1.5rem; border-radius: 8px;">
+    <h3 style="margin: 0 0 0.5rem 0; color: #7b1fa2;">📂 Categories</h3>
+    <p style="font-size: 2rem; font-weight: bold; margin: 0;"><%= @total_categories %></p>
+  </div>
+
+  <div style="background: #fff3e0; padding: 1.5rem; border-radius: 8px;">
+    <h3 style="margin: 0 0 0.5rem 0; color: #f57c00;">✍️ Authors</h3>
+    <p style="font-size: 2rem; font-weight: bold; margin: 0;"><%= @total_authors %></p>
+  </div>
+
+  <div style="background: #e8f5e9; padding: 1.5rem; border-radius: 8px;">
+    <h3 style="margin: 0 0 0.5rem 0; color: #388e3c;">👥 Customers</h3>
+    <p style="font-size: 2rem; font-weight: bold; margin: 0;"><%= @total_customers %></p>
+  </div>
+</div>
+
+<div style="margin-top: 2rem;">
+  <h2>Quick Actions</h2>
+  <p style="color: #666;">Product and category management coming soon...</p>
+</div>
