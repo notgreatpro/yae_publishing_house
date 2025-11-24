@@ -1,6 +1,6 @@
 require 'faker'
 
-puts " Starting Yae Publishing House Database Seeding..."
+puts "🌸 Starting Yae Publishing House Database Seeding..."
 puts "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Clean existing data
@@ -20,28 +20,28 @@ puts "✅ Database cleaned!"
 # Create Admin
 puts "\n👑 Creating Admin Account..."
 admin = Admin.create!(
-  username: "YPHAdmin",
-  email: "admin@yaepublishinghouse.com",
+  username: "yaemiko",
+  email: "yaemiko@narukami.shrine",
   full_name: "Yae Miko",
   role: "super_admin",
-  password: "$$YBH86",
-  password_confirmation: "$$YBH86"
+  password: "YaeMiko2024!",
+  password_confirmation: "YaeMiko2024!"
 )
 puts "✅ Admin created: #{admin.username}"
 
 # Create Categories
 puts "\n📂 Creating Categories..."
 categories = {
-  light_novels: Category.create!(category_name: "Light Novels", description: "Japanese light novels and serialized stories", created_by: admin.id),
-  manga: Category.create!(category_name: "Manga", description: "Japanese manga and comics", created_by: admin.id),
-  graphic_novels: Category.create!(category_name: "Graphic Novels", description: "Illustrated novels and western comics", created_by: admin.id),
-  fiction: Category.create!(category_name: "Fiction", description: "Literary fiction and contemporary novels", created_by: admin.id),
-  non_fiction: Category.create!(category_name: "Non-Fiction", description: "History, biography, and educational books", created_by: admin.id),
-  fantasy: Category.create!(category_name: "Fantasy", description: "Fantasy adventures and magical worlds", created_by: admin.id),
-  sci_fi: Category.create!(category_name: "Science Fiction", description: "Futuristic and scientific fiction", created_by: admin.id),
-  horror: Category.create!(category_name: "Horror", description: "Thriller, mystery, and horror stories", created_by: admin.id),
-  childrens: Category.create!(category_name: "Children's Books", description: "Books for young readers", created_by: admin.id),
-  adventure: Category.create!(category_name: "Adventure", description: "Action-packed adventure stories", created_by: admin.id)
+  light_novels: Category.create!(category_name: "Light Novels", description: "Japanese light novels and serialized stories", created_by_id: admin.id),
+  manga: Category.create!(category_name: "Manga", description: "Japanese manga and comics", created_by_id: admin.id),
+  graphic_novels: Category.create!(category_name: "Graphic Novels", description: "Illustrated novels and western comics", created_by_id: admin.id),
+  fiction: Category.create!(category_name: "Fiction", description: "Literary fiction and contemporary novels", created_by_id: admin.id),
+  non_fiction: Category.create!(category_name: "Non-Fiction", description: "History, biography, and educational books", created_by_id: admin.id),
+  fantasy: Category.create!(category_name: "Fantasy", description: "Fantasy adventures and magical worlds", created_by_id: admin.id),
+  sci_fi: Category.create!(category_name: "Science Fiction", description: "Futuristic and scientific fiction", created_by_id: admin.id),
+  horror: Category.create!(category_name: "Horror", description: "Thriller, mystery, and horror stories", created_by_id: admin.id),
+  childrens: Category.create!(category_name: "Children's Books", description: "Books for young readers", created_by_id: admin.id),
+  adventure: Category.create!(category_name: "Adventure", description: "Action-packed adventure stories", created_by_id: admin.id)
 }
 puts "✅ #{categories.count} categories created!"
 
@@ -49,22 +49,22 @@ puts "✅ #{categories.count} categories created!"
 puts "\n✍️  Creating Authors..."
 authors = {
   # Inazuma Authors
-  pursina: Author.create!(author_name: "Pursina", biography: "Author of The Saga of Hamavaran series, known for epic tales", nationality: "Inazuma", created_by: admin.id),
-  zhenyu: Author.create!(author_name: "Zhenyu", biography: "Creator of A Legend of Sword series", nationality: "Liyue", created_by: admin.id),
-  mr_nine: Author.create!(author_name: "Mr. Nine", biography: "Author of Flowers for Princess Fischl", nationality: "Mondstadt", created_by: admin.id),
-  yae_miko: Author.create!(author_name: "Yae Miko", biography: "The Guuji of Grand Narukami Shrine and publisher extraordinaire", nationality: "Inazuma", created_by: admin.id),
+  pursina: Author.create!(author_name: "Pursina", biography: "Author of The Saga of Hamavaran series, known for epic tales", nationality: "Inazuma", created_by_id: admin.id),
+  zhenyu: Author.create!(author_name: "Zhenyu", biography: "Creator of A Legend of Sword series", nationality: "Liyue", created_by_id: admin.id),
+  mr_nine: Author.create!(author_name: "Mr. Nine", biography: "Author of Flowers for Princess Fischl", nationality: "Mondstadt", created_by_id: admin.id),
+  yae_miko: Author.create!(author_name: "Yae Miko", biography: "The Guuji of Grand Narukami Shrine and publisher extraordinaire", nationality: "Inazuma", created_by_id: admin.id),
   
   # Real World Authors - Japanese
-  haruki: Author.create!(author_name: "Haruki Murakami", biography: "Contemporary Japanese writer known for surreal fiction", nationality: "Japan", created_by: admin.id),
-  banana: Author.create!(author_name: "Banana Yoshimoto", biography: "Japanese author of Kitchen and other novels", nationality: "Japan", created_by: admin.id),
-  natsume: Author.create!(author_name: "Natsume Soseki", biography: "Classic Japanese author of Kokoro", nationality: "Japan", created_by: admin.id),
-  osamu: Author.create!(author_name: "Osamu Dazai", biography: "Author of No Longer Human", nationality: "Japan", created_by: admin.id),
+  haruki: Author.create!(author_name: "Haruki Murakami", biography: "Contemporary Japanese writer known for surreal fiction", nationality: "Japan", created_by_id: admin.id),
+  banana: Author.create!(author_name: "Banana Yoshimoto", biography: "Japanese author of Kitchen and other novels", nationality: "Japan", created_by_id: admin.id),
+  natsume: Author.create!(author_name: "Natsume Soseki", biography: "Classic Japanese author of Kokoro", nationality: "Japan", created_by_id: admin.id),
+  osamu: Author.create!(author_name: "Osamu Dazai", biography: "Author of No Longer Human", nationality: "Japan", created_by_id: admin.id),
   
   # Western Authors
-  orwell: Author.create!(author_name: "George Orwell", biography: "Author of 1984 and Animal Farm", nationality: "United Kingdom", created_by: admin.id),
-  tolkien: Author.create!(author_name: "J.R.R. Tolkien", biography: "Creator of Middle-earth and The Lord of the Rings", nationality: "United Kingdom", created_by: admin.id),
-  king: Author.create!(author_name: "Stephen King", biography: "Master of horror and suspense", nationality: "United States", created_by: admin.id),
-  rowling: Author.create!(author_name: "J.K. Rowling", biography: "Creator of Harry Potter series", nationality: "United Kingdom", created_by: admin.id)
+  orwell: Author.create!(author_name: "George Orwell", biography: "Author of 1984 and Animal Farm", nationality: "United Kingdom", created_by_id: admin.id),
+  tolkien: Author.create!(author_name: "J.R.R. Tolkien", biography: "Creator of Middle-earth and The Lord of the Rings", nationality: "United Kingdom", created_by_id: admin.id),
+  king: Author.create!(author_name: "Stephen King", biography: "Master of horror and suspense", nationality: "United States", created_by_id: admin.id),
+  rowling: Author.create!(author_name: "J.K. Rowling", biography: "Creator of Harry Potter series", nationality: "United Kingdom", created_by_id: admin.id)
 }
 puts "✅ #{Author.count} authors created!"
 
@@ -116,7 +116,7 @@ inazuma_books.each do |book|
     publication_date: Faker::Date.between(from: 3.years.ago, to: Date.today),
     pages: book[:pages],
     language: "English",
-    created_by: admin.id
+    created_by_id: admin.id
   )
   ProductAuthor.create!(product: product, author: authors[book[:author]])
   product_count += 1
@@ -176,10 +176,10 @@ real_world_books.each do |book|
   print "." if product_count % 10 == 0
 end
 
-puts "\n#{real_world_books.count} real world books created!"
+puts "\n✅ #{real_world_books.count} real world books created!"
 
 # ADDITIONAL BOOKS TO REACH 100+
-puts "\n Creating Additional Books..."
+puts "\n📚 Creating Additional Books..."
 
 additional_authors = []
 10.times do
@@ -187,7 +187,7 @@ additional_authors = []
     author_name: Faker::Book.unique.author,
     biography: Faker::Lorem.paragraph(sentence_count: 2),
     nationality: ["Japan", "Inazuma", "United States", "United Kingdom"].sample,
-    created_by: admin.id
+    created_by_id: admin.id
   )
 end
 
@@ -214,24 +214,24 @@ remaining_books_needed.times do
   print "." if product_count % 10 == 0
 end
 
-puts "\n Additional books created to reach #{product_count} total!"
+puts "\n✅ Additional books created to reach #{product_count} total!"
 
 # Create Site Content
-puts "\n Creating Site Content..."
+puts "\n📄 Creating Site Content..."
 
 SiteContent.create!(
   page_name: "about",
   content: "Welcome to Yae Publishing House, founded by the illustrious Lady Yae Miko, Guuji of the Grand Narukami Shrine. Since 1986, we have been dedicated to bringing the finest literature from Inazuma and around the world to readers everywhere. Our collection spans light novels, manga, graphic novels, fantasy, science fiction, horror, and much more - carefully curated to delight and inspire readers of all ages.",
-  updated_by: admin.id
+  updated_by_id: admin.id
 )
 
 SiteContent.create!(
   page_name: "contact",
   content: "Yae Publishing House\nGrand Narukami Shrine, Inazuma City\nEmail: contact@yaepublishing.com\nPhone: +81-123-456-7890\nBusiness Hours: 9:00 AM - 6:00 PM (Inazuma Time)\n\nVisit us at the foot of Mt. Yougou, where literature and tradition meet.",
-  updated_by: admin.id
+  updated_by_id: admin.id
 )
 
-puts "Site content created!"
+puts "✅ Site content created!"
 
 # Create Sample Customers
 puts "\n👥 Creating Sample Customers..."
@@ -251,7 +251,7 @@ puts "\n👥 Creating Sample Customers..."
   )
 end
 
-puts "5 sample customers created!"
+puts "✅ 5 sample customers created!"
 
 # Summary
 puts "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -267,5 +267,5 @@ puts "  🔗 Product-Author Links: #{ProductAuthor.count}"
 puts "  📄 Site Content Pages: #{SiteContent.count}"
 puts "\n🔐 Admin Login:"
 puts "  Username: yaemiko"
-puts "  Password: $$YBH86"
-puts "\n✨ May the Sacred Sakura bless your publishing ventures!"
+puts "  Password: YaeMiko2024!"
+puts "\n✨ May the Sacred Sakura bless your publishing ventures! ✨"
