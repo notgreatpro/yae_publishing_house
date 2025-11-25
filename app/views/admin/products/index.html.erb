@@ -7,7 +7,7 @@
   <table style="width: 100%; border-collapse: collapse;">
     <thead>
       <tr style="border-bottom: 2px solid #ddd;">
-        <th style="padding: 1rem; text-align: left;">Title</th>
+        <th style="padding: 1rem; text-align: left;">Product</th>
         <th style="padding: 1rem; text-align: left;">Category</th>
         <th style="padding: 1rem; text-align: left;">Price</th>
         <th style="padding: 1rem; text-align: left;">Stock</th>
@@ -19,8 +19,19 @@
       <% @products.each do |product| %>
         <tr style="border-bottom: 1px solid #eee;">
           <td style="padding: 1rem;">
-            <strong><%= product.title %></strong><br>
-            <small style="color: #666;"><%= product.isbn %></small>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <% if product.cover_image.attached? %>
+                <%= image_tag product.cover_image, style: "width: 60px; height: 80px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;" %>
+              <% else %>
+                <div style="width: 60px; height: 80px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 2rem;">
+                  📚
+                </div>
+              <% end %>
+              <div>
+                <strong><%= product.title %></strong><br>
+                <small style="color: #666;"><%= product.isbn %></small>
+              </div>
+            </div>
           </td>
           <td style="padding: 1rem;"><%= product.category.category_name %></td>
           <td style="padding: 1rem;">$<%= sprintf('%.2f', product.current_price) %></td>

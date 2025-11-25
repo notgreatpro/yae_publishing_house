@@ -1,7 +1,10 @@
 class Product < ApplicationRecord
+  # Active Storage - Add this line
+  has_one_attached :cover_image
+  
   # Associations
   belongs_to :category
-  belongs_to :admin, foreign_key: 'created_by', optional: true
+  belongs_to :admin, foreign_key: 'created_by_id', optional: true
   has_many :product_authors, dependent: :destroy
   has_many :authors, through: :product_authors
   has_many :order_items, dependent: :destroy

@@ -81,7 +81,8 @@ class Admin::ProductsController < ApplicationController
   def product_params
     params.require(:product).permit(
       :title, :isbn, :description, :current_price, :stock_quantity,
-      :category_id, :publisher, :publication_date, :pages, :language
+      :category_id, :publisher, :publication_date, :pages, :language,
+      :cover_image
     )
   end
 
