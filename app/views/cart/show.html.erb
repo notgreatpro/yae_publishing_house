@@ -1,0 +1,503 @@
+<!-- app/views/cart/show.html.erb -->
+<!-- Features 3.1.1 & 3.1.2 - Shopping Cart (8%) -->
+
+<div class="container">
+  <div class="breadcrumb">
+    <%= link_to 'Home', root_path %> &gt; Shopping Cart
+  </div>
+
+  <header class="cart-header">
+    <h1> Your Shopping Cart</h1>
+  </header>
+
+  <% if @cart_items.any? %>
+    <div class="cart-content">
+      <div class="cart-items">
+        <% @cart_items.each do |item| %>
+          <div class="cart-item">
+            <div class="item-image">
+              <% if item[:product].cover_image.attached? %>
+                <%= image_tag item[:product].cover_image, alt: item[:product].title %>
+              <% else %>
+                <div class="placeholder-image-small">
+                  <span>📚</span>
+                </div>
+              <% end %>
+            </div>
+
+            <div class="item-details">
+              <h3 class="item-title">
+                <%= link_to item[:product].title, product_path(item[:product]) %>
+              </h3>
+              
+              <% if item[:product].authors.any? %>
+                <p class="item-author">
+                  by <%= item[:product].authors.map(&:author_name).join(', ') %>
+                </p>
+              <% end %>
+              
+              <p class="item-price">
+                <%= number_to_currency(item[:product].current_price) %> each
+              </p>
+            </div>
+
+            <div class="item-quantity">
+              <label>Quantity:</label>
+              <%= form_with url: cart_update_path(item[:product].id), method: :patch, local: true, class: 'quantity-form' do |f| %>
+                <%= f.number_field :quantity, 
+                    value: item[:quantity], 
+                    min: 1, 
+                    max: item[:product].stock_quantity || 99,
+                    class: 'quantity-input' %>
+                <%= f.submit 'Update', class: 'btn-update-qty' %>
+              <% end %>
+            </div>
+
+            <div class="item-total">
+              <p class="item-subtotal">
+                <%= number_to_currency(item[:item_total]) %>
+              </p>
+            </div>
+
+            <div class="item-remove">
+              <%= button_to 'Remove', 
+                  cart_remove_path(item[:product].id), 
+                  method: :delete,
+                  data: { confirm: 'Remove this item from cart?' },
+                  class: 'btn-remove' %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="cart-summary">
+        <h2>Order Summary</h2>
+        
+        <div class="summary-row">
+          <span>Subtotal (<%= pluralize(@cart_items.sum { |i| i[:quantity] }, 'item') %>):</span>
+          <span class="summary-value"><%= number_to_currency(@total) %></span>
+        </div>
+        
+        <div class="summary-row shipping-info">
+          <span>Shipping:</span>
+          <span class="summary-value">Calculated at checkout</span>
+        </div>
+        
+        <div class="summary-row tax-info">
+          <span>Tax:</span>
+          <span class="summary-value">Calculated at checkout</span>
+        </div>
+        
+        <hr>
+        
+        <div class="summary-row total-row">
+          <span>Estimated Total:</span>
+          <span class="summary-value"><%= number_to_currency(@total) %></span>
+        </div>
+
+        <div class="cart-actions">
+          <%= link_to 'Proceed to Checkout', '#', class: 'btn-checkout disabled-btn' %>
+          <p class="checkout-note">Checkout coming soon!</p>
+          
+          <%= link_to 'Continue Shopping', products_path, class: 'btn-continue' %>
+          
+          <%= button_to 'Clear Cart', 
+              cart_clear_path, 
+              method: :delete,
+              data: { confirm: 'Are you sure you want to clear your entire cart?' },
+              class: 'btn-clear-cart' %>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="empty-cart">
+      <h2>Your cart is empty</h2>
+      <p>You can add more books here!</p>
+      <%= link_to 'Browse Books', products_path, class: 'btn-browse' %>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .breadcrumb {
+    margin-bottom: 20px;
+    color: #7f8c8d;
+    font-size: 0.9em;
+  }
+
+  .breadcrumb a {
+    color: #3498db;
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .cart-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px 0;
+    border-bottom: 2px solid #ecf0f1;
+  }
+
+  .cart-header h1 {
+    font-size: 2.5em;
+    color: #2c3e50;
+    margin: 0;
+  }
+
+  .cart-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin-bottom: 40px;
+  }
+
+  .cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .cart-item {
+    display: grid;
+    grid-template-columns: 100px 2fr 150px 120px 80px;
+    gap: 20px;
+    padding: 20px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    align-items: center;
+  }
+
+  .item-image {
+    width: 100px;
+    height: 140px;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+
+  .item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .placeholder-image-small {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    border-radius: 4px;
+  }
+
+  .item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .item-title {
+    font-size: 1.2em;
+    margin: 0;
+    color: #2c3e50;
+  }
+
+  .item-title a {
+    color: #2c3e50;
+    text-decoration: none;
+  }
+
+  .item-title a:hover {
+    color: #3498db;
+    text-decoration: underline;
+  }
+
+  .item-author {
+    color: #7f8c8d;
+    font-style: italic;
+    margin: 0;
+    font-size: 0.9em;
+  }
+
+  .item-price {
+    color: #27ae60;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .item-quantity {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .item-quantity label {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    font-weight: 500;
+  }
+
+  .quantity-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .quantity-input {
+    width: 60px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+    text-align: center;
+  }
+
+  .btn-update-qty {
+    padding: 8px 12px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: background 0.3s;
+  }
+
+  .btn-update-qty:hover {
+    background: #2980b9;
+  }
+
+  .item-total {
+    text-align: right;
+  }
+
+  .item-subtotal {
+    font-size: 1.3em;
+    color: #2c3e50;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .item-remove {
+    display: flex;
+    justify-content: center;
+  }
+
+  .btn-remove {
+    padding: 8px 16px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background 0.3s;
+  }
+
+  .btn-remove:hover {
+    background: #c0392b;
+  }
+
+  .cart-summary {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+  }
+
+  .cart-summary h2 {
+    font-size: 1.5em;
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    color: #2c3e50;
+  }
+
+  .summary-value {
+    font-weight: 600;
+  }
+
+  .shipping-info,
+  .tax-info {
+    font-size: 0.9em;
+    color: #7f8c8d;
+  }
+
+  .total-row {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-top: 15px;
+  }
+
+  hr {
+    border: none;
+    border-top: 2px solid #ddd;
+    margin: 20px 0;
+  }
+
+  .cart-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 25px;
+  }
+
+  .btn-checkout {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background: #27ae60;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1.1em;
+    transition: background 0.3s;
+  }
+
+  .btn-checkout:hover {
+    background: #229954;
+    text-decoration: none;
+  }
+
+  .disabled-btn {
+    background: #95a5a6;
+    cursor: not-allowed;
+  }
+
+  .disabled-btn:hover {
+    background: #95a5a6;
+  }
+
+  .checkout-note {
+    text-align: center;
+    font-size: 0.85em;
+    color: #7f8c8d;
+    margin: -10px 0 0 0;
+  }
+
+  .btn-continue {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: #3498db;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background 0.3s;
+  }
+
+  .btn-continue:hover {
+    background: #2980b9;
+    text-decoration: none;
+  }
+
+  .btn-clear-cart {
+    width: 100%;
+    padding: 10px;
+    background: white;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+  }
+
+  .btn-clear-cart:hover {
+    background: #e74c3c;
+    color: white;
+  }
+
+  .empty-cart {
+    text-align: center;
+    padding: 80px 20px;
+  }
+
+  .empty-cart-icon {
+    font-size: 5em;
+    margin-bottom: 20px;
+  }
+
+  .empty-cart h2 {
+    font-size: 2em;
+    color: #2c3e50;
+    margin-bottom: 15px;
+  }
+
+  .empty-cart p {
+    font-size: 1.2em;
+    color: #7f8c8d;
+    margin-bottom: 30px;
+  }
+
+  .btn-browse {
+    display: inline-block;
+    padding: 15px 30px;
+    background: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1.1em;
+    transition: background 0.3s;
+  }
+
+  .btn-browse:hover {
+    background: #2980b9;
+    text-decoration: none;
+  }
+
+  @media (max-width: 1024px) {
+    .cart-content {
+      grid-template-columns: 1fr;
+    }
+
+    .cart-summary {
+      position: static;
+    }
+
+    .cart-item {
+      grid-template-columns: 80px 1fr;
+      grid-template-rows: auto auto auto;
+      gap: 15px;
+    }
+
+    .item-image {
+      grid-row: 1 / 3;
+    }
+
+    .item-details {
+      grid-column: 2;
+    }
+
+    .item-quantity,
+    .item-total,
+    .item-remove {
+      grid-column: 1 / 3;
+      justify-self: start;
+    }
+  }
+</style>

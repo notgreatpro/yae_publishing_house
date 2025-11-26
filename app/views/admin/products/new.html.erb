@@ -1,4 +1,4 @@
-<h1>➕ Add New Product</h1>
+<h1>Add New Book</h1>
 
 <div style="background: white; border-radius: 8px; padding: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 800px;">
   <%= form_with model: [:admin, @product], local: true do |f| %>
@@ -74,13 +74,13 @@
     </div>
 
     <div style="margin-bottom: 1.5rem;">
-      <%= f.label :cover_image, "Product Cover Image", style: "display: block; margin-bottom: 0.5rem; font-weight: bold;" %>
+      <%= f.label :cover_image, "Book Cover Image", style: "display: block; margin-bottom: 0.5rem; font-weight: bold;" %>
       <%= f.file_field :cover_image, accept: "image/*", style: "width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" %>
       <small style="color: #666;">Accepted formats: JPG, PNG, GIF</small>
     </div>
 
     <div style="display: flex; gap: 1rem;">
-      <%= f.submit "Create Product", style: "background: #5b7c99; color: white; padding: 0.75rem 2rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem;" %>
+      <%= f.submit "Create Book", style: "background: #5b7c99; color: white; padding: 0.75rem 2rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem;" %>
       <%= link_to "Cancel", admin_products_path, style: "background: #6c757d; color: white; padding: 0.75rem 2rem; border-radius: 4px; text-decoration: none; display: inline-block;" %>
     </div>
   <% end %>

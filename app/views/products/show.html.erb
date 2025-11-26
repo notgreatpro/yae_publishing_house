@@ -53,11 +53,22 @@
         <% end %>
       </div>
 
-      <!-- Future: Shopping cart button (Feature 3.1.1) -->
+      <!-- Feature 3.1.1: Add to Cart functionality (4%) -->
       <div class="action-buttons">
-        <button class="btn-add-to-cart" disabled>
-          Add to Cart (Coming Soon)
-        </button>
+        <%= form_with url: cart_add_path, method: :post, local: true, class: 'add-to-cart-form' do |f| %>
+          <%= f.hidden_field :product_id, value: @product.id %>
+          
+          <div class="quantity-selector">
+            <label for="quantity">Quantity:</label>
+            <%= f.number_field :quantity, value: 1, min: 1, max: @product.stock_quantity || 99, class: 'quantity-input' %>
+          </div>
+          
+          <% if @product.stock_quantity && @product.stock_quantity > 0 %>
+            <%= f.submit 'Add to Cart', class: 'btn-add-to-cart' %>
+          <% else %>
+            <button class="btn-add-to-cart" disabled>Out of Stock</button>
+          <% end %>
+        <% end %>
       </div>
 
       <div class="product-description">
@@ -242,25 +253,52 @@
     margin: 30px 0;
   }
 
+  .add-to-cart-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .quantity-selector label {
+    font-weight: 600;
+    color: #2c3e50;
+  }
+
+  .quantity-input {
+    width: 80px;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 1.1em;
+    text-align: center;
+  }
+
   .btn-add-to-cart {
     width: 100%;
     padding: 18px;
-    background: #3498db;
+    background: #27ae60;
     color: white;
     border: none;
     border-radius: 8px;
     font-size: 1.2em;
     font-weight: 600;
-    cursor: not-allowed;
+    cursor: pointer;
     transition: background 0.3s;
   }
 
-  .btn-add-to-cart:not(:disabled) {
-    cursor: pointer;
+  .btn-add-to-cart:not(:disabled):hover {
+    background: #229954;
   }
 
-  .btn-add-to-cart:not(:disabled):hover {
-    background: #2980b9;
+  .btn-add-to-cart:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
   }
 
   .product-description {

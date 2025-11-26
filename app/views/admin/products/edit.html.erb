@@ -1,10 +1,10 @@
-<h1>✏️ Edit Product</h1>
+<h1>Edit Books</h1>
 
 <div style="background: white; border-radius: 8px; padding: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 800px;">
   <%= form_with model: [:admin, @product], local: true do |f| %>
     <% if @product.errors.any? %>
       <div style="background: #f8d7da; color: #721c24; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
-        <h3>Please fix these errors:</h3>
+        <h3>ERROR:</h3>
         <ul>
           <% @product.errors.full_messages.each do |message| %>
             <li><%= message %></li>
@@ -84,7 +84,7 @@
       <% end %>
       
       <%= f.file_field :cover_image, accept: "image/*", style: "width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" %>
-      <small style="color: #666;">Upload a new image to replace the current one</small>
+      <small style="color: #666;">Upload a new image to replace the placeholder!</small>
     </div>
 
     <div style="display: flex; gap: 1rem;">

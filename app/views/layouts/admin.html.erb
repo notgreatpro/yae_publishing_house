@@ -13,7 +13,7 @@
   <body>
     <header style="background: #5b7c99; color: white; padding: 1rem;">
       <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
-        <h1 style="margin: 0;">📚 Yae Publishing House - Admin</h1>
+        <h1 style="margin: 0;">Yae Publishing House - Admin</h1>
         <% if session[:admin_id] %>
           <%= button_to "Logout", admin_logout_path, method: :delete, style: "color: white; text-decoration: none; background: #e74c3c; padding: 0.5rem 1rem; border-radius: 4px; border: none; cursor: pointer;" %>
         <% end %>
