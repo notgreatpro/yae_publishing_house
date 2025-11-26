@@ -1,17 +1,29 @@
 class Customer < ApplicationRecord
-  # Password encryption
-  has_secure_password
+  # Devise handles authentication
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :validatable
   
   # Associations
   has_many :orders, dependent: :destroy
   
   # Validations
-  validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
+  # Basic info required for signup
   validates :first_name, presence: true, length: { maximum: 50 }
   validates :last_name, presence: true, length: { maximum: 50 }
   validates :phone, length: { maximum: 20 }, allow_blank: true
-  validates :city, presence: true, length: { maximum: 100 }
-  validates :country, presence: true, length: { maximum: 100 }
-  validates :postal_code, presence: true, format: { with: /\A[\w\- ]+\z/ }
-  validates :password, length: { minimum: 6 }, if: -> { new_record? || !password.nil? }
+  
+  # Address fields are OPTIONAL (users can add during checkout)
+  validates :city, length: { maximum: 100 }, allow_blank: true
+  validates :country, length: { maximum: 100 }, allow_blank: true
+  validates :postal_code, format: { with: /\A[\w\- ]+\z/ }, allow_blank: true
+  
+  # Helper method to get full name
+  def full_name
+    "#{first_name} #{last_name}".strip
+  end
+  
+  # Check if customer has complete address
+  def has_complete_address?
+    city.present? && country.present? && postal_code.present? && address_line_1.present?
+  end
 end

@@ -1,0 +1,181 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>📚 Sign Up - Yae Publishing House</h2>
+
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+      <% if resource.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(resource.errors.count, "error") %> prohibited this customer from being saved:</h2>
+          <ul>
+            <% resource.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="field">
+        <%= f.label :first_name %>
+        <%= f.text_field :first_name, autofocus: true, class: 'form-input', placeholder: "First name" %>
+      </div>
+
+      <div class="field">
+        <%= f.label :last_name %>
+        <%= f.text_field :last_name, class: 'form-input', placeholder: "Last name" %>
+      </div>
+
+      <div class="field">
+        <%= f.label :email %>
+        <%= f.email_field :email, autocomplete: "email", class: 'form-input', placeholder: "your.email@example.com" %>
+      </div>
+
+      <div class="field">
+        <%= f.label :password %>
+        <% if @minimum_password_length %>
+        <em>(<%= @minimum_password_length %> characters minimum)</em>
+        <% end %>
+        <%= f.password_field :password, autocomplete: "new-password", class: 'form-input', placeholder: "••••••••" %>
+      </div>
+
+      <div class="field">
+        <%= f.label :password_confirmation, "Confirm Password" %>
+        <%= f.password_field :password_confirmation, autocomplete: "new-password", class: 'form-input', placeholder: "••••••••" %>
+      </div>
+
+      <div class="actions">
+        <%= f.submit "Sign Up", class: 'btn-submit' %>
+      </div>
+    <% end %>
+
+    <div class="auth-links">
+      <p>Already have an account? <%= link_to "Log in", new_customer_session_path %></p>
+    </div>
+  </div>
+</div>
+
+<style>
+  body {
+    background: #f8f9fa;
+  }
+
+  .auth-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .auth-card {
+    max-width: 500px;
+    width: 100%;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+
+  .auth-card h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 1.8em;
+  }
+
+  #error_explanation {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+    color: #721c24;
+  }
+
+  #error_explanation h2 {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color: #721c24;
+  }
+
+  #error_explanation ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  #error_explanation li {
+    margin: 5px 0;
+  }
+
+  .field {
+    margin-bottom: 25px;
+  }
+
+  .field label {
+    display: block;
+    margin-bottom: 8px;
+    color: #2c3e50;
+    font-weight: 600;
+  }
+
+  .field em {
+    color: #7f8c8d;
+    font-size: 0.85em;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #3498db;
+  }
+
+  .actions {
+    margin-top: 30px;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .btn-submit:hover {
+    background: #229954;
+  }
+
+  .auth-links {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid #ecf0f1;
+  }
+
+  .auth-links p {
+    margin: 10px 0;
+    color: #2c3e50;
+  }
+
+  .auth-links a {
+    color: #3498db;
+    text-decoration: none;
+  }
+
+  .auth-links a:hover {
+    text-decoration: underline;
+  }
+</style>

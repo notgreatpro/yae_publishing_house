@@ -30,6 +30,7 @@ gem "solid_cable"
 gem "bcrypt", "~> 3.1.7"
 gem 'faker'
 gem 'kaminari'
+gem 'devise'
 
 
 # Reduces boot times through caching; required in config/boot.rb

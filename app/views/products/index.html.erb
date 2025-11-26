@@ -3,7 +3,7 @@
 <div class="container">
   <header class="page-header">
     <h1>Yae Publishing House</h1>
-    <p class="tagline">Discover Your Next Great Read</p>
+    <p class="tagline">Inazumas biggest book publishing since 1984!</p>
   </header>
 
   <!-- Feature 2.2: Browse by Category -->
@@ -18,9 +18,8 @@
     </div>
   <% end %>
 
-  <!-- Feature 2.6: Search by Keyword & Category (4%) ⭐ -->
   <div class="search-section">
-    <h3>🔍 Search Books</h3>
+    <h3>Search Books</h3>
     <%= form_with url: search_products_path, method: :get, local: true, class: 'search-form' do |f| %>
       <div class="search-inputs">
         <%= f.text_field :keyword, 
@@ -46,7 +45,6 @@
   </div>
 
   <div class="products-grid">
-    <!-- Feature 4.1.4: Using partials to DRY up views ⭐ -->
     <%= render partial: 'products/product_card', collection: @products, as: :product %>
   </div>
 
@@ -248,12 +246,12 @@
   }
 
   .pagination a:hover {
-    background: #3498db;
+    background: #824094;
     color: white;
   }
 
   .pagination .current {
-    background: #3498db;
+    background: #f593ce;
     color: white;
     font-weight: bold;
   }

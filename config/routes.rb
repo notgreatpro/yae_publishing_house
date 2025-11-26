@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  devise_for :customers
   # Customer-facing routes (public store)
   root 'products#index'  # This is your front page for customers! ⭐
   
