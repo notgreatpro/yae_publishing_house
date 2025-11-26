@@ -60,4 +60,29 @@ class ProductsController < ApplicationController
     @products = @products.page(params[:page]).per(12)
     render :index
   end
+  
+  # Feature 2.6 - Search by keyword and category (4%) ⭐
+  def search
+    @categories = Category.order(:category_name)
+    @products = Product.includes(:category, :authors)
+    
+    # Keyword search in title or description
+    if params[:keyword].present?
+      keyword = "%#{params[:keyword]}%"
+      @products = @products.where(
+        'title LIKE ? OR description LIKE ?', 
+        keyword, keyword
+      )
+    end
+    
+    # Filter by category
+    if params[:category_id].present? && params[:category_id] != ''
+      @products = @products.where(category_id: params[:category_id])
+    end
+    
+    @products = @products.order(created_at: :desc).page(params[:page]).per(12)
+    
+    # Render the index view with search results
+    render :index
+  end
 end

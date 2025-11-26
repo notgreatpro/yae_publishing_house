@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   
   resources :products, only: [:index, :show] do
     collection do
-      get 'search'  # For future feature 2.6 (search)
+      get 'search'  # Feature 2.6 - Search functionality ⭐
     end
   end
   

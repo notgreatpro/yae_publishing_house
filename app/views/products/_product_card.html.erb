@@ -1,0 +1,28 @@
+<!-- app/views/products/_product_card.html.erb -->
+<div class="product-card">
+  <div class="product-image">
+    <% if product.cover_image.attached? %>
+      <%= image_tag product.cover_image, alt: product.title %>
+    <% else %>
+      <div class="placeholder-image">
+        <span>📚</span>
+      </div>
+    <% end %>
+  </div>
+  
+  <div class="product-info">
+    <h3 class="product-title"><%= product.title %></h3>
+    
+    <% if product.authors.any? %>
+      <p class="product-author">
+        by <%= product.authors.map(&:author_name).join(', ') %>
+      </p>
+    <% end %>
+    
+    <p class="product-price">
+      <%= number_to_currency(product.current_price) %>
+    </p>
+    
+    <%= link_to 'View Details', product_path(product), class: 'btn-view-details' %>
+  </div>
+</div>
