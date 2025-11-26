@@ -33,14 +33,14 @@
         </div>
         
         <div class="nav-links">
-          <% if customer_signed_in? %>
+          <%= link_to "Home", products_path, class: 'nav-link' %>
+           <% if customer_signed_in? %>
               <span class="nav-link">Hello, <%= current_customer.full_name %></span>
                 <%= link_to "Log Out", destroy_customer_session_path, data: { turbo_method: :delete }, class: 'nav-link' %>
             <% else %>
                <%= link_to "Log In", new_customer_session_path, class: 'nav-link' %>
                 <%= link_to "Sign Up", new_customer_registration_path, class: 'nav-link' %>
             <% end %>
-          <%= link_to "Browse Books", products_path, class: 'nav-link' %>
           <%= link_to "Your Cart (#{cart_count})", cart_path, class: 'nav-link cart-link' %>
         </div>
       </div>

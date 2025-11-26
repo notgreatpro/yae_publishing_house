@@ -1,5 +1,4 @@
 <!-- app/views/products/show.html.erb -->
-<!-- Feature 2.3 - View details of any product on their own page ⭐ -->
 
 <div class="container">
   <div class="breadcrumb">
@@ -14,7 +13,6 @@
         <%= image_tag @product.cover_image, alt: @product.title, class: 'main-image' %>
       <% else %>
         <div class="placeholder-image-large">
-          <span>📚</span>
           <p>No cover image available</p>
         </div>
       <% end %>
@@ -53,7 +51,6 @@
         <% end %>
       </div>
 
-      <!-- Feature 3.1.1: Add to Cart functionality (4%) -->
       <div class="action-buttons">
         <%= form_with url: cart_add_path, method: :post, local: true, class: 'add-to-cart-form' do |f| %>
           <%= f.hidden_field :product_id, value: @product.id %>
