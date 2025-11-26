@@ -7,20 +7,28 @@ class ProductsController < ApplicationController
   # GET / or GET /products
   # Feature 2.1 - Navigate through products on front page ⭐
   def index
+    # Feature 2.2 - Load categories for navigation (2%)
+    @categories = Category.order(:category_name)
+    
     @products = Product.includes(:category, :authors)
                       .order(created_at: :desc)
-                      .page(params[:page])
-                      .per(12)  # Show 12 products per page for customers
     
-    # Future feature 2.4 - Filtering
-    if params[:filter] == 'new'
+    # Feature 2.4 - Filtering (2%)
+    case params[:filter]
+    when 'new'
+      # New products added within the past 3 days
       @products = @products.where('created_at >= ?', 3.days.ago)
-    elsif params[:filter] == 'updated'
+    when 'updated'
+      # Recently updated (within 3 days) but NOT newly created
       @products = @products.where('updated_at >= ?', 3.days.ago)
                           .where('created_at < ?', 3.days.ago)
-    elsif params[:filter] == 'sale'
-      @products = @products.where(on_sale: true) # Add this column if needed
+    when 'sale'
+      # On sale products (you'll need to add this column if you want to use it)
+      @products = @products.where(on_sale: true)
     end
+    
+    # Feature 2.5 - Pagination (2%)
+    @products = @products.page(params[:page]).per(12)
   end
 
   # GET /products/:id

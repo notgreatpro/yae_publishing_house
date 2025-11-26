@@ -6,6 +6,26 @@
     <p class="tagline">Discover Your Next Great Read</p>
   </header>
 
+  <!-- Feature 2.2: Browse by Category -->
+  <% if @categories && @categories.any? %>
+    <div class="categories-nav">
+      <h3>Browse by Category</h3>
+      <div class="category-buttons">
+        <% @categories.each do |category| %>
+          <%= link_to category.category_name, category_path(category), class: 'category-btn' %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Feature 2.4: Filters for new/updated/sale products -->
+  <div class="filters-bar">
+    <%= link_to 'All Products', products_path, class: "filter-btn #{params[:filter].blank? ? 'active' : ''}" %>
+    <%= link_to 'New Arrivals', products_path(filter: 'new'), class: "filter-btn #{params[:filter] == 'new' ? 'active' : ''}" %>
+    <%= link_to 'Recently Updated', products_path(filter: 'updated'), class: "filter-btn #{params[:filter] == 'updated' ? 'active' : ''}" %>
+    <%= link_to 'On Sale', products_path(filter: 'sale'), class: "filter-btn #{params[:filter] == 'sale' ? 'active' : ''}" %>
+  </div>
+
   <div class="products-grid">
     <% @products.each do |product| %>
       <div class="product-card">
@@ -29,13 +49,18 @@
           <% end %>
           
           <p class="product-price">
-            <%= number_to_currency(product.price) %>
+            <%= number_to_currency(product.current_price) %>
           </p>
           
           <%= link_to 'View Details', product_path(product), class: 'btn-view-details' %>
         </div>
       </div>
     <% end %>
+  </div>
+
+  <!-- Feature 2.5: Pagination -->
+  <div class="pagination-container">
+    <%= paginate @products %>
   </div>
 </div>
 
@@ -64,6 +89,72 @@
     font-size: 1.2em;
     color: #7f8c8d;
     font-style: italic;
+  }
+
+  /* Feature 2.2: Category navigation */
+  .categories-nav {
+    margin-bottom: 40px;
+    text-align: center;
+  }
+
+  .categories-nav h3 {
+    font-size: 1.3em;
+    color: #2c3e50;
+    margin-bottom: 20px;
+  }
+
+  .category-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .category-btn {
+    padding: 12px 24px;
+    background: #2c3e50;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .category-btn:hover {
+    background: #34495e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    text-decoration: none;
+  }
+
+  /* Feature 2.4: Filter buttons styling */
+  .filters-bar {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 10px 20px;
+    background: #ecf0f1;
+    color: #2c3e50;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 500;
+    transition: all 0.3s;
+  }
+
+  .filter-btn:hover {
+    background: #bdc3c7;
+    text-decoration: none;
+  }
+
+  .filter-btn.active {
+    background: #3498db;
+    color: white;
   }
 
   .products-grid {
@@ -155,6 +246,47 @@
     background: #2980b9;
     text-decoration: none;
     color: white;
+  }
+
+  /* Feature 2.5: Pagination styling */
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+    margin-bottom: 30px;
+  }
+
+  .pagination {
+    display: flex;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+  }
+
+  .pagination a,
+  .pagination span {
+    padding: 10px 15px;
+    background: #ecf0f1;
+    color: #2c3e50;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s;
+  }
+
+  .pagination a:hover {
+    background: #3498db;
+    color: white;
+  }
+
+  .pagination .current {
+    background: #3498db;
+    color: white;
+    font-weight: bold;
+  }
+
+  .pagination .disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   /* Responsive design */
