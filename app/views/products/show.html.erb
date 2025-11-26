@@ -1,0 +1,338 @@
+<!-- app/views/products/show.html.erb -->
+<!-- Feature 2.3 - View details of any product on their own page ⭐ -->
+
+<div class="container">
+  <div class="breadcrumb">
+    <%= link_to 'Home', root_path %> &gt; 
+    <%= link_to 'Products', products_path %> &gt; 
+    <%= @product.title %>
+  </div>
+
+  <div class="product-detail">
+    <div class="product-detail-image">
+      <% if @product.cover_image.attached? %>
+        <%= image_tag @product.cover_image, alt: @product.title, class: 'main-image' %>
+      <% else %>
+        <div class="placeholder-image-large">
+          <span>📚</span>
+          <p>No cover image available</p>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="product-detail-info">
+      <h1 class="product-title"><%= @product.title %></h1>
+      
+      <% if @product.authors.any? %>
+        <p class="product-author">
+          by <%= @product.authors.map(&:author_name).join(', ') %>
+        </p>
+      <% end %>
+
+      <div class="product-meta">
+        <% if @product.category %>
+          <span class="badge category-badge">
+            <%= @product.category.category_name %>
+          </span>
+        <% end %>
+        
+        <% if @product.created_at >= 3.days.ago %>
+          <span class="badge new-badge">NEW</span>
+        <% end %>
+      </div>
+
+      <div class="product-price-section">
+        <p class="product-price"><%= number_to_currency(@product.current_price) %></p>
+        
+        <% if @product.stock_quantity && @product.stock_quantity > 0 %>
+          <p class="stock-status in-stock">
+            ✓ In Stock (<%= @product.stock_quantity %> available)
+          </p>
+        <% else %>
+          <p class="stock-status out-of-stock">Out of Stock</p>
+        <% end %>
+      </div>
+
+      <!-- Future: Shopping cart button (Feature 3.1.1) -->
+      <div class="action-buttons">
+        <button class="btn-add-to-cart" disabled>
+          Add to Cart (Coming Soon)
+        </button>
+      </div>
+
+      <div class="product-description">
+        <h3>About This Book</h3>
+        <%= simple_format(@product.description) %>
+      </div>
+
+      <div class="product-details-grid">
+        <% if @product.isbn.present? %>
+          <div class="detail-item">
+            <strong>ISBN:</strong>
+            <span><%= @product.isbn %></span>
+          </div>
+        <% end %>
+
+        <% if @product.publisher.present? %>
+          <div class="detail-item">
+            <strong>Publisher:</strong>
+            <span><%= @product.publisher %></span>
+          </div>
+        <% end %>
+
+        <% if @product.publication_date.present? %>
+          <div class="detail-item">
+            <strong>Publication Date:</strong>
+            <span><%= @product.publication_date.strftime('%B %d, %Y') %></span>
+          </div>
+        <% end %>
+
+        <% if @product.pages.present? %>
+          <div class="detail-item">
+            <strong>Pages:</strong>
+            <span><%= @product.pages %></span>
+          </div>
+        <% end %>
+
+        <% if @product.language.present? %>
+          <div class="detail-item">
+            <strong>Language:</strong>
+            <span><%= @product.language %></span>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="back-link">
+        <%= link_to '← Back to Products', products_path, class: 'btn-back' %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .breadcrumb {
+    margin-bottom: 30px;
+    color: #7f8c8d;
+    font-size: 0.9em;
+  }
+
+  .breadcrumb a {
+    color: #3498db;
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .product-detail {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 40px;
+    margin-top: 20px;
+  }
+
+  .product-detail-image {
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+  }
+
+  .main-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .placeholder-image-large {
+    width: 100%;
+    aspect-ratio: 2/3;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 6em;
+  }
+
+  .placeholder-image-large p {
+    font-size: 0.2em;
+    color: white;
+    margin-top: 20px;
+  }
+
+  .product-detail-info {
+    padding: 20px 0;
+  }
+
+  .product-title {
+    font-size: 2.5em;
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    line-height: 1.2;
+  }
+
+  .product-author {
+    font-size: 1.3em;
+    color: #7f8c8d;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+
+  .product-meta {
+    margin-bottom: 20px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 600;
+    margin-right: 10px;
+  }
+
+  .category-badge {
+    background: #e8f4f8;
+    color: #2980b9;
+  }
+
+  .new-badge {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .product-price-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+  }
+
+  .product-price {
+    font-size: 2.5em;
+    color: #27ae60;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+  }
+
+  .stock-status {
+    font-size: 1.1em;
+    margin: 10px 0;
+    font-weight: 500;
+  }
+
+  .in-stock {
+    color: #27ae60;
+  }
+
+  .out-of-stock {
+    color: #e74c3c;
+  }
+
+  .action-buttons {
+    margin: 30px 0;
+  }
+
+  .btn-add-to-cart {
+    width: 100%;
+    padding: 18px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2em;
+    font-weight: 600;
+    cursor: not-allowed;
+    transition: background 0.3s;
+  }
+
+  .btn-add-to-cart:not(:disabled) {
+    cursor: pointer;
+  }
+
+  .btn-add-to-cart:not(:disabled):hover {
+    background: #2980b9;
+  }
+
+  .product-description {
+    margin: 40px 0;
+    line-height: 1.8;
+    color: #34495e;
+  }
+
+  .product-description h3 {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    color: #2c3e50;
+  }
+
+  .product-details-grid {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 30px 0;
+  }
+
+  .detail-item {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    padding: 12px 0;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .detail-item:last-child {
+    border-bottom: none;
+  }
+
+  .detail-item strong {
+    color: #7f8c8d;
+  }
+
+  .back-link {
+    margin-top: 40px;
+  }
+
+  .btn-back {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #95a5a6;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.3s;
+  }
+
+  .btn-back:hover {
+    background: #7f8c8d;
+    text-decoration: none;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .product-detail {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .product-detail-image {
+      position: static;
+    }
+
+    .product-title {
+      font-size: 1.8em;
+    }
+
+    .product-price {
+      font-size: 2em;
+    }
+  }
+</style>
