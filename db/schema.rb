@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_26_085544) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_27_150047) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -77,10 +77,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_26_085544) do
     t.string "password_digest"
     t.string "first_name"
     t.string "last_name"
-    t.string "phone"
-    t.string "shipping_address"
     t.string "city"
-    t.string "country"
     t.string "postal_code"
     t.datetime "last_login"
     t.datetime "created_at", null: false
@@ -90,7 +87,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_26_085544) do
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
     t.string "name"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.bigint "province_id"
     t.index ["email"], name: "index_customers_on_email", unique: true
+    t.index ["province_id"], name: "index_customers_on_province_id"
     t.index ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true
   end
 
@@ -151,6 +152,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_26_085544) do
     t.index ["created_by_id"], name: "index_products_on_created_by_id"
   end
 
+  create_table "provinces", force: :cascade do |t|
+    t.string "name"
+    t.decimal "gst_rate"
+    t.decimal "pst_rate"
+    t.decimal "hst_rate"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "site_contents", force: :cascade do |t|
     t.string "page_name"
     t.text "content"
@@ -164,6 +174,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_26_085544) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "authors", "admins", column: "created_by_id"
   add_foreign_key "categories", "admins", column: "created_by_id"
+  add_foreign_key "customers", "provinces"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "customers"

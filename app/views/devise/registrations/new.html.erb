@@ -1,6 +1,6 @@
 <div class="auth-container">
   <div class="auth-card">
-    <h2>📚 Sign Up - Yae Publishing House</h2>
+    <h2>Sign In</h2>
 
     <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
       <% if resource.errors.any? %>
@@ -26,7 +26,7 @@
 
       <div class="field">
         <%= f.label :email %>
-        <%= f.email_field :email, autocomplete: "email", class: 'form-input', placeholder: "your.email@example.com" %>
+        <%= f.email_field :email, autocomplete: "email", class: 'form-input', placeholder: "youremail@example.com" %>
       </div>
 
       <div class="field">
@@ -43,12 +43,12 @@
       </div>
 
       <div class="actions">
-        <%= f.submit "Sign Up", class: 'btn-submit' %>
+        <%= f.submit "Sign In", class: 'btn-submit' %>
       </div>
     <% end %>
 
     <div class="auth-links">
-      <p>Already have an account? <%= link_to "Log in", new_customer_session_path %></p>
+      <p>Already have a Yae Publishing House account? <%= link_to "Log in", new_customer_session_path %></p>
     </div>
   </div>
 </div>

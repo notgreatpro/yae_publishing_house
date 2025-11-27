@@ -30,9 +30,38 @@ Product.destroy_all
 Author.destroy_all
 Category.destroy_all
 SiteContent.destroy_all
+Province.destroy_all  
 Customer.destroy_all
 Admin.destroy_all
 puts " Database cleaned!"
+
+# ---------------------------------------- #
+# PROVINCES 
+# ---------------------------------------- #
+puts "\nCreating Canadian Provinces & Territories..."
+
+provinces_data = [
+  { name: 'Alberta', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
+  { name: 'British Columbia', gst_rate: 5.0, pst_rate: 7.0, hst_rate: 0.0 },
+  { name: 'Manitoba', gst_rate: 5.0, pst_rate: 7.0, hst_rate: 0.0 },
+  { name: 'New Brunswick', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
+  { name: 'Newfoundland and Labrador', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
+  { name: 'Northwest Territories', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
+  { name: 'Nova Scotia', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
+  { name: 'Nunavut', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
+  { name: 'Ontario', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 13.0 },
+  { name: 'Prince Edward Island', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
+  { name: 'Quebec', gst_rate: 5.0, pst_rate: 9.975, hst_rate: 0.0 },
+  { name: 'Saskatchewan', gst_rate: 5.0, pst_rate: 6.0, hst_rate: 0.0 },
+  { name: 'Yukon', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 }
+]
+
+provinces = {}
+provinces_data.each do |province_data|
+  provinces[province_data[:name]] = Province.create!(province_data)
+end
+
+puts "✅ Created #{Province.count} provinces & territories"
 
 # ---------------------------------------- #
 # ADMIN
@@ -258,24 +287,29 @@ puts " Site content created!"
 # ---------------------------------------- #
 # CUSTOMERS
 # ---------------------------------------- #
-puts "\n Creating Sample Customers..."
+puts "\n👥 Creating Sample Customers..."
+
+canadian_cities = ["Toronto", "Vancouver", "Montreal", "Calgary", "Winnipeg", "Edmonton", "Regina", "Saskatoon", "Halifax", "Quebec City", "Victoria", "Kamloops", "London", "Charlottetown"]
+all_provinces = Province.all.to_a
 
 5.times do |i|
+  selected_province = all_provinces.sample
+  
   Customer.create!(
     email: "customer#{i+1}@example.com",
     password: "password123",
     password_confirmation: "password123",
     first_name: Faker::Name.first_name,
     last_name: Faker::Name.last_name,
-    phone: Faker::PhoneNumber.phone_number,
-    shipping_address: Faker::Address.street_address,
-    city: ["Inazuma City", "Ritou", "Watatsumi Island", "Narukami Island"].sample,
-    country: "Inazuma",
-    postal_code: Faker::Address.zip_code
+    address_line1: Faker::Address.street_address,
+    address_line2: [nil, "Apt #{rand(1..20)}", "Unit #{rand(100..999)}"].sample,
+    city: canadian_cities[i],
+    postal_code: "#{('A'..'Z').to_a.sample}#{rand(0..9)}#{('A'..'Z').to_a.sample} #{rand(0..9)}#{('A'..'Z').to_a.sample}#{rand(0..9)}",
+    province_id: selected_province.id
   )
 end
 
-puts " 5 sample customers created!"
+puts "✅ 5 sample customers created with addresses!"
 
 puts "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 puts " SEEDING COMPLETE!"
@@ -283,6 +317,7 @@ puts "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 puts "\n Database Summary:"
 puts "   Admins: #{Admin.count}"
+puts "   Provinces: #{Province.count}"
 puts "   Customers: #{Customer.count}"
 puts "   Categories: #{Category.count}"
 puts "   Authors: #{Author.count}"

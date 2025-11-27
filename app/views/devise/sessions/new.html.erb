@@ -1,7 +1,6 @@
-<!-- app/views/customers/sessions/new.html.erb -->
 <div class="auth-container">
   <div class="auth-card">
-    <h2>📚 Log In - Yae Publishing House</h2>
+    <h2>Log In</h2>
 
     <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
       <div class="field">
@@ -15,7 +14,7 @@
       </div>
 
       <% if devise_mapping.rememberable? %>
-        <div class="field-checkbox">
+        <div class="field checkbox-field">
           <%= f.check_box :remember_me %>
           <%= f.label :remember_me %>
         </div>
@@ -27,7 +26,8 @@
     <% end %>
 
     <div class="auth-links">
-      <%= render "customers/shared/links" %>
+      <p>Don't have a Yae Publishing House account? <%= link_to "Sign up", new_customer_registration_path %></p>
+      <p><%= link_to "Forgot your password?", new_customer_password_path %></p>
     </div>
   </div>
 </div>
@@ -72,23 +72,15 @@
     font-weight: 600;
   }
 
-  .field-checkbox {
-    margin-bottom: 20px;
+  .checkbox-field {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
   }
 
-  .field-checkbox input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-  }
-
-  .field-checkbox label {
-    margin: 0;
-    cursor: pointer;
-    color: #2c3e50;
+  .checkbox-field label {
+    margin-bottom: 0;
+    font-weight: normal;
   }
 
   .form-input {
@@ -113,7 +105,7 @@
   .btn-submit {
     width: 100%;
     padding: 15px;
-    background: #3498db;
+    background: #27ae60;
     color: white;
     border: none;
     border-radius: 8px;
@@ -124,7 +116,7 @@
   }
 
   .btn-submit:hover {
-    background: #2980b9;
+    background: #229954;
   }
 
   .auth-links {
@@ -134,11 +126,14 @@
     border-top: 1px solid #ecf0f1;
   }
 
+  .auth-links p {
+    margin: 10px 0;
+    color: #2c3e50;
+  }
+
   .auth-links a {
     color: #3498db;
     text-decoration: none;
-    display: block;
-    margin: 10px 0;
   }
 
   .auth-links a:hover {
