@@ -9,12 +9,12 @@ class Order < ApplicationRecord
   validates :address_line1, :city, :postal_code, :province_id, presence: true
 
   # Status options
-  enum status: {
-    pending: 'pending',
-    paid: 'paid',
-    shipped: 'shipped',
-    cancelled: 'cancelled'
-  }
+enum :status, {
+  pending: 'pending',
+  paid: 'paid',
+  shipped: 'shipped',
+  cancelled: 'cancelled'
+}, default: :pending
 
   # Calculate totals based on province tax rates
   def calculate_totals

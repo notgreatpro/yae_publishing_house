@@ -1,0 +1,650 @@
+<!-- app/views/checkout/show.html.erb -->
+<!-- Feature 3.1.3 - Complete a checkout process (8%) -->
+
+<div class="checkout-container">
+  <div class="breadcrumb">
+    <%= link_to 'Home', root_path %> &gt; 
+    <%= link_to 'Cart', cart_path %> &gt; 
+    Checkout
+  </div>
+
+  <header class="checkout-header">
+    <h1>Checkout</h1>
+  </header>
+
+  <% if flash[:alert] %>
+    <div class="alert alert-danger">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+
+  <div class="checkout-content">
+    <!-- Order Summary Sidebar -->
+    <div class="order-summary-sidebar">
+      <h2>Order Summary</h2>
+      
+      <div class="summary-items">
+        <% @cart_items.each do |item| %>
+          <div class="summary-item">
+            <div class="summary-item-image">
+              <% if item[:product].cover_image.attached? %>
+                <%= image_tag item[:product].cover_image, alt: item[:product].title %>
+              <% else %>
+                <div class="placeholder-mini">📚</div>
+              <% end %>
+            </div>
+            <div class="summary-item-details">
+              <p class="summary-item-title"><%= item[:product].title %></p>
+              <p class="summary-item-qty">Qty: <%= item[:quantity] %></p>
+              <p class="summary-item-unit-price"><%= number_to_currency(item[:product].current_price) %> each</p>
+            </div>
+            <div class="summary-item-price">
+              <%= number_to_currency(item[:product].current_price * item[:quantity]) %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <hr>
+
+      <div class="summary-totals">
+        <div class="summary-row">
+          <span>Subtotal (<%= pluralize(@cart_items.sum { |i| i[:quantity] }, 'item') %>):</span>
+          <span><strong><%= number_to_currency(@subtotal) %></strong></span>
+        </div>
+        
+        <div class="summary-row tax-row">
+          <span>Tax:</span>
+          <span>Calculated based on province</span>
+        </div>
+
+        <hr>
+
+        <div class="summary-row total-row">
+          <span>Total:</span>
+          <span id="total-amount"><%= number_to_currency(@subtotal) %>+</span>
+        </div>
+        <p class="tax-note">Final amount with tax will be confirmed after selecting province</p>
+      </div>
+    </div>
+
+    <!-- Checkout Form -->
+    <div class="checkout-form-section">
+      <%= form_with url: checkout_path, method: :post, local: true, class: 'checkout-form' do |f| %>
+        
+        <!-- Customer Information -->
+        <div class="form-section">
+          <h2>Contact Information</h2>
+          
+          <div class="customer-info-display">
+            <p><strong>Logged in as:</strong> <%= @customer.email %></p>
+          </div>
+        </div>
+
+        <!-- Saved Address Option -->
+        <% if @customer.has_complete_address? %>
+          <div class="form-section">
+            <h2>Shipping Address</h2>
+            
+            <div class="saved-address-option">
+              <label class="address-radio-option">
+                <%= radio_button_tag :use_saved_address, '1', true, class: 'address-radio' %>
+                <div class="address-option-content">
+                  <strong>Use saved address</strong>
+                  <div class="saved-address-display">
+                    <p><%= @customer.first_name %> <%= @customer.last_name %></p>
+                    <p><%= @customer.address_line1 %></p>
+                    <% if @customer.address_line2.present? %>
+                      <p><%= @customer.address_line2 %></p>
+                    <% end %>
+                    <p><%= @customer.city %>, <%= @customer.province.code %> <%= @customer.postal_code %></p>
+                    <% if @customer.phone.present? %>
+                      <p><%= @customer.phone %></p>
+                    <% end %>
+                  </div>
+                </div>
+              </label>
+
+              <label class="address-radio-option">
+                <%= radio_button_tag :use_saved_address, '0', false, class: 'address-radio' %>
+                <div class="address-option-content">
+                  <strong>Use a different address</strong>
+                </div>
+              </label>
+            </div>
+
+            <div id="new-address-fields" style="display: none; margin-top: 20px;">
+        <% else %>
+          <div class="form-section">
+            <h2>Shipping Address</h2>
+            <div id="new-address-fields">
+        <% end %>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <%= label_tag :first_name, "First Name" %>
+                  <%= text_field_tag :first_name, @customer.first_name, 
+                      required: !@customer.has_complete_address?, 
+                      class: 'form-control' %>
+                </div>
+                
+                <div class="form-group">
+                  <%= label_tag :last_name, "Last Name" %>
+                  <%= text_field_tag :last_name, @customer.last_name, 
+                      required: !@customer.has_complete_address?, 
+                      class: 'form-control' %>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <%= label_tag :address_line1, "Address Line 1" %>
+                <%= text_field_tag :address_line1, '', 
+                    required: !@customer.has_complete_address?, 
+                    class: 'form-control',
+                    placeholder: 'Street address, P.O. box' %>
+              </div>
+
+              <div class="form-group">
+                <%= label_tag :address_line2, "Address Line 2 (Optional)" %>
+                <%= text_field_tag :address_line2, '', 
+                    class: 'form-control',
+                    placeholder: 'Apartment, suite, unit, building, floor, etc.' %>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <%= label_tag :city, "City" %>
+                  <%= text_field_tag :city, '', 
+                      required: !@customer.has_complete_address?, 
+                      class: 'form-control' %>
+                </div>
+
+                <div class="form-group">
+                  <%= label_tag :province_id, "Province" %>
+                  <%= select_tag :province_id, 
+                      options_from_collection_for_select(Province.order(:name), :id, :name),
+                      prompt: 'Select Province',
+                      required: !@customer.has_complete_address?,
+                      class: 'form-control' %>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <%= label_tag :postal_code, "Postal Code" %>
+                  <%= text_field_tag :postal_code, '', 
+                      required: !@customer.has_complete_address?, 
+                      class: 'form-control',
+                      placeholder: 'A1A 1A1' %>
+                </div>
+
+                <div class="form-group">
+                  <%= label_tag :phone, "Phone Number (Optional)" %>
+                  <%= telephone_field_tag :phone, '', 
+                      class: 'form-control',
+                      placeholder: '(123) 456-7890' %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- Payment Information -->
+        <div class="form-section">
+          <h2>Payment Information</h2>
+          <div class="payment-notice">
+            <p>💳 <strong>Payment Note:</strong></p>
+            <p>Payment processing will be integrated in a future update (Feature 3.3.1).</p>
+            <p>Your order will be placed with status: <strong>Pending Payment</strong></p>
+          </div>
+        </div>
+
+        <!-- Order Notes (Optional) -->
+        <div class="form-section">
+          <h2>Order Notes (Optional)</h2>
+          <div class="form-group">
+            <%= label_tag :order_notes, "Special instructions or delivery notes" %>
+            <%= text_area_tag :order_notes, '', 
+                class: 'form-control',
+                rows: 3,
+                placeholder: 'Any special delivery instructions...' %>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <%= f.submit 'Place Order', class: 'btn-place-order', 
+              data: { confirm: 'Are you sure you want to place this order?' } %>
+          <%= link_to 'Return to Cart', cart_path, class: 'btn-back' %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+  .checkout-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .breadcrumb {
+    margin-bottom: 20px;
+    color: #7f8c8d;
+    font-size: 0.9em;
+  }
+
+  .breadcrumb a {
+    color: #3498db;
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .checkout-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px 0;
+    border-bottom: 2px solid #ecf0f1;
+  }
+
+  .checkout-header h1 {
+    font-size: 2.5em;
+    color: #2c3e50;
+    margin: 0;
+  }
+
+  .alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+  }
+
+  .alert-danger {
+    background: #fee;
+    color: #c33;
+    border-left: 4px solid #c33;
+  }
+
+  .checkout-content {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 40px;
+  }
+
+  /* Order Summary Sidebar */
+  .order-summary-sidebar {
+    order: 2;
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+  }
+
+  .order-summary-sidebar h2 {
+    font-size: 1.5em;
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+  }
+
+  .summary-items {
+    margin-bottom: 20px;
+  }
+
+  .summary-item {
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .summary-item:last-child {
+    border-bottom: none;
+  }
+
+  .summary-item-image {
+    width: 60px;
+    height: 80px;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+
+  .summary-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .placeholder-mini {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    border-radius: 4px;
+  }
+
+  .summary-item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .summary-item-title {
+    font-size: 0.95em;
+    color: #2c3e50;
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .summary-item-qty {
+    font-size: 0.85em;
+    color: #7f8c8d;
+    margin: 0;
+  }
+
+  .summary-item-unit-price {
+    font-size: 0.8em;
+    color: #95a5a6;
+    margin: 0;
+  }
+
+  .summary-item-price {
+    font-weight: 600;
+    color: #2c3e50;
+    align-self: center;
+  }
+
+  .summary-totals {
+    margin-top: 20px;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    color: #2c3e50;
+  }
+
+  .tax-row {
+    font-size: 0.9em;
+    color: #7f8c8d;
+  }
+
+  .total-row {
+    font-size: 1.3em;
+    font-weight: 700;
+    margin-top: 15px;
+    color: #2c3e50;
+  }
+
+  .tax-note {
+    font-size: 0.85em;
+    color: #7f8c8d;
+    font-style: italic;
+    margin-top: 10px;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 15px 0;
+  }
+
+  /* Checkout Form */
+  .checkout-form-section {
+    order: 1;
+  }
+
+  .checkout-form {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+  }
+
+  .form-section {
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid #ecf0f1;
+  }
+
+  .form-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 20px;
+  }
+
+  .form-section h2 {
+    font-size: 1.5em;
+    color: #2c3e50;
+    margin: 0 0 20px 0;
+  }
+
+  .customer-info-display {
+    background: #e8f5e9;
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid #27ae60;
+  }
+
+  .customer-info-display p {
+    margin: 0;
+    color: #2c3e50;
+  }
+
+  /* Saved Address Options */
+  .saved-address-option {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .address-radio-option {
+    display: flex;
+    gap: 12px;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .address-radio-option:hover {
+    border-color: #3498db;
+    background: #f8f9fa;
+  }
+
+  .address-radio-option input[type="radio"] {
+    margin-top: 3px;
+  }
+
+  .address-radio-option input[type="radio"]:checked + .address-option-content {
+    color: #2c3e50;
+  }
+
+  .address-radio-option:has(input[type="radio"]:checked) {
+    border-color: #3498db;
+    background: #e3f2fd;
+  }
+
+  .address-option-content {
+    flex: 1;
+  }
+
+  .saved-address-display {
+    margin-top: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  .saved-address-display p {
+    margin: 5px 0;
+    color: #555;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 0.95em;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .payment-notice {
+    background: #fff3cd;
+    padding: 20px;
+    border-radius: 6px;
+    border-left: 4px solid #ffc107;
+  }
+
+  .payment-notice p {
+    margin: 5px 0;
+    color: #856404;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .btn-place-order {
+    flex: 2;
+    padding: 16px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .btn-place-order:hover {
+    background: #229954;
+  }
+
+  .btn-back {
+    flex: 1;
+    padding: 16px;
+    background: white;
+    color: #3498db;
+    border: 2px solid #3498db;
+    border-radius: 6px;
+    font-size: 1.1em;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-back:hover {
+    background: #3498db;
+    color: white;
+    text-decoration: none;
+  }
+
+  @media (max-width: 1024px) {
+    .checkout-content {
+      grid-template-columns: 1fr;
+    }
+
+    .order-summary-sidebar {
+      order: 1;
+      position: static;
+    }
+
+    .checkout-form-section {
+      order: 2;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .checkout-form {
+      padding: 20px;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+
+    .btn-place-order,
+    .btn-back {
+      flex: 1;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const radios = document.querySelectorAll('input[name="use_saved_address"]');
+    const newAddressFields = document.getElementById('new-address-fields');
+    
+    if (radios.length > 0 && newAddressFields) {
+      radios.forEach(radio => {
+        radio.addEventListener('change', function() {
+          if (this.value === '0') {
+            newAddressFields.style.display = 'block';
+            // Make fields required
+            newAddressFields.querySelectorAll('input[required], select[required]').forEach(field => {
+              field.required = true;
+            });
+          } else {
+            newAddressFields.style.display = 'none';
+            // Make fields not required
+            newAddressFields.querySelectorAll('input, select').forEach(field => {
+              field.required = false;
+            });
+          }
+        });
+      });
+    }
+  });
+</script>
