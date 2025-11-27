@@ -11,15 +11,16 @@ Rails.application.routes.draw do
   
   # You can add category browsing later for feature 2.2
   resources :categories, only: [:show]
-  
+  resource :checkout, only: [:show, :create], controller: 'checkout'
+  resources :orders, only: [:index, :show]
+
   # Shopping Cart routes (Features 3.1.1 & 3.1.2) - 8%
   get 'cart', to: 'cart#show'
   post 'cart/add', to: 'cart#add'
   patch 'cart/update/:product_id', to: 'cart#update', as: 'cart_update'
   delete 'cart/remove/:product_id', to: 'cart#remove', as: 'cart_remove'
   delete 'cart/clear', to: 'cart#clear', as: 'cart_clear'
-  
-  # Admin namespace
+  get 'orders/:id/confirmation', to: 'orders#confirmation', as: 'order_confirmation'
   namespace :admin do
     get 'login', to: 'sessions#new'
     post 'login', to: 'sessions#create'

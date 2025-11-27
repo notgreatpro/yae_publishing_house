@@ -1,0 +1,343 @@
+<div class="checkout-container">
+  <h1>🛒 Checkout</h1>
+
+  <div class="checkout-grid">
+    <!-- Left Column: Order Summary -->
+    <div class="order-summary">
+      <h2>Order Summary</h2>
+      
+      <div class="cart-items">
+        <% @cart_items.each do |item| %>
+          <div class="cart-item">
+            <div class="item-details">
+              <h3><%= item[:product].title %></h3>
+              <p class="item-meta">Quantity: <%= item[:quantity] %></p>
+            </div>
+            <div class="item-price">
+              <%= number_to_currency(item[:product].current_price * item[:quantity]) %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="order-totals">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <span><%= number_to_currency(@subtotal) %></span>
+        </div>
+        <div class="total-row tax-note">
+          <span>Tax:</span>
+          <span>Calculated based on province</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Shipping Address -->
+    <div class="shipping-form">
+      <h2>Shipping Address</h2>
+
+      <%= form_with url: checkout_path, method: :post, local: true do |f| %>
+        
+        <% if @customer.has_complete_address? %>
+          <div class="saved-address">
+            <label class="checkbox-label">
+              <%= check_box_tag :use_saved_address, '1', true, id: 'use_saved_address' %>
+              Use my saved address
+            </label>
+
+            <div class="address-preview" id="saved-address-preview">
+              <p><%= @customer.address_line1 %></p>
+              <% if @customer.address_line2.present? %>
+                <p><%= @customer.address_line2 %></p>
+              <% end %>
+              <p><%= @customer.city %>, <%= @customer.province.name %></p>
+              <p><%= @customer.postal_code %></p>
+            </div>
+          </div>
+
+          <div class="divider">OR</div>
+        <% end %>
+
+        <div id="new-address-fields" style="<%= 'display: none;' if @customer.has_complete_address? %>">
+          <div class="form-group">
+            <%= label_tag :address_line1, "Address Line 1" %>
+            <%= text_field_tag :address_line1, @customer.address_line1, class: 'form-input', placeholder: "123 Main Street", required: true %>
+          </div>
+
+          <div class="form-group">
+            <%= label_tag :address_line2, "Address Line 2 (Optional)" %>
+            <%= text_field_tag :address_line2, @customer.address_line2, class: 'form-input', placeholder: "Apt 4B" %>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <%= label_tag :city, "City" %>
+              <%= text_field_tag :city, @customer.city, class: 'form-input', placeholder: "Winnipeg", required: true %>
+            </div>
+
+            <div class="form-group">
+              <%= label_tag :postal_code, "Postal Code" %>
+              <%= text_field_tag :postal_code, @customer.postal_code, class: 'form-input', placeholder: "R3C 0V8", required: true %>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <%= label_tag :province_id, "Province/Territory" %>
+            <%= select_tag :province_id, 
+                options_from_collection_for_select(Province.order(:name), :id, :name, @customer.province_id), 
+                { prompt: 'Select your province...', class: 'form-input', required: true } %>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <%= submit_tag "Place Order", class: 'btn-primary' %>
+          <%= link_to "Back to Cart", cart_path, class: 'btn-secondary' %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('use_saved_address');
+    const savedAddress = document.getElementById('saved-address-preview');
+    const newAddressFields = document.getElementById('new-address-fields');
+
+    if (checkbox) {
+      checkbox.addEventListener('change', function() {
+        if (this.checked) {
+          if (savedAddress) savedAddress.style.display = 'block';
+          if (newAddressFields) newAddressFields.style.display = 'none';
+        } else {
+          if (savedAddress) savedAddress.style.display = 'none';
+          if (newAddressFields) newAddressFields.style.display = 'block';
+        }
+      });
+    }
+  });
+</script>
+
+<style>
+  .checkout-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  .checkout-container h1 {
+    font-size: 2em;
+    color: #2c3e50;
+    margin-bottom: 30px;
+  }
+
+  .checkout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+
+  .order-summary, .shipping-form {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+
+  .order-summary h2, .shipping-form h2 {
+    font-size: 1.5em;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ecf0f1;
+  }
+
+  .cart-items {
+    margin-bottom: 20px;
+  }
+
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid #ecf0f1;
+  }
+
+  .cart-item:last-child {
+    border-bottom: none;
+  }
+
+  .item-details h3 {
+    font-size: 1.1em;
+    color: #2c3e50;
+    margin-bottom: 5px;
+  }
+
+  .item-meta {
+    color: #7f8c8d;
+    font-size: 0.9em;
+  }
+
+  .item-price {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #27ae60;
+  }
+
+  .order-totals {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #ecf0f1;
+  }
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 1.1em;
+  }
+
+  .tax-note {
+    color: #7f8c8d;
+    font-size: 0.95em;
+    font-style: italic;
+  }
+
+  .saved-address {
+    background: #e8f5e9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: #2c3e50;
+    cursor: pointer;
+    margin-bottom: 15px;
+  }
+
+  .checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+
+  .address-preview {
+    margin-left: 30px;
+    color: #2c3e50;
+  }
+
+  .address-preview p {
+    margin: 5px 0;
+  }
+
+  .divider {
+    text-align: center;
+    margin: 20px 0;
+    color: #7f8c8d;
+    font-weight: 600;
+    position: relative;
+  }
+
+  .divider::before,
+  .divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 45%;
+    height: 1px;
+    background: #ecf0f1;
+  }
+
+  .divider::before {
+    left: 0;
+  }
+
+  .divider::after {
+    right: 0;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #2c3e50;
+    font-weight: 600;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #3498db;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
+  .form-actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+  }
+
+  .btn-primary, .btn-secondary {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.3s;
+  }
+
+  .btn-primary {
+    background: #27ae60;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #229954;
+  }
+
+  .btn-secondary {
+    background: #ecf0f1;
+    color: #2c3e50;
+  }
+
+  .btn-secondary:hover {
+    background: #d5dbdb;
+  }
+
+  @media (max-width: 768px) {
+    .checkout-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

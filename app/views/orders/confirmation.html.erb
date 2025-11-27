@@ -1,0 +1,252 @@
+<div class="confirmation-container">
+  <div class="confirmation-card">
+    <div class="success-icon">✅</div>
+    <h1>Order Confirmed!</h1>
+    <p class="order-number">Order #<%= @order.id %></p>
+    
+    <div class="confirmation-message">
+      <p>Thank you for your order! We've received your purchase and will process it shortly.</p>
+      <p>A confirmation email has been sent to <strong><%= current_customer.email %></strong></p>
+    </div>
+
+    <div class="order-details">
+      <h2>Order Summary</h2>
+      
+      <div class="order-items">
+        <% @order.order_items.each do |item| %>
+          <div class="order-item">
+            <div class="item-info">
+              <h3><%= item.product.title %></h3>
+              <p>Quantity: <%= item.quantity %> × <%= number_to_currency(item.price_at_purchase) %></p>
+            </div>
+            <div class="item-total">
+              <%= number_to_currency(item.total_price) %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="order-totals">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <span><%= number_to_currency(@order.subtotal) %></span>
+        </div>
+        
+        <% if @order.gst_amount && @order.gst_amount > 0 %>
+          <div class="total-row tax-row">
+            <span>GST (<%= @order.gst_rate %>%):</span>
+            <span><%= number_to_currency(@order.gst_amount) %></span>
+          </div>
+        <% end %>
+        
+        <% if @order.pst_amount && @order.pst_amount > 0 %>
+          <div class="total-row tax-row">
+            <span>PST (<%= @order.pst_rate %>%):</span>
+            <span><%= number_to_currency(@order.pst_amount) %></span>
+          </div>
+        <% end %>
+        
+        <% if @order.hst_amount && @order.hst_amount > 0 %>
+          <div class="total-row tax-row">
+            <span>HST (<%= @order.hst_rate %>%):</span>
+            <span><%= number_to_currency(@order.hst_amount) %></span>
+          </div>
+        <% end %>
+        
+        <div class="total-row grand-total">
+          <span>Total:</span>
+          <span><%= number_to_currency(@order.total_amount) %></span>
+        </div>
+      </div>
+
+      <div class="shipping-address">
+        <h3>Shipping Address</h3>
+        <p><%= @order.address_line1 %></p>
+        <% if @order.address_line2.present? %>
+          <p><%= @order.address_line2 %></p>
+        <% end %>
+        <p><%= @order.city %>, <%= @order.province.name %></p>
+        <p><%= @order.postal_code %></p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <%= link_to "View All Orders", orders_path, class: 'btn-primary' %>
+      <%= link_to "Continue Shopping", products_path, class: 'btn-secondary' %>
+    </div>
+  </div>
+</div>
+
+<style>
+  .confirmation-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background: #f8f9fa;
+  }
+
+  .confirmation-card {
+    max-width: 700px;
+    width: 100%;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+
+  .success-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+  }
+
+  .confirmation-card h1 {
+    font-size: 2em;
+    color: #27ae60;
+    margin-bottom: 10px;
+  }
+
+  .order-number {
+    font-size: 1.2em;
+    color: #7f8c8d;
+    margin-bottom: 30px;
+  }
+
+  .confirmation-message {
+    background: #e8f5e9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    text-align: left;
+  }
+
+  .confirmation-message p {
+    margin: 10px 0;
+    color: #2c3e50;
+  }
+
+  .order-details {
+    text-align: left;
+    margin-bottom: 30px;
+  }
+
+  .order-details h2 {
+    font-size: 1.5em;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ecf0f1;
+  }
+
+  .order-items {
+    margin-bottom: 20px;
+  }
+
+  .order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid #ecf0f1;
+  }
+
+  .item-info h3 {
+    font-size: 1.1em;
+    color: #2c3e50;
+    margin-bottom: 5px;
+  }
+
+  .item-info p {
+    color: #7f8c8d;
+    font-size: 0.9em;
+  }
+
+  .item-total {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+
+  .order-totals {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #ecf0f1;
+  }
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+  }
+
+  .tax-row {
+    color: #7f8c8d;
+    font-size: 0.95em;
+  }
+
+  .grand-total {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: #27ae60;
+    margin-top: 10px;
+    padding-top: 15px;
+    border-top: 2px solid #ecf0f1;
+  }
+
+  .shipping-address {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+  }
+
+  .shipping-address h3 {
+    font-size: 1.2em;
+    color: #2c3e50;
+    margin-bottom: 10px;
+  }
+
+  .shipping-address p {
+    margin: 5px 0;
+    color: #2c3e50;
+  }
+
+  .actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .btn-primary, .btn-secondary {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.3s;
+  }
+
+  .btn-primary {
+    background: #27ae60;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #229954;
+  }
+
+  .btn-secondary {
+    background: #ecf0f1;
+    color: #2c3e50;
+  }
+
+  .btn-secondary:hover {
+    background: #d5dbdb;
+  }
+</style>

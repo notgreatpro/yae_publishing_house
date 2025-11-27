@@ -7,7 +7,7 @@
   </div>
 
   <header class="cart-header">
-    <h1> Your Shopping Cart</h1>
+    <h1>Your Shopping Cart</h1>
   </header>
 
   <% if @cart_items.any? %>
@@ -96,8 +96,7 @@
         </div>
 
         <div class="cart-actions">
-          <%= link_to 'Proceed to Checkout', '#', class: 'btn-checkout disabled-btn' %>
-          <p class="checkout-note">Checkout coming soon!</p>
+          <%= link_to 'Proceed to Checkout', checkout_path, method: :get, class: 'btn-checkout' %>
           
           <%= link_to 'Continue Shopping', products_path, class: 'btn-continue' %>
           
@@ -112,7 +111,7 @@
   <% else %>
     <div class="empty-cart">
       <h2>Your cart is empty</h2>
-      <p>Its seems your cart doesnt have books...</p>
+      <p>It seems your cart doesn't have books...</p>
       <%= link_to 'Browse Books Here', products_path, class: 'btn-browse' %>
     </div>
   <% end %>
@@ -380,22 +379,6 @@
     text-decoration: none;
   }
 
-  .disabled-btn {
-    background: #95a5a6;
-    cursor: not-allowed;
-  }
-
-  .disabled-btn:hover {
-    background: #95a5a6;
-  }
-
-  .checkout-note {
-    text-align: center;
-    font-size: 0.85em;
-    color: #7f8c8d;
-    margin: -10px 0 0 0;
-  }
-
   .btn-continue {
     display: block;
     width: 100%;
@@ -434,11 +417,6 @@
   .empty-cart {
     text-align: center;
     padding: 80px 20px;
-  }
-
-  .empty-cart-icon {
-    font-size: 5em;
-    margin-bottom: 20px;
   }
 
   .empty-cart h2 {
