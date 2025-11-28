@@ -1,5 +1,7 @@
+
 <!-- app/views/checkout/show.html.erb -->
 <!-- Feature 3.1.3 - Complete a checkout process (8%) -->
+<!-- Feature 3.3.1 - Stripe Payment Integration (6%) -->
 
 <div class="checkout-container">
   <div class="breadcrumb">
@@ -15,6 +17,17 @@
   <% if flash[:alert] %>
     <div class="alert alert-danger">
       <%= flash[:alert] %>
+    </div>
+  <% end %>
+
+  <% if @order && @order.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(@order.errors.count, "error") %> prevented this order from being saved:</h4>
+      <ul>
+        <% @order.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
     </div>
   <% end %>
 
@@ -55,22 +68,22 @@
         
         <div class="summary-row tax-row">
           <span>Tax:</span>
-          <span>Calculated based on province</span>
+          <span id="tax-display">Select province to calculate</span>
         </div>
 
         <hr>
 
         <div class="summary-row total-row">
           <span>Total:</span>
-          <span id="total-amount"><%= number_to_currency(@subtotal) %>+</span>
+          <span id="total-display"><%= number_to_currency(@subtotal) %>+</span>
         </div>
-        <p class="tax-note">Final amount with tax will be confirmed after selecting province</p>
+        <p class="tax-note">Final amount with tax will be calculated after selecting province</p>
       </div>
     </div>
 
     <!-- Checkout Form -->
     <div class="checkout-form-section">
-      <%= form_with url: checkout_path, method: :post, local: true, class: 'checkout-form' do |f| %>
+      <%= form_with url: checkout_path, method: :post, local: false, id: 'checkout-form', class: 'checkout-form' do |f| %>
         
         <!-- Customer Information -->
         <div class="form-section">
@@ -162,10 +175,15 @@
                 <div class="form-group">
                   <%= label_tag :province_id, "Province" %>
                   <%= select_tag :province_id, 
-                      options_from_collection_for_select(Province.order(:name), :id, :name),
+                      options_from_collection_for_select(Province.order(:name), :id, :name, @customer.province_id),
                       prompt: 'Select Province',
                       required: !@customer.has_complete_address?,
-                      class: 'form-control' %>
+                      class: 'form-control',
+                      id: 'province-select',
+                      data: { 
+                        provinces: Province.all.to_json(only: [:id, :name, :gst_rate, :pst_rate, :hst_rate]),
+                        subtotal: @subtotal
+                      } %>
                 </div>
               </div>
 
@@ -175,7 +193,8 @@
                   <%= text_field_tag :postal_code, '', 
                       required: !@customer.has_complete_address?, 
                       class: 'form-control',
-                      placeholder: 'A1A 1A1' %>
+                      placeholder: 'A1A 1A1',
+                      pattern: '[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d' %>
                 </div>
 
                 <div class="form-group">
@@ -190,11 +209,28 @@
 
         <!-- Payment Information -->
         <div class="form-section">
-          <h2>Payment Information</h2>
-          <div class="payment-notice">
-            <p>💳 <strong>Payment Note:</strong></p>
-            <p>Payment processing will be integrated in a future update (Feature 3.3.1).</p>
-            <p>Your order will be placed with status: <strong>Pending Payment</strong></p>
+          <h2>💳 Payment Information</h2>
+          
+          <div class="secure-badge">
+            <span>🔒</span>
+            <div>
+              <strong>Secure Payment</strong>
+              <p>Your payment information is encrypted and secure</p>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="card-element">Credit or Debit Card</label>
+            <div id="card-element" class="stripe-card-element">
+              <!-- Stripe Card Element will be inserted here -->
+            </div>
+            <div id="card-errors" role="alert" class="card-errors"></div>
+          </div>
+
+          <div class="payment-test-mode">
+            <p><strong>🧪 Test Mode</strong></p>
+            <p>Use test card: <code>4242 4242 4242 4242</code></p>
+            <p>Any future expiry date and any 3-digit CVC</p>
           </div>
         </div>
 
@@ -212,14 +248,20 @@
 
         <!-- Form Actions -->
         <div class="form-actions">
-          <%= f.submit 'Place Order', class: 'btn-place-order', 
-              data: { confirm: 'Are you sure you want to place this order?' } %>
+          <%= f.submit 'Place Order', class: 'btn-place-order', id: 'submit-button', 
+              data: { disable_with: 'Processing Payment...' } %>
           <%= link_to 'Return to Cart', cart_path, class: 'btn-back' %>
         </div>
+
+        <!-- Hidden field for Stripe payment method -->
+        <%= hidden_field_tag :stripe_payment_method_id, '', id: 'stripe-payment-method-id' %>
       <% end %>
     </div>
   </div>
 </div>
+
+<!-- Load Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
 
 <style>
   .checkout-container {
@@ -266,6 +308,10 @@
     background: #fee;
     color: #c33;
     border-left: 4px solid #c33;
+  }
+
+  .alert-danger ul {
+    margin: 10px 0 0 20px;
   }
 
   .checkout-content {
@@ -439,7 +485,6 @@
     color: #2c3e50;
   }
 
-  /* Saved Address Options */
   .saved-address-option {
     display: flex;
     flex-direction: column;
@@ -463,10 +508,6 @@
 
   .address-radio-option input[type="radio"] {
     margin-top: 3px;
-  }
-
-  .address-radio-option input[type="radio"]:checked + .address-option-content {
-    color: #2c3e50;
   }
 
   .address-radio-option:has(input[type="radio"]:checked) {
@@ -529,16 +570,64 @@
     min-height: 80px;
   }
 
-  .payment-notice {
-    background: #fff3cd;
-    padding: 20px;
+  /* Stripe Card Element */
+  .secure-badge {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #e8f5e9;
+    padding: 15px;
     border-radius: 6px;
+    margin-bottom: 20px;
+  }
+
+  .secure-badge span {
+    font-size: 2em;
+  }
+
+  .secure-badge p {
+    margin: 5px 0 0 0;
+    font-size: 0.9em;
+    color: #555;
+  }
+
+  .stripe-card-element {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+  }
+
+  .stripe-card-element.StripeElement--focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  }
+
+  .card-errors {
+    color: #c33;
+    font-size: 0.9em;
+    margin-top: 10px;
+  }
+
+  .payment-test-mode {
+    background: #fff3cd;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
     border-left: 4px solid #ffc107;
   }
 
-  .payment-notice p {
+  .payment-test-mode p {
     margin: 5px 0;
     color: #856404;
+    font-size: 0.9em;
+  }
+
+  .payment-test-mode code {
+    background: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
   }
 
   .form-actions {
@@ -560,8 +649,13 @@
     transition: background 0.3s;
   }
 
-  .btn-place-order:hover {
+  .btn-place-order:hover:not(:disabled) {
     background: #229954;
+  }
+
+  .btn-place-order:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
   }
 
   .btn-back {
@@ -575,10 +669,10 @@
     font-weight: 600;
     text-align: center;
     text-decoration: none;
-    transition: all 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s;
   }
 
   .btn-back:hover {
@@ -624,6 +718,80 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Check if Stripe key is available
+    const stripeKey = '<%= Rails.application.credentials.dig(:stripe, :publishable_key) %>';
+    console.log('Stripe Key loaded:', stripeKey ? 'Yes' : 'No'); // Debug log
+    
+    if (!stripeKey || stripeKey === '') {
+      console.error('Stripe publishable key not found!');
+      document.getElementById('card-element').innerHTML = '<div style="color: red; padding: 15px;">Error: Stripe keys not configured. Please check your credentials.</div>';
+      return;
+    }
+    
+    // Initialize Stripe
+    const stripe = Stripe(stripeKey);
+    const elements = stripe.elements();
+    
+    // Create card element
+    const cardElement = elements.create('card', {
+      style: {
+        base: {
+          fontSize: '16px',
+          color: '#2c3e50',
+          '::placeholder': {
+            color: '#95a5a6',
+          },
+        },
+        invalid: {
+          color: '#c33',
+        },
+      },
+    });
+    
+    cardElement.mount('#card-element');
+    console.log('Stripe card element mounted'); // Debug log
+    
+    // Handle card validation errors
+    cardElement.on('change', function(event) {
+      const displayError = document.getElementById('card-errors');
+      if (event.error) {
+        displayError.textContent = event.error.message;
+      } else {
+        displayError.textContent = '';
+      }
+    });
+    
+    // Handle form submission
+    const form = document.getElementById('checkout-form');
+    const submitButton = document.getElementById('submit-button');
+    
+    form.addEventListener('submit', async function(event) {
+      event.preventDefault();
+      console.log('Form submitted'); // Debug log
+      
+      submitButton.disabled = true;
+      
+      // Create payment method
+      const {error, paymentMethod} = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
+      });
+      
+      if (error) {
+        console.error('Stripe error:', error); // Debug log
+        document.getElementById('card-errors').textContent = error.message;
+        submitButton.disabled = false;
+      } else {
+        console.log('Payment method created:', paymentMethod.id); // Debug log
+        // Add payment method ID to form
+        document.getElementById('stripe-payment-method-id').value = paymentMethod.id;
+        
+        // Submit form (Rails will handle with redirect)
+        form.submit();
+      }
+    });
+    
+    // Handle saved address radio buttons
     const radios = document.querySelectorAll('input[name="use_saved_address"]');
     const newAddressFields = document.getElementById('new-address-fields');
     
@@ -632,19 +800,80 @@
         radio.addEventListener('change', function() {
           if (this.value === '0') {
             newAddressFields.style.display = 'block';
-            // Make fields required
             newAddressFields.querySelectorAll('input[required], select[required]').forEach(field => {
               field.required = true;
             });
           } else {
             newAddressFields.style.display = 'none';
-            // Make fields not required
             newAddressFields.querySelectorAll('input, select').forEach(field => {
               field.required = false;
             });
           }
         });
       });
+    }
+    
+    // Province change handler for tax calculation
+    const provinceSelect = document.getElementById('province-select');
+    if (provinceSelect) {
+      const provinces = JSON.parse(provinceSelect.dataset.provinces);
+      const subtotal = parseFloat(provinceSelect.dataset.subtotal);
+      
+      console.log('Provinces data loaded:', provinces.length, 'provinces'); // Debug
+      console.log('Subtotal:', subtotal); // Debug
+      
+      // Calculate tax immediately if a province is already selected
+      const initialProvinceId = parseInt(provinceSelect.value);
+      if (initialProvinceId) {
+        calculateAndDisplayTax(initialProvinceId);
+      }
+      
+      provinceSelect.addEventListener('change', function() {
+        const selectedProvinceId = parseInt(this.value);
+        calculateAndDisplayTax(selectedProvinceId);
+      });
+      
+      function calculateAndDisplayTax(provinceId) {
+        const province = provinces.find(p => p.id === provinceId);
+        
+        if (province) {
+          console.log('Calculating tax for:', province.name); // Debug
+          
+          const gst = subtotal * (province.gst_rate / 100);
+          const pst = subtotal * (province.pst_rate / 100);
+          const hst = subtotal * (province.hst_rate / 100);
+          const totalTax = gst + pst + hst;
+          const total = subtotal + totalTax;
+          
+          console.log('Tax breakdown:', { gst, pst, hst, totalTax, total }); // Debug
+          
+          // Format currency
+          const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('en-CA', {
+              style: 'currency',
+              currency: 'CAD'
+            }).format(amount);
+          };
+          
+          document.getElementById('tax-display').textContent = formatCurrency(totalTax);
+          document.getElementById('total-display').textContent = formatCurrency(total);
+          
+          // Update note
+          const taxNote = document.querySelector('.tax-note');
+          if (taxNote) {
+            taxNote.textContent = 'Tax calculated for ' + (province.name || provinceSelect.options[provinceSelect.selectedIndex].text);
+          }
+        } else {
+          document.getElementById('tax-display').textContent = 'Select province to calculate';
+          const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('en-CA', {
+              style: 'currency',
+              currency: 'CAD'
+            }).format(amount);
+          };
+          document.getElementById('total-display').textContent = formatCurrency(subtotal) + '+';
+        }
+      }
     }
   });
 </script>

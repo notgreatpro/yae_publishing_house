@@ -9,12 +9,12 @@ class Order < ApplicationRecord
   validates :address_line1, :city, :postal_code, :province_id, presence: true
 
   # Status options
-enum :status, {
-  pending: 'pending',
-  paid: 'paid',
-  shipped: 'shipped',
-  cancelled: 'cancelled'
-}, default: :pending
+  enum :status, {
+    pending: 'pending',
+    paid: 'paid',
+    shipped: 'shipped',
+    cancelled: 'cancelled'
+  }, default: :pending
 
   # Calculate totals based on province tax rates
   def calculate_totals
@@ -42,5 +42,14 @@ enum :status, {
 
   def hst_amount
     ((subtotal * hst_rate) / 100.0).round(2) if hst_rate > 0
+  end
+
+  # After successful Stripe payment (Feature 3.3.1)
+  def mark_as_paid!(stripe_payment_id, stripe_customer_id)
+    update!(
+      status: 'paid',
+      stripe_payment_id: stripe_payment_id,
+      stripe_customer_id: stripe_customer_id
+    )
   end
 end

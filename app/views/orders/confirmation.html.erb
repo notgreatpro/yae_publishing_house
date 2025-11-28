@@ -15,7 +15,7 @@
       <% if @order.address_line2.present? %>
         <p><%= @order.address_line2 %></p>
       <% end %>
-      <p><%= @order.city %>, <%= @order.province.code %> <%= @order.postal_code %></p>
+      <p><%= @order.city %>, <%= @order.province.name %> <%= @order.postal_code %></p>
     </div>
 
     <div class="detail-section">

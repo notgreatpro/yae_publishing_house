@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_27_233516) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_28_000033) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,9 +90,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_27_233516) do
     t.string "address_line1"
     t.string "address_line2"
     t.bigint "province_id"
+    t.string "stripe_customer_id"
     t.index ["email"], name: "index_customers_on_email", unique: true
     t.index ["province_id"], name: "index_customers_on_province_id"
     t.index ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true
+    t.index ["stripe_customer_id"], name: "index_customers_on_stripe_customer_id"
   end
 
   create_table "order_items", force: :cascade do |t|
@@ -130,8 +132,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_27_233516) do
     t.decimal "pst_rate", precision: 5, scale: 2, default: "0.0"
     t.decimal "hst_rate", precision: 5, scale: 2, default: "0.0"
     t.bigint "province_id"
+    t.string "stripe_payment_id"
+    t.string "stripe_customer_id"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
     t.index ["province_id"], name: "index_orders_on_province_id"
+    t.index ["stripe_customer_id"], name: "index_orders_on_stripe_customer_id"
+    t.index ["stripe_payment_id"], name: "index_orders_on_stripe_payment_id"
   end
 
   create_table "product_authors", force: :cascade do |t|
