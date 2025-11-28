@@ -211,7 +211,6 @@
           <h2>💳 Payment Information</h2>
           
           <div class="secure-badge">
-            <span>🔒</span>
             <div>
               <strong>Secure Payment</strong>
               <p>Your payment information is encrypted and secure</p>
@@ -253,7 +252,7 @@
           <div id="card-errors" role="alert" class="card-errors"></div>
 
           <div class="payment-test-mode">
-            <p><strong>🧪 Test Mode</strong></p>
+            <p><strong>Test Mode</strong></p>
             <p>Use test card: <code>4242 4242 4242 4242</code></p>
             <p>Any future expiry date and any 3-digit CVC</p>
           </div>
@@ -352,7 +351,11 @@
     padding: 30px;
     border-radius: 8px;
     height: fit-content;
-  }
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+}
 
   .order-summary-sidebar h2 {
     font-size: 1.5em;

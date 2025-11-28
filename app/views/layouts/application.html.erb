@@ -13,9 +13,8 @@
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= favicon_link_tag 'Yae_Publishing_House_Favicon_logo.png' %>
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
@@ -28,7 +27,7 @@
       <div class="nav-container">
         <div class="nav-brand">
           <%= link_to root_path, class: 'brand-link' do %>
-            <span class="brand-name">Yae Publishing House</span>
+            <%= image_tag 'Yae_Publishing_House_logo.png', alt: 'Yae Publishing House', class: 'brand-logo' %>
           <% end %>
         </div>
         
@@ -84,12 +83,13 @@
         position: sticky;
         top: 0;
         z-index: 1000;
+        border-bottom: 3px solid #f092f7;
       }
 
       .nav-container {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 15px 20px;
+        padding: 10px 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -98,19 +98,17 @@
       .nav-brand .brand-link {
         display: flex;
         align-items: center;
-        gap: 12px;
         text-decoration: none;
-        color: white;
-        font-size: 1.3em;
-        font-weight: 600;
+        transition: transform 0.3s;
       }
 
-      .brand-icon {
-        font-size: 1.5em;
+      .nav-brand .brand-link:hover {
+        transform: scale(1.05);
       }
 
-      .brand-name {
-        display: inline-block;
+      .brand-logo {
+        height: 60px;
+        width: auto;
       }
 
       .nav-links {
@@ -120,20 +118,22 @@
       }
 
       .nav-link {
-        color: white;
+        color: #e242eb;
         text-decoration: none;
         font-weight: 500;
         padding: 8px 16px;
         border-radius: 6px;
-        transition: background 0.3s;
+        transition: all 0.3s;
       }
 
       .nav-link:hover {
-        background: rgba(217, 26, 204);
+        background: #f092f7;
+        color: white;
       }
 
       .cart-link {
         background: #27ae60;
+        color: white;
         font-weight: 600;
       }
 
@@ -194,8 +194,8 @@
 
       /* Responsive */
       @media (max-width: 768px) {
-        .brand-name {
-          display: none;
+        .brand-logo {
+          height: 50px;
         }
 
         .nav-links {

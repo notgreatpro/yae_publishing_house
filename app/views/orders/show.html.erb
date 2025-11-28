@@ -310,13 +310,15 @@
   }
 
   .order-sidebar {
-    background: #f8f9fa;
-    padding: 30px;
-    border-radius: 8px;
-    height: fit-content;
-    position: sticky;
-    top: 20px;
-  }
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 8px;
+  height: fit-content;
+  position: sticky;
+  top: 80px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
 
   .order-sidebar h2 {
     font-size: 1.5em;
