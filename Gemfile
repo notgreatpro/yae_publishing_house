@@ -3,7 +3,7 @@ source "https://rubygems.org"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.4"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
-gem "propshaft"
+gem "sprockets-rails"
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
 # Use the Puma web server [https://github.com/puma/puma]
@@ -32,6 +32,9 @@ gem 'faker'
 gem 'kaminari'
 gem 'devise'
 gem 'stripe'
+gem 'activeadmin' 
+gem 'sassc'
+gem 'inherited_resources' 
 
 
 # Reduces boot times through caching; required in config/boot.rb

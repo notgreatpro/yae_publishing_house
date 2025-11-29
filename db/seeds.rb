@@ -1,6 +1,6 @@
 require 'faker'
 
-puts " Starting Yae Publishing House Database Seeding..."
+puts "Starting Yae Publishing House Database Seeding..."
 puts "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # ---------------------------------------- #
@@ -22,23 +22,26 @@ COUNTRIES = [
 # ---------------------------------------- #
 # CLEAN EXISTING DATA
 # ---------------------------------------- #
-puts "\n Cleaning existing data..."
+puts "Clearing existing data..."
+
+# Delete in this order:
 OrderItem.destroy_all
 Order.destroy_all
+Customer.destroy_all
+Province.destroy_all
 ProductAuthor.destroy_all
 Product.destroy_all
 Author.destroy_all
 Category.destroy_all
 SiteContent.destroy_all
-Province.destroy_all  
-Customer.destroy_all
-Admin.destroy_all
-puts " Database cleaned!"
+AdminUser.destroy_all
+
+puts " All existing data cleared!"
 
 # ---------------------------------------- #
 # PROVINCES 
 # ---------------------------------------- #
-puts "\nCreating Canadian Provinces & Territories..."
+puts "\n Creating Canadian Provinces & Territories..."
 
 provinces_data = [
   { name: 'Alberta', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
@@ -61,39 +64,37 @@ provinces_data.each do |province_data|
   provinces[province_data[:name]] = Province.create!(province_data)
 end
 
-puts "✅ Created #{Province.count} provinces & territories"
+puts "Created #{Province.count} provinces & territories"
 
 # ---------------------------------------- #
-# ADMIN
+# ADMIN USER
 # ---------------------------------------- #
-puts "\n Creating Admin Account..."
-admin = Admin.create!(
-  username: "YPHAdmin",
-  email: "admin@yaepublishinghouse.com",
-  full_name: "Yae Miko",
-  role: "super_admin",
-  password: "$TimeToRead$",
-  password_confirmation: "$TimeToRead$"
-)
-puts " Admin created: #{admin.username}"
+puts "\n Creating Admin User for ActiveAdmin..."
+admin_user = AdminUser.find_or_create_by!(username: 'YPHAdmin') do |admin|
+  admin.email = 'admin@yaepublishinghouse.com'
+  admin.password = '$TimeToRead$'
+  admin.password_confirmation = '$TimeToRead$'
+end
+puts "✓ Admin User created: #{admin_user.username}"
+puts "  Password: $TimeToRead$"
 
 # ---------------------------------------- #
 # CATEGORIES
 # ---------------------------------------- #
 puts "\n Creating Categories..."
 categories = {
-  light_novels: Category.create!(category_name: "Light Novels", description: "Japanese light novels and serialized stories", created_by_id: admin.id),
-  manga: Category.create!(category_name: "Manga", description: "Japanese manga and comics", created_by_id: admin.id),
-  graphic_novels: Category.create!(category_name: "Graphic Novels", description: "Illustrated novels and western comics", created_by_id: admin.id),
-  fiction: Category.create!(category_name: "Fiction", description: "Literary fiction and contemporary novels", created_by_id: admin.id),
-  non_fiction: Category.create!(category_name: "Non-Fiction", description: "History, biography, and educational books", created_by_id: admin.id),
-  fantasy: Category.create!(category_name: "Fantasy", description: "Fantasy adventures and magical worlds", created_by_id: admin.id),
-  sci_fi: Category.create!(category_name: "Science Fiction", description: "Futuristic and scientific fiction", created_by_id: admin.id),
-  horror: Category.create!(category_name: "Horror", description: "Thriller, mystery, and horror stories", created_by_id: admin.id),
-  childrens: Category.create!(category_name: "Children's Books", description: "Books for young readers", created_by_id: admin.id),
-  adventure: Category.create!(category_name: "Adventure", description: "Action-packed adventure stories", created_by_id: admin.id)
+  light_novels: Category.create!(category_name: "Light Novels", description: "Japanese light novels and serialized stories"),
+  manga: Category.create!(category_name: "Manga", description: "Japanese manga and comics"),
+  graphic_novels: Category.create!(category_name: "Graphic Novels", description: "Illustrated novels and western comics"),
+  fiction: Category.create!(category_name: "Fiction", description: "Literary fiction and contemporary novels"),
+  non_fiction: Category.create!(category_name: "Non-Fiction", description: "History, biography, and educational books"),
+  fantasy: Category.create!(category_name: "Fantasy", description: "Fantasy adventures and magical worlds"),
+  sci_fi: Category.create!(category_name: "Science Fiction", description: "Futuristic and scientific fiction"),
+  horror: Category.create!(category_name: "Horror", description: "Thriller, mystery, and horror stories"),
+  childrens: Category.create!(category_name: "Children's Books", description: "Books for young readers"),
+  adventure: Category.create!(category_name: "Adventure", description: "Action-packed adventure stories")
 }
-puts "✅ #{categories.count} categories created!"
+puts "#{categories.count} categories created!"
 
 # ---------------------------------------- #
 # AUTHORS (REAL + GENSHIN)
@@ -101,23 +102,23 @@ puts "✅ #{categories.count} categories created!"
 puts "\n Creating Authors..."
 
 authors = {
-  pursina: Author.create!(author_name: "Pursina", biography: "Author of The Saga of Hamavaran series", nationality: COUNTRIES.sample, created_by_id: admin.id),
-  zhenyu: Author.create!(author_name: "Zhenyu", biography: "Creator of A Legend of Sword", nationality: COUNTRIES.sample, created_by_id: admin.id),
-  mr_nine: Author.create!(author_name: "Mr. Nine", biography: "Author of Flowers for Princess Fischl", nationality: COUNTRIES.sample, created_by_id: admin.id),
-  yae_miko: Author.create!(author_name: "Yae Miko", biography: "The Guuji of Grand Narukami Shrine", nationality: COUNTRIES.sample, created_by_id: admin.id),
+  pursina: Author.create!(author_name: "Pursina", biography: "Author of The Saga of Hamavaran series", nationality: COUNTRIES.sample),
+  zhenyu: Author.create!(author_name: "Zhenyu", biography: "Creator of A Legend of Sword", nationality: COUNTRIES.sample),
+  mr_nine: Author.create!(author_name: "Mr. Nine", biography: "Author of Flowers for Princess Fischl", nationality: COUNTRIES.sample),
+  yae_miko: Author.create!(author_name: "Yae Miko", biography: "The Guuji of Grand Narukami Shrine", nationality: COUNTRIES.sample),
 
-  haruki: Author.create!(author_name: "Haruki Murakami", biography: "Japanese writer known for surreal fiction", nationality: COUNTRIES.sample, created_by_id: admin.id),
-  banana: Author.create!(author_name: "Banana Yoshimoto", biography: "Author of Kitchen", nationality: COUNTRIES.sample, created_by_id: admin.id),
-  natsume: Author.create!(author_name: "Natsume Soseki", biography: "Author of Kokoro", nationality: COUNTRIES.sample, created_by_id: admin.id),
-  osamu: Author.create!(author_name: "Osamu Dazai", biography: "Author of No Longer Human", nationality: COUNTRIES.sample, created_by_id: admin.id),
+  haruki: Author.create!(author_name: "Haruki Murakami", biography: "Japanese writer known for surreal fiction", nationality: COUNTRIES.sample),
+  banana: Author.create!(author_name: "Banana Yoshimoto", biography: "Author of Kitchen", nationality: COUNTRIES.sample),
+  natsume: Author.create!(author_name: "Natsume Soseki", biography: "Author of Kokoro", nationality: COUNTRIES.sample),
+  osamu: Author.create!(author_name: "Osamu Dazai", biography: "Author of No Longer Human", nationality: COUNTRIES.sample),
 
-  orwell: Author.create!(author_name: "George Orwell", biography: "Author of 1984", nationality: COUNTRIES.sample, created_by_id: admin.id),
-  tolkien: Author.create!(author_name: "J.R.R. Tolkien", biography: "Creator of LOTR", nationality: COUNTRIES.sample, created_by_id: admin.id),
-  king: Author.create!(author_name: "Stephen King", biography: "Master of horror", nationality: COUNTRIES.sample, created_by_id: admin.id),
-  rowling: Author.create!(author_name: "J.K. Rowling", biography: "Writer of Harry Potter", nationality: COUNTRIES.sample, created_by_id: admin.id)
+  orwell: Author.create!(author_name: "George Orwell", biography: "Author of 1984", nationality: COUNTRIES.sample),
+  tolkien: Author.create!(author_name: "J.R.R. Tolkien", biography: "Creator of LOTR", nationality: COUNTRIES.sample),
+  king: Author.create!(author_name: "Stephen King", biography: "Master of horror", nationality: COUNTRIES.sample),
+  rowling: Author.create!(author_name: "J.K. Rowling", biography: "Writer of Harry Potter", nationality: COUNTRIES.sample)
 }
 
-puts "#{Author.count} authors created!"
+puts " #{Author.count} authors created!"
 
 # ---------------------------------------- #
 # PRODUCT COUNTER
@@ -156,15 +157,14 @@ inazuma_books.each do |book|
   product = Product.create!(
     title: book[:title],
     isbn: Faker::Code.isbn,
-    description: Faker::Lorem.paragraph(sentence_count: 3),  # LONG ENOUGH
+    description: Faker::Lorem.paragraph(sentence_count: 3),
     current_price: book[:price],
     stock_quantity: rand(20..100),
     category: categories[book[:category]],
     publisher: "Yae Publishing House",
     publication_date: Faker::Date.between(from: 3.years.ago, to: Date.today),
     pages: book[:pages],
-    language: "English",
-    created_by_id: admin.id
+    language: "English"
   )
 
   ProductAuthor.create!(product: product, author: authors[book[:author]])
@@ -208,15 +208,14 @@ real_world_books.each do |book|
   product = Product.create!(
     title: book[:title],
     isbn: Faker::Code.isbn,
-    description: Faker::Lorem.paragraph(sentence_count: 3),  # FIXED
+    description: Faker::Lorem.paragraph(sentence_count: 3),
     current_price: book[:price],
     stock_quantity: rand(15..80),
     category: categories[book[:category]],
     publisher: ["Yae Publishing House", "Penguin Random House", "Vintage", "Shueisha"].sample,
     publication_date: Faker::Date.between(from: 10.years.ago, to: Date.today),
     pages: book[:pages],
-    language: "English",
-    created_by_id: admin.id
+    language: "English"
   )
 
   ProductAuthor.create!(product: product, author: authors[book[:author]])
@@ -234,12 +233,11 @@ extra_authors = 10.times.map do
   Author.create!(
     author_name: Faker::Book.unique.author,
     biography: Faker::Lorem.paragraph(sentence_count: 2),
-    nationality: COUNTRIES.sample,   # NOW DIVERSE
-    created_by_id: admin.id
+    nationality: COUNTRIES.sample
   )
 end
 
-remaining = 105 - product_count  # should be 65
+remaining = 105 - product_count
 
 remaining.times do
   category = categories.values.sample
@@ -255,8 +253,7 @@ remaining.times do
     publisher: ["Yae Publishing House", "Random House", "HarperCollins", "Kodansha"].sample,
     publication_date: Faker::Date.between(from: 5.years.ago, to: Date.today),
     pages: rand(180..450),
-    language: "English",
-    created_by_id: admin.id
+    language: "English"
   )
 
   ProductAuthor.create!(product: product, author: author)
@@ -272,14 +269,12 @@ puts "\n Creating Site Content..."
 
 SiteContent.create!(
   page_name: "about",
-  content: "Welcome to Yae Publishing House...",
-  updated_by_id: admin.id
+  content: "Welcome to Yae Publishing House, your premier destination for light novels, manga, and literature from across Teyvat and beyond. Founded by the Guuji of Grand Narukami Shrine, we bring you the finest stories from Inazuma and the world."
 )
 
 SiteContent.create!(
   page_name: "contact",
-  content: "Contact us at the Grand Narukami Shrine...",
-  updated_by_id: admin.id
+  content: "Contact us at the Grand Narukami Shrine on Mt. Yougou, Inazuma. Email: publishing@yaehouse.com | Phone: (555) YAE-MIKO"
 )
 
 puts " Site content created!"
@@ -287,7 +282,7 @@ puts " Site content created!"
 # ---------------------------------------- #
 # CUSTOMERS
 # ---------------------------------------- #
-puts "\n👥 Creating Sample Customers..."
+puts "\n Creating Sample Customers..."
 
 canadian_cities = ["Toronto", "Vancouver", "Montreal", "Calgary", "Winnipeg", "Edmonton", "Regina", "Saskatoon", "Halifax", "Quebec City", "Victoria", "Kamloops", "London", "Charlottetown"]
 all_provinces = Province.all.to_a
@@ -309,14 +304,17 @@ all_provinces = Province.all.to_a
   )
 end
 
-puts "✅ 5 sample customers created with addresses!"
+puts " 5 sample customers created with addresses!"
 
-puts "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-puts " SEEDING COMPLETE!"
-puts "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+# ---------------------------------------- #
+# FINAL SUMMARY
+# ---------------------------------------- #
+puts "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+puts "  SEEDING COMPLETE! "
+puts "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 puts "\n Database Summary:"
-puts "   Admins: #{Admin.count}"
+puts "   AdminUsers: #{AdminUser.count}"
 puts "   Provinces: #{Province.count}"
 puts "   Customers: #{Customer.count}"
 puts "   Categories: #{Category.count}"
@@ -326,7 +324,8 @@ puts "   Product-Author Links: #{ProductAuthor.count}"
 puts "   Site Content Pages: #{SiteContent.count}"
 
 puts "\n Admin Login:"
-puts "  Username: YPHAdmin"
-puts "  Password: $TimeToRead$"
+puts "   URL: http://localhost:3000/admin"
+puts "   Username: YPHAdmin"
+puts "   Password: $TimeToRead$"
 
-puts "\n May the Sacred Sakura bless your publishing ventures! "
+puts "\n May the Sacred Sakura bless your publishing ventures!"AdminUser.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?

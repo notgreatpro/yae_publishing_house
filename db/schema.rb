@@ -10,9 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_28_000033) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_29_012142) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "active_admin_comments", force: :cascade do |t|
+    t.string "namespace"
+    t.text "body"
+    t.string "resource_type"
+    t.bigint "resource_id"
+    t.string "author_type"
+    t.bigint "author_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_type", "author_id"], name: "index_active_admin_comments_on_author"
+    t.index ["namespace"], name: "index_active_admin_comments_on_namespace"
+    t.index ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource"
+  end
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -42,6 +56,25 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_28_000033) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "admin_users", force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "username"
+    t.integer "sign_in_count", default: 0, null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string "current_sign_in_ip"
+    t.string "last_sign_in_ip"
+    t.index ["email"], name: "index_admin_users_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
+    t.index ["username"], name: "index_admin_users_on_username", unique: true
+  end
+
   create_table "admins", force: :cascade do |t|
     t.string "username"
     t.string "password_digest"
@@ -57,19 +90,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_28_000033) do
     t.string "author_name"
     t.text "biography"
     t.string "nationality"
-    t.bigint "created_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["created_by_id"], name: "index_authors_on_created_by_id"
   end
 
   create_table "categories", force: :cascade do |t|
     t.string "category_name"
     t.text "description"
-    t.bigint "created_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["created_by_id"], name: "index_categories_on_created_by_id"
   end
 
   create_table "customers", force: :cascade do |t|
@@ -161,11 +190,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_28_000033) do
     t.integer "pages"
     t.string "language"
     t.string "cover_image_url"
-    t.bigint "created_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["category_id"], name: "index_products_on_category_id"
-    t.index ["created_by_id"], name: "index_products_on_created_by_id"
   end
 
   create_table "provinces", force: :cascade do |t|
@@ -188,8 +215,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_28_000033) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "authors", "admins", column: "created_by_id"
-  add_foreign_key "categories", "admins", column: "created_by_id"
   add_foreign_key "customers", "provinces"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
@@ -197,7 +222,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_28_000033) do
   add_foreign_key "orders", "provinces"
   add_foreign_key "product_authors", "authors"
   add_foreign_key "product_authors", "products"
-  add_foreign_key "products", "admins", column: "created_by_id"
   add_foreign_key "products", "categories"
   add_foreign_key "site_contents", "admins", column: "updated_by_id"
 end
