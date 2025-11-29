@@ -10,6 +10,16 @@ class OrderItem < ApplicationRecord
   
   # Callback to calculate subtotal before validation (so it's available for validation)
   before_validation :calculate_subtotal
+
+  # Ransack methods for Active Admin search
+  def self.ransackable_associations(auth_object = nil)
+    ["order", "product"]
+  end
+
+  def self.ransackable_attributes(auth_object = nil)
+    ["id", "order_id", "product_id", "quantity", "price_at_purchase", 
+     "subtotal", "created_at", "updated_at"]
+  end
   
   private
   

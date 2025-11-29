@@ -52,4 +52,17 @@ class Order < ApplicationRecord
       stripe_customer_id: stripe_customer_id
     )
   end
+
+  # Ransack methods for Active Admin search
+  def self.ransackable_associations(auth_object = nil)
+    ["customer", "order_items", "products", "province"]
+  end
+
+  def self.ransackable_attributes(auth_object = nil)
+    ["id", "customer_id", "order_date", "total_amount", "order_status", 
+     "payment_method", "shipping_address", "city", "country", "postal_code", 
+     "shipped_date", "delivered_date", "created_at", "updated_at", "status", 
+     "address_line1", "address_line2", "subtotal", "tax_amount", "gst_rate", 
+     "pst_rate", "hst_rate", "province_id", "stripe_payment_id", "stripe_customer_id"]
+  end
 end

@@ -1,2 +1,52 @@
 @import "active_admin/mixins";
 @import "active_admin/base";
+
+// Custom styles for your admin panel
+.index_table {
+  td {
+    vertical-align: middle !important;
+  }
+  
+  // Style for book titles with ISBN
+  .title-cell {
+    strong a {
+      font-size: 1.1em;
+      color: #2c3e50;
+      text-decoration: none;
+      
+      &:hover {
+        color: #3498db;
+      }
+    }
+    
+    .isbn {
+      color: #7f8c8d;
+      font-size: 0.85em;
+      margin-top: 4px;
+    }
+  }
+  
+  // Image column styling
+  .cover-image {
+    img {
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+  }
+}
+
+// Better status tags
+.status_tag {
+  &.ok { background: #27ae60; }
+  &.warning { background: #f39c12; }
+  &.error { background: #e74c3c; }
+}
+
+// Improve form styling
+.inputs {
+  .inline-hints {
+    color: #7f8c8d;
+    font-size: 0.9em;
+    margin-top: 5px;
+  }
+}

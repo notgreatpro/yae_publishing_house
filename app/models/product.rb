@@ -18,4 +18,15 @@ class Product < ApplicationRecord
   validates :publisher, length: { maximum: 255 }, allow_blank: true
   validates :pages, numericality: { only_integer: true, greater_than: 0 }, allow_blank: true
   validates :language, length: { maximum: 50 }, allow_blank: true
+
+  # Ransack methods for Active Admin search
+  def self.ransackable_associations(auth_object = nil)
+    ["category", "authors", "product_authors", "order_items", "admin"]
+  end
+
+  def self.ransackable_attributes(auth_object = nil)
+    ["id", "title", "isbn", "description", "current_price", "stock_quantity", 
+     "publisher", "pages", "language", "category_id", "created_by_id", 
+     "created_at", "updated_at"]
+  end
 end

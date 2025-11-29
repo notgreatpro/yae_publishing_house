@@ -31,6 +31,16 @@ class Customer < ApplicationRecord
     address_line1.present? && city.present? && postal_code.present? && province_id.present?
   end
 
+  # Ransack methods for Active Admin search
+  def self.ransackable_associations(auth_object = nil)
+    ["orders", "province"]
+  end
+
+  def self.ransackable_attributes(auth_object = nil)
+    ["id", "email", "first_name", "last_name", "address_line1", "address_line2", 
+     "city", "postal_code", "province_id", "created_at", "updated_at"]
+  end
+
   private
 
   def address_present?
