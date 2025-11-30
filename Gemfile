@@ -33,6 +33,7 @@ gem 'kaminari'
 gem 'devise'
 gem 'stripe'
 gem 'activeadmin' 
+gem 'bootstrap5-kaminari-views'
 gem 'sassc'
 gem 'inherited_resources' 
 
