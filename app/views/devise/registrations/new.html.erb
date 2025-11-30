@@ -1,45 +1,68 @@
-<div class="auth-container">
-  <div class="auth-card">
-    <h2>Create Account</h2>
+<!-- app/views/devise/registrations/new.html.erb -->
 
-      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), data: { turbo: false }) do |f| %>
-      <%= render "devise/shared/error_messages", resource: resource %>
+<div class="container">
+  <div class="row justify-content-center min-vh-100 align-items-center py-5">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-body p-5">
+          <h2 class="text-center mb-4" style="color: #2c3e50; font-size: 1.8em;">Create Account</h2>
 
-      <div class="field">
-        <%= f.label :first_name %>
-        <%= f.text_field :first_name, autofocus: true, class: 'form-input', placeholder: "First name" %>
+          <%= form_for(resource, as: resource_name, url: registration_path(resource_name), data: { turbo: false }) do |f| %>
+            <%= render "devise/shared/error_messages", resource: resource %>
+
+            <div class="mb-4">
+              <%= f.label :first_name, class: 'form-label fw-semibold', style: 'color: #2c3e50;' %>
+              <%= f.text_field :first_name, autofocus: true, class: 'form-control', 
+                  placeholder: 'First name', 
+                  style: 'padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px;' %>
+            </div>
+
+            <div class="mb-4">
+              <%= f.label :last_name, class: 'form-label fw-semibold', style: 'color: #2c3e50;' %>
+              <%= f.text_field :last_name, class: 'form-control', 
+                  placeholder: 'Last name',
+                  style: 'padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px;' %>
+            </div>
+
+            <div class="mb-4">
+              <%= f.label :email, class: 'form-label fw-semibold', style: 'color: #2c3e50;' %>
+              <%= f.email_field :email, autocomplete: "email", class: 'form-control', 
+                  placeholder: 'youremail@example.com',
+                  style: 'padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px;' %>
+            </div>
+
+            <div class="mb-4">
+              <%= f.label :password, class: 'form-label fw-semibold', style: 'color: #2c3e50;' %>
+              <% if @minimum_password_length %>
+                <em class="text-muted">(<%= @minimum_password_length %> characters minimum)</em>
+              <% end %>
+              <%= f.password_field :password, autocomplete: "new-password", class: 'form-control', 
+                  placeholder: '••••••••',
+                  style: 'padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px;' %>
+            </div>
+
+            <div class="mb-4">
+              <%= f.label :password_confirmation, "Confirm Password", class: 'form-label fw-semibold', style: 'color: #2c3e50;' %>
+              <%= f.password_field :password_confirmation, autocomplete: "new-password", 
+                  class: 'form-control', 
+                  placeholder: '••••••••',
+                  style: 'padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px;' %>
+            </div>
+
+            <div class="mt-4">
+              <%= f.submit "Create Account", class: 'btn w-100', 
+                  style: 'padding: 15px; background: #27ae60; color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: 600;' %>
+            </div>
+          <% end %>
+
+          <div class="text-center mt-4 pt-4 border-top">
+            <p style="color: #2c3e50; margin: 10px 0;">
+              Already have an account? 
+              <%= link_to "Log in", new_customer_session_path, class: 'text-decoration-none', style: 'color: #3498db;' %>
+            </p>
+          </div>
+        </div>
       </div>
-
-      <div class="field">
-        <%= f.label :last_name %>
-        <%= f.text_field :last_name, class: 'form-input', placeholder: "Last name" %>
-      </div>
-
-      <div class="field">
-        <%= f.label :email %>
-        <%= f.email_field :email, autocomplete: "email", class: 'form-input', placeholder: "youremail@example.com" %>
-      </div>
-
-      <div class="field">
-        <%= f.label :password %>
-        <% if @minimum_password_length %>
-        <em>(<%= @minimum_password_length %> characters minimum)</em>
-        <% end %>
-        <%= f.password_field :password, autocomplete: "new-password", class: 'form-input', placeholder: "••••••••" %>
-      </div>
-
-      <div class="field">
-        <%= f.label :password_confirmation, "Confirm Password" %>
-        <%= f.password_field :password_confirmation, autocomplete: "new-password", class: 'form-input', placeholder: "••••••••" %>
-      </div>
-
-      <div class="actions">
-        <%= f.submit "Create Account", class: 'btn-submit' %>
-      </div>
-    <% end %>
-
-    <div class="auth-links">
-      <p>Already have an account? <%= link_to "Log in", new_customer_session_path %></p>
     </div>
   </div>
 </div>
@@ -48,107 +71,14 @@
   body {
     background: #f8f9fa;
   }
-
-  .auth-container {
-    min-height: 80vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-  }
-
-  .auth-card {
-    max-width: 500px;
-    width: 100%;
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  }
-
-  .auth-card h2 {
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 30px;
-    font-size: 1.8em;
-  }
-
-  .field {
-    margin-bottom: 25px;
-  }
-
-  .field label {
-    display: block;
-    margin-bottom: 8px;
-    color: #2c3e50;
-    font-weight: 600;
-  }
-
-  .checkbox-field {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .checkbox-field label {
-    margin-bottom: 0;
-    font-weight: normal;
-  }
-
-  .form-input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 1em;
-    transition: border-color 0.3s;
-    box-sizing: border-box;
-  }
-
-  .form-input:focus {
+  
+  .form-control:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: #3498db !important;
+    box-shadow: none !important;
   }
-
-  .actions {
-    margin-top: 30px;
-  }
-
-  .btn-submit {
-    width: 100%;
-    padding: 15px;
-    background: #27ae60;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-
-  .btn-submit:hover {
-    background: #229954;
-  }
-
-  .auth-links {
-    text-align: center;
-    margin-top: 25px;
-    padding-top: 25px;
-    border-top: 1px solid #ecf0f1;
-  }
-
-  .auth-links p {
-    margin: 10px 0;
-    color: #2c3e50;
-  }
-
-  .auth-links a {
-    color: #3498db;
-    text-decoration: none;
-  }
-
-  .auth-links a:hover {
-    text-decoration: underline;
+  
+  .btn:hover {
+    background: #229954 !important;
   }
 </style>

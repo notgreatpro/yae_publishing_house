@@ -1,33 +1,55 @@
-<div class="auth-container">
-  <div class="auth-card">
-    <h2>Log In</h2>
+<!-- app/views/devise/sessions/new.html.erb -->
 
-      <%= form_for(resource, as: resource_name, url: session_path(resource_name), data: { turbo: false }) do |f| %>
-      <div class="field">
-        <%= f.label :email %>
-        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: 'form-input', placeholder: "your.email@example.com" %>
-      </div>
+<div class="container">
+  <div class="row justify-content-center min-vh-100 align-items-center py-5">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-body p-5">
+          <h2 class="text-center mb-4" style="color: #2c3e50; font-size: 1.8em;">Log In</h2>
 
-      <div class="field">
-        <%= f.label :password %>
-        <%= f.password_field :password, autocomplete: "current-password", class: 'form-input', placeholder: "••••••••" %>
-      </div>
+          <%= form_for(resource, as: resource_name, url: session_path(resource_name), data: { turbo: false }) do |f| %>
+            <div class="mb-4">
+              <%= f.label :email, class: 'form-label fw-semibold', style: 'color: #2c3e50;' %>
+              <%= f.email_field :email, autofocus: true, autocomplete: "email", 
+                  class: 'form-control', 
+                  placeholder: 'your.email@example.com',
+                  style: 'padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px;' %>
+            </div>
 
-      <% if devise_mapping.rememberable? %>
-        <div class="field checkbox-field">
-          <%= f.check_box :remember_me %>
-          <%= f.label :remember_me %>
+            <div class="mb-4">
+              <%= f.label :password, class: 'form-label fw-semibold', style: 'color: #2c3e50;' %>
+              <%= f.password_field :password, autocomplete: "current-password", 
+                  class: 'form-control', 
+                  placeholder: '••••••••',
+                  style: 'padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px;' %>
+            </div>
+
+            <% if devise_mapping.rememberable? %>
+              <div class="mb-4">
+                <div class="form-check">
+                  <%= f.check_box :remember_me, class: 'form-check-input' %>
+                  <%= f.label :remember_me, class: 'form-check-label' %>
+                </div>
+              </div>
+            <% end %>
+
+            <div class="mt-4">
+              <%= f.submit "Log In", class: 'btn w-100', 
+                  style: 'padding: 15px; background: #27ae60; color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: 600;' %>
+            </div>
+          <% end %>
+
+          <div class="text-center mt-4 pt-4 border-top">
+            <p style="color: #2c3e50; margin: 10px 0;">
+              Don't have a Yae Publishing House account? 
+              <%= link_to "Sign up", new_customer_registration_path, class: 'text-decoration-none', style: 'color: #3498db;' %>
+            </p>
+            <p style="margin: 10px 0;">
+              <%= link_to "Forgot your password?", new_customer_password_path, class: 'text-decoration-none', style: 'color: #3498db;' %>
+            </p>
+          </div>
         </div>
-      <% end %>
-
-      <div class="actions">
-        <%= f.submit "Log In", class: 'btn-submit' %>
       </div>
-    <% end %>
-
-    <div class="auth-links">
-      <p>Don't have a Yae Publishing House account? <%= link_to "Sign up", new_customer_registration_path %></p>
-      <p><%= link_to "Forgot your password?", new_customer_password_path %></p>
     </div>
   </div>
 </div>
@@ -36,107 +58,19 @@
   body {
     background: #f8f9fa;
   }
-
-  .auth-container {
-    min-height: 80vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-  }
-
-  .auth-card {
-    max-width: 500px;
-    width: 100%;
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  }
-
-  .auth-card h2 {
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 30px;
-    font-size: 1.8em;
-  }
-
-  .field {
-    margin-bottom: 25px;
-  }
-
-  .field label {
-    display: block;
-    margin-bottom: 8px;
-    color: #2c3e50;
-    font-weight: 600;
-  }
-
-  .checkbox-field {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .checkbox-field label {
-    margin-bottom: 0;
-    font-weight: normal;
-  }
-
-  .form-input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 1em;
-    transition: border-color 0.3s;
-    box-sizing: border-box;
-  }
-
-  .form-input:focus {
+  
+  .form-control:focus {
     outline: none;
+    border-color: #3498db !important;
+    box-shadow: none !important;
+  }
+  
+  .btn:hover {
+    background: #229954 !important;
+  }
+  
+  .form-check-input:focus {
     border-color: #3498db;
-  }
-
-  .actions {
-    margin-top: 30px;
-  }
-
-  .btn-submit {
-    width: 100%;
-    padding: 15px;
-    background: #27ae60;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-
-  .btn-submit:hover {
-    background: #229954;
-  }
-
-  .auth-links {
-    text-align: center;
-    margin-top: 25px;
-    padding-top: 25px;
-    border-top: 1px solid #ecf0f1;
-  }
-
-  .auth-links p {
-    margin: 10px 0;
-    color: #2c3e50;
-  }
-
-  .auth-links a {
-    color: #3498db;
-    text-decoration: none;
-  }
-
-  .auth-links a:hover {
-    text-decoration: underline;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
   }
 </style>

@@ -1,373 +1,153 @@
 <!-- app/views/products/show.html.erb -->
 
-<div class="container">
-  <div class="breadcrumb">
-    <%= link_to 'Home', root_path %> &gt; 
-    <%= link_to 'Products', products_path %> &gt; 
-    <%= @product.title %>
-  </div>
+<div class="container mt-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><%= link_to 'Home', root_path %></li>
+      <li class="breadcrumb-item"><%= link_to 'Products', products_path %></li>
+      <li class="breadcrumb-item active" aria-current="page"><%= truncate(@product.title, length: 50) %></li>
+    </ol>
+  </nav>
 
-  <div class="product-detail">
-    <div class="product-detail-image">
+  <div class="row mt-4">
+    <!-- Product Image Column -->
+    <div class="col-lg-5 col-md-6 mb-4">
       <% if @product.cover_image.attached? %>
-        <%= image_tag @product.cover_image, alt: @product.title, class: 'main-image' %>
+        <%= image_tag @product.cover_image, alt: @product.title, class: 'img-fluid rounded shadow' %>
       <% else %>
-        <div class="placeholder-image-large">
-          <p>No cover image available</p>
+        <div class="placeholder-image-large d-flex flex-column align-items-center justify-content-center rounded shadow">
+          <div style="font-size: 6em;">📚</div>
+          <p class="text-white mt-3">No cover image available</p>
         </div>
       <% end %>
     </div>
 
-    <div class="product-detail-info">
-      <h1 class="product-title"><%= @product.title %></h1>
+    <!-- Product Information Column -->
+    <div class="col-lg-7 col-md-6">
+      <h1 class="display-4 mb-2"><%= @product.title %></h1>
       
       <% if @product.authors.any? %>
-        <p class="product-author">
+        <p class="text-muted fst-italic fs-5 mb-3">
           by <%= @product.authors.map(&:author_name).join(', ') %>
         </p>
       <% end %>
 
-      <div class="product-meta">
+      <!-- Badges -->
+      <div class="mb-3">
         <% if @product.category %>
-          <span class="badge category-badge">
+          <span class="badge bg-info text-dark me-2">
             <%= @product.category.category_name %>
           </span>
         <% end %>
         
         <% if @product.created_at >= 3.days.ago %>
-          <span class="badge new-badge">NEW</span>
+          <span class="badge bg-success">NEW</span>
         <% end %>
       </div>
 
-      <div class="product-price-section">
-        <p class="product-price"><%= number_to_currency(@product.current_price) %></p>
-        
-        <% if @product.stock_quantity && @product.stock_quantity > 0 %>
-          <p class="stock-status in-stock">
-            ✓ In Stock (<%= @product.stock_quantity %> available)
-          </p>
-        <% else %>
-          <p class="stock-status out-of-stock">Out of Stock</p>
-        <% end %>
+      <!-- Price Section -->
+      <div class="card bg-light mb-4">
+        <div class="card-body">
+          <h2 class="text-success fw-bold mb-2" style="font-size: 2.5em;">
+            <%= number_to_currency(@product.current_price) %>
+          </h2>
+          
+          <% if @product.stock_quantity && @product.stock_quantity > 0 %>
+            <p class="text-success mb-0 fs-5 fw-semibold">
+              <i class="bi bi-check-circle-fill"></i> In Stock (<%= @product.stock_quantity %> available)
+            </p>
+          <% else %>
+            <p class="text-danger mb-0 fs-5 fw-semibold">Out of Stock</p>
+          <% end %>
+        </div>
       </div>
 
-      <div class="action-buttons">
+      <!-- Add to Cart Form -->
+      <div class="mb-4">
         <%= form_with url: cart_add_path, method: :post, local: true, class: 'add-to-cart-form' do |f| %>
           <%= f.hidden_field :product_id, value: @product.id %>
           
-          <div class="quantity-selector">
-            <label for="quantity">Quantity:</label>
-            <%= f.number_field :quantity, value: 1, min: 1, max: @product.stock_quantity || 99, class: 'quantity-input' %>
+          <div class="row g-3 mb-3">
+            <div class="col-auto">
+              <label for="quantity" class="col-form-label fw-semibold">Quantity:</label>
+            </div>
+            <div class="col-auto">
+              <%= f.number_field :quantity, value: 1, min: 1, max: @product.stock_quantity || 99, 
+                  class: 'form-control', style: 'width: 80px;' %>
+            </div>
           </div>
           
-          <% if @product.stock_quantity && @product.stock_quantity > 0 %>
-            <%= f.submit 'Add to Cart', class: 'btn-add-to-cart' %>
-          <% else %>
-            <button class="btn-add-to-cart" disabled>Out of Stock</button>
+          <div class="d-grid gap-2">
+            <% if @product.stock_quantity && @product.stock_quantity > 0 %>
+              <%= f.submit 'Add to Cart', class: 'btn btn-success btn-lg fw-semibold' %>
+            <% else %>
+              <button class="btn btn-secondary btn-lg" disabled>Out of Stock</button>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Product Description -->
+      <div class="mb-4">
+        <h3 class="h4 mb-3">About This Book</h3>
+        <div class="lh-lg text-secondary">
+          <%= simple_format(@product.description) %>
+        </div>
+      </div>
+
+      <!-- Product Details -->
+      <div class="card bg-light mb-4">
+        <div class="card-body">
+          <% if @product.isbn.present? %>
+            <div class="row py-2 border-bottom">
+              <div class="col-4 text-muted fw-semibold">ISBN:</div>
+              <div class="col-8"><%= @product.isbn %></div>
+            </div>
           <% end %>
-        <% end %>
+
+          <% if @product.publisher.present? %>
+            <div class="row py-2 border-bottom">
+              <div class="col-4 text-muted fw-semibold">Publisher:</div>
+              <div class="col-8"><%= @product.publisher %></div>
+            </div>
+          <% end %>
+
+          <% if @product.publication_date.present? %>
+            <div class="row py-2 border-bottom">
+              <div class="col-4 text-muted fw-semibold">Publication Date:</div>
+              <div class="col-8"><%= @product.publication_date.strftime('%B %d, %Y') %></div>
+            </div>
+          <% end %>
+
+          <% if @product.pages.present? %>
+            <div class="row py-2 border-bottom">
+              <div class="col-4 text-muted fw-semibold">Pages:</div>
+              <div class="col-8"><%= @product.pages %></div>
+            </div>
+          <% end %>
+
+          <% if @product.language.present? %>
+            <div class="row py-2">
+              <div class="col-4 text-muted fw-semibold">Language:</div>
+              <div class="col-8"><%= @product.language %></div>
+            </div>
+          <% end %>
+        </div>
       </div>
 
-      <div class="product-description">
-        <h3>About This Book</h3>
-        <%= simple_format(@product.description) %>
-      </div>
-
-      <div class="product-details-grid">
-        <% if @product.isbn.present? %>
-          <div class="detail-item">
-            <strong>ISBN:</strong>
-            <span><%= @product.isbn %></span>
-          </div>
-        <% end %>
-
-        <% if @product.publisher.present? %>
-          <div class="detail-item">
-            <strong>Publisher:</strong>
-            <span><%= @product.publisher %></span>
-          </div>
-        <% end %>
-
-        <% if @product.publication_date.present? %>
-          <div class="detail-item">
-            <strong>Publication Date:</strong>
-            <span><%= @product.publication_date.strftime('%B %d, %Y') %></span>
-          </div>
-        <% end %>
-
-        <% if @product.pages.present? %>
-          <div class="detail-item">
-            <strong>Pages:</strong>
-            <span><%= @product.pages %></span>
-          </div>
-        <% end %>
-
-        <% if @product.language.present? %>
-          <div class="detail-item">
-            <strong>Language:</strong>
-            <span><%= @product.language %></span>
-          </div>
-        <% end %>
-      </div>
-
-      <div class="back-link">
-        <%= link_to '← Back to Products', products_path, class: 'btn-back' %>
+      <!-- Back Link -->
+      <div class="mt-4">
+        <%= link_to '← Back to Products', products_path, class: 'btn btn-secondary' %>
       </div>
     </div>
   </div>
 </div>
 
 <style>
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-
-  .breadcrumb {
-    margin-bottom: 30px;
-    color: #7f8c8d;
-    font-size: 0.9em;
-  }
-
-  .breadcrumb a {
-    color: #3498db;
-    text-decoration: none;
-  }
-
-  .breadcrumb a:hover {
-    text-decoration: underline;
-  }
-
-  .product-detail {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 40px;
-    margin-top: 20px;
-  }
-
-  .product-detail-image {
-    position: sticky;
-    top: 20px;
-    height: fit-content;
-  }
-
-  .main-image {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-
   .placeholder-image-large {
     width: 100%;
     aspect-ratio: 2/3;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: 6em;
-  }
-
-  .placeholder-image-large p {
-    font-size: 0.2em;
-    color: white;
-    margin-top: 20px;
-  }
-
-  .product-detail-info {
-    padding: 20px 0;
-  }
-
-  .product-title {
-    font-size: 2.5em;
-    margin: 0 0 10px 0;
-    color: #2c3e50;
-    line-height: 1.2;
-  }
-
-  .product-author {
-    font-size: 1.3em;
-    color: #7f8c8d;
-    font-style: italic;
-    margin-bottom: 20px;
-  }
-
-  .product-meta {
-    margin-bottom: 20px;
-  }
-
-  .badge {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 0.85em;
-    font-weight: 600;
-    margin-right: 10px;
-  }
-
-  .category-badge {
-    background: #e8f4f8;
-    color: #2980b9;
-  }
-
-  .new-badge {
-    background: #d4edda;
-    color: #155724;
-  }
-
-  .product-price-section {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-  }
-
-  .product-price {
-    font-size: 2.5em;
-    color: #27ae60;
-    font-weight: bold;
-    margin: 0 0 10px 0;
-  }
-
-  .stock-status {
-    font-size: 1.1em;
-    margin: 10px 0;
-    font-weight: 500;
-  }
-
-  .in-stock {
-    color: #27ae60;
-  }
-
-  .out-of-stock {
-    color: #e74c3c;
-  }
-
-  .action-buttons {
-    margin: 30px 0;
-  }
-
-  .add-to-cart-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .quantity-selector {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-
-  .quantity-selector label {
-    font-weight: 600;
-    color: #2c3e50;
-  }
-
-  .quantity-input {
-    width: 80px;
-    padding: 10px;
-    border: 2px solid #ddd;
-    border-radius: 6px;
-    font-size: 1.1em;
-    text-align: center;
-  }
-
-  .btn-add-to-cart {
-    width: 100%;
-    padding: 18px;
-    background: #27ae60;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.2em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-
-  .btn-add-to-cart:not(:disabled):hover {
-    background: #229954;
-  }
-
-  .btn-add-to-cart:disabled {
-    background: #95a5a6;
-    cursor: not-allowed;
-  }
-
-  .product-description {
-    margin: 40px 0;
-    line-height: 1.8;
-    color: #34495e;
-  }
-
-  .product-description h3 {
-    font-size: 1.5em;
-    margin-bottom: 15px;
-    color: #2c3e50;
-  }
-
-  .product-details-grid {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 30px 0;
-  }
-
-  .detail-item {
-    display: grid;
-    grid-template-columns: 150px 1fr;
-    padding: 12px 0;
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  .detail-item:last-child {
-    border-bottom: none;
-  }
-
-  .detail-item strong {
-    color: #7f8c8d;
-  }
-
-  .back-link {
-    margin-top: 40px;
-  }
-
-  .btn-back {
-    display: inline-block;
-    padding: 12px 24px;
-    background: #95a5a6;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    transition: background 0.3s;
-  }
-
-  .btn-back:hover {
-    background: #7f8c8d;
-    text-decoration: none;
-  }
-
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .product-detail {
-      grid-template-columns: 1fr;
-      gap: 20px;
-    }
-
-    .product-detail-image {
-      position: static;
-    }
-
-    .product-title {
-      font-size: 1.8em;
-    }
-
-    .product-price {
-      font-size: 2em;
-    }
+    min-height: 400px;
   }
 </style>

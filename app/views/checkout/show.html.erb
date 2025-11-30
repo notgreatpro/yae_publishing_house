@@ -2,27 +2,30 @@
 <!-- Feature 3.1.3 - Complete a checkout process (8%) -->
 <!-- Feature 3.3.1 - Stripe Payment Integration (6%) -->
 
-<div class="checkout-container">
-  <div class="breadcrumb">
-    <%= link_to 'Home', root_path %> &gt; 
-    <%= link_to 'Cart', cart_path %> &gt; 
-    Checkout
+<div class="container mt-4 mb-5">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><%= link_to 'Home', root_path %></li>
+      <li class="breadcrumb-item"><%= link_to 'Cart', cart_path %></li>
+      <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+    </ol>
+  </nav>
+
+  <div class="text-center py-4 mb-4 border-bottom">
+    <h1 class="display-4">Checkout</h1>
   </div>
 
-  <header class="checkout-header">
-    <h1>Checkout</h1>
-  </header>
-
   <% if flash[:alert] %>
-    <div class="alert alert-danger">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
       <%= flash[:alert] %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   <% end %>
 
   <% if @order && @order.errors.any? %>
     <div class="alert alert-danger">
-      <h4><%= pluralize(@order.errors.count, "error") %> prevented this order from being saved:</h4>
-      <ul>
+      <h5 class="alert-heading"><%= pluralize(@order.errors.count, "error") %> prevented this order from being saved:</h5>
+      <ul class="mb-0">
         <% @order.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
@@ -30,239 +33,191 @@
     </div>
   <% end %>
 
-  <div class="checkout-content">
-    <!-- Order Summary Sidebar -->
-    <div class="order-summary-sidebar">
-      <h2>Order Summary</h2>
-      
-      <div class="summary-items">
-        <% @cart_items.each do |item| %>
-          <div class="summary-item">
-            <div class="summary-item-image">
-              <% if item[:product].cover_image.attached? %>
-                <%= image_tag item[:product].cover_image, alt: item[:product].title %>
-              <% else %>
-                <div class="placeholder-mini">📚</div>
-              <% end %>
-            </div>
-            <div class="summary-item-details">
-              <p class="summary-item-title"><%= item[:product].title %></p>
-              <p class="summary-item-qty">Qty: <%= item[:quantity] %></p>
-              <p class="summary-item-unit-price"><%= number_to_currency(item[:product].current_price) %> each</p>
-            </div>
-            <div class="summary-item-price">
-              <%= number_to_currency(item[:product].current_price * item[:quantity]) %>
-            </div>
-          </div>
-        <% end %>
-      </div>
-
-      <hr>
-
-      <div class="summary-totals">
-        <div class="summary-row">
-          <span>Subtotal (<%= pluralize(@cart_items.sum { |i| i[:quantity] }, 'item') %>):</span>
-          <span><strong><%= number_to_currency(@subtotal) %></strong></span>
-        </div>
-        
-        <div class="summary-row tax-row">
-          <span>Tax:</span>
-          <span id="tax-display">Select province to calculate</span>
-        </div>
-
-        <hr>
-
-        <div class="summary-row total-row">
-          <span>Total:</span>
-          <span id="total-display"><%= number_to_currency(@subtotal) %>+</span>
-        </div>
-        <p class="tax-note">Final amount with tax will be calculated after selecting province</p>
-      </div>
-    </div>
-
-    <!-- Checkout Form -->
-    <div class="checkout-form-section">
-      <%= form_with url: checkout_path, method: :post, local: true, id: 'checkout-form', class: 'checkout-form' do |f| %>
+  <div class="row">
+    <!-- Main Checkout Form -->
+    <div class="col-lg-8 mb-4">
+      <%= form_with url: checkout_path, method: :post, local: true, id: 'checkout-form' do |f| %>
         
         <!-- Customer Information -->
-        <div class="form-section">
-          <h2>Contact Information</h2>
-          
-          <div class="customer-info-display">
-            <p><strong>Logged in as:</strong> <%= @customer.email %></p>
+        <div class="card mb-4">
+          <div class="card-header bg-white">
+            <h3 class="h5 mb-0">Contact Information</h3>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-success mb-0">
+              <strong>Logged in as:</strong> <%= @customer.email %>
+            </div>
           </div>
         </div>
 
-        <!-- Saved Address Option -->
-        <% if @customer.has_complete_address? %>
-          <div class="form-section">
-            <h2>Shipping Address</h2>
-            
-            <div class="saved-address-option">
-              <label class="address-radio-option">
-                <%= radio_button_tag :use_saved_address, '1', true, class: 'address-radio' %>
-                <div class="address-option-content">
-                  <strong>Use saved address</strong>
-                  <div class="saved-address-display">
-                    <p><%= @customer.first_name %> <%= @customer.last_name %></p>
-                    <p><%= @customer.address_line1 %></p>
-                    <% if @customer.address_line2.present? %>
-                      <p><%= @customer.address_line2 %></p>
-                    <% end %>
-                    <p><%= @customer.city %>, <%= @customer.province.code %> <%= @customer.postal_code %></p>
-                    <% if @customer.phone.present? %>
-                      <p><%= @customer.phone %></p>
-                    <% end %>
+        <!-- Shipping Address -->
+        <div class="card mb-4">
+          <div class="card-header bg-white">
+            <h3 class="h5 mb-0">Shipping Address</h3>
+          </div>
+          <div class="card-body">
+            <% if @customer.has_complete_address? %>
+              <div class="mb-3">
+                <div class="form-check border rounded p-3 mb-2">
+                  <%= radio_button_tag :use_saved_address, '1', true, class: 'form-check-input', id: 'use_saved_yes' %>
+                  <label class="form-check-label w-100" for="use_saved_yes">
+                    <strong class="d-block mb-2">Use saved address</strong>
+                    <div class="saved-address-display bg-light p-3 rounded">
+                      <p class="mb-1"><%= @customer.first_name %> <%= @customer.last_name %></p>
+                      <p class="mb-1"><%= @customer.address_line1 %></p>
+                      <% if @customer.address_line2.present? %>
+                        <p class="mb-1"><%= @customer.address_line2 %></p>
+                      <% end %>
+                      <p class="mb-1"><%= @customer.city %>, <%= @customer.province.code %> <%= @customer.postal_code %></p>
+                      <% if @customer.phone.present? %>
+                        <p class="mb-0"><%= @customer.phone %></p>
+                      <% end %>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="form-check border rounded p-3">
+                  <%= radio_button_tag :use_saved_address, '0', false, class: 'form-check-input', id: 'use_saved_no' %>
+                  <label class="form-check-label" for="use_saved_no">
+                    <strong>Use a different address</strong>
+                  </label>
+                </div>
+              </div>
+
+              <div id="new-address-fields" style="display: none;">
+            <% else %>
+              <div id="new-address-fields">
+            <% end %>
+
+                <div class="row g-3 mb-3">
+                  <div class="col-md-6">
+                    <label for="first_name" class="form-label">First Name</label>
+                    <%= text_field_tag :first_name, @customer.first_name, 
+                        required: !@customer.has_complete_address?, 
+                        class: 'form-control' %>
+                  </div>
+                  
+                  <div class="col-md-6">
+                    <label for="last_name" class="form-label">Last Name</label>
+                    <%= text_field_tag :last_name, @customer.last_name, 
+                        required: !@customer.has_complete_address?, 
+                        class: 'form-control' %>
                   </div>
                 </div>
-              </label>
 
-              <label class="address-radio-option">
-                <%= radio_button_tag :use_saved_address, '0', false, class: 'address-radio' %>
-                <div class="address-option-content">
-                  <strong>Use a different address</strong>
-                </div>
-              </label>
-            </div>
-
-            <div id="new-address-fields" style="display: none; margin-top: 20px;">
-        <% else %>
-          <div class="form-section">
-            <h2>Shipping Address</h2>
-            <div id="new-address-fields">
-        <% end %>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <%= label_tag :first_name, "First Name" %>
-                  <%= text_field_tag :first_name, @customer.first_name, 
-                      required: !@customer.has_complete_address?, 
-                      class: 'form-control' %>
-                </div>
-                
-                <div class="form-group">
-                  <%= label_tag :last_name, "Last Name" %>
-                  <%= text_field_tag :last_name, @customer.last_name, 
-                      required: !@customer.has_complete_address?, 
-                      class: 'form-control' %>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <%= label_tag :address_line1, "Address Line 1" %>
-                <%= text_field_tag :address_line1, '', 
-                    required: !@customer.has_complete_address?, 
-                    class: 'form-control',
-                    placeholder: 'Street address, P.O. box' %>
-              </div>
-
-              <div class="form-group">
-                <%= label_tag :address_line2, "Address Line 2 (Optional)" %>
-                <%= text_field_tag :address_line2, '', 
-                    class: 'form-control',
-                    placeholder: 'Apartment, suite, unit, building, floor, etc.' %>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <%= label_tag :city, "City" %>
-                  <%= text_field_tag :city, '', 
-                      required: !@customer.has_complete_address?, 
-                      class: 'form-control' %>
-                </div>
-
-                <div class="form-group">
-                  <%= label_tag :province_id, "Province" %>
-                  <%= select_tag :province_id, 
-                      options_from_collection_for_select(Province.order(:name), :id, :name, @customer.province_id),
-                      prompt: 'Select Province',
-                      required: !@customer.has_complete_address?,
-                      class: 'form-control',
-                      id: 'province-select',
-                      data: { 
-                        provinces: Province.all.to_json(only: [:id, :name, :gst_rate, :pst_rate, :hst_rate]),
-                        subtotal: @subtotal
-                      } %>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <%= label_tag :postal_code, "Postal Code" %>
-                  <%= text_field_tag :postal_code, '', 
+                <div class="mb-3">
+                  <label for="address_line1" class="form-label">Address Line 1</label>
+                  <%= text_field_tag :address_line1, '', 
                       required: !@customer.has_complete_address?, 
                       class: 'form-control',
-                      placeholder: 'A1A 1A1',
-                      pattern: '[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d' %>
+                      placeholder: 'Street address, P.O. box' %>
                 </div>
 
-                <div class="form-group">
-                  <%= label_tag :phone, "Phone Number (Optional)" %>
-                  <%= telephone_field_tag :phone, '', 
+                <div class="mb-3">
+                  <label for="address_line2" class="form-label">Address Line 2 (Optional)</label>
+                  <%= text_field_tag :address_line2, '', 
                       class: 'form-control',
-                      placeholder: '(123) 456-7890' %>
+                      placeholder: 'Apartment, suite, unit, building, floor, etc.' %>
+                </div>
+
+                <div class="row g-3 mb-3">
+                  <div class="col-md-6">
+                    <label for="city" class="form-label">City</label>
+                    <%= text_field_tag :city, '', 
+                        required: !@customer.has_complete_address?, 
+                        class: 'form-control' %>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="province_id" class="form-label">Province</label>
+                    <%= select_tag :province_id, 
+                        options_from_collection_for_select(Province.order(:name), :id, :name, @customer.province_id),
+                        prompt: 'Select Province',
+                        required: !@customer.has_complete_address?,
+                        class: 'form-select',
+                        id: 'province-select',
+                        data: { 
+                          provinces: Province.all.to_json(only: [:id, :name, :gst_rate, :pst_rate, :hst_rate]),
+                          subtotal: @subtotal
+                        } %>
+                  </div>
+                </div>
+
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="postal_code" class="form-label">Postal Code</label>
+                    <%= text_field_tag :postal_code, '', 
+                        required: !@customer.has_complete_address?, 
+                        class: 'form-control',
+                        placeholder: 'A1A 1A1',
+                        pattern: '[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d' %>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="phone" class="form-label">Phone Number (Optional)</label>
+                    <%= telephone_field_tag :phone, '', 
+                        class: 'form-control',
+                        placeholder: '(123) 456-7890' %>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-
-        <!-- Payment Information -->
-        <div class="form-section">
-          <h2>💳 Payment Information</h2>
-          
-          <div class="secure-badge">
-            <div>
-              <strong>Secure Payment</strong>
-              <p>Your payment information is encrypted and secure</p>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <%= label_tag :cardholder_name, "Cardholder Name" %>
-            <%= text_field_tag :cardholder_name, '', 
-                required: true,
-                class: 'form-control',
-                placeholder: 'Name on card',
-                autocomplete: 'cc-name' %>
-          </div>
-
-          <div class="form-group">
-            <label for="card-element">Card Number</label>
-            <div id="card-number-element" class="stripe-card-element">
-              <!-- Stripe Card Number Element -->
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="card-expiry-element">Expiry Date</label>
-              <div id="card-expiry-element" class="stripe-card-element">
-                <!-- Stripe Expiry Element -->
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="card-cvc-element">CVC</label>
-              <div id="card-cvc-element" class="stripe-card-element">
-                <!-- Stripe CVC Element -->
-              </div>
-            </div>
-          </div>
-
-          <div id="card-errors" role="alert" class="card-errors"></div>
-
-          <div class="payment-test-mode">
-            <p><strong>Test Mode</strong></p>
-            <p>Use test card: <code>4242 4242 4242 4242</code></p>
-            <p>Any future expiry date and any 3-digit CVC</p>
           </div>
         </div>
 
-        <!-- Order Notes (Optional) -->
-        <div class="form-section">
-          <h2>Order Notes (Optional)</h2>
-          <div class="form-group">
-            <%= label_tag :order_notes, "Special instructions or delivery notes" %>
+        <!-- Payment Information -->
+        <div class="card mb-4">
+          <div class="card-header bg-white">
+            <h3 class="h5 mb-0">💳 Payment Information</h3>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-success">
+              <strong>Secure Payment</strong>
+              <p class="mb-0 small">Your payment information is encrypted and secure</p>
+            </div>
+
+            <div class="mb-3">
+              <label for="cardholder_name" class="form-label">Cardholder Name</label>
+              <%= text_field_tag :cardholder_name, '', 
+                  required: true,
+                  class: 'form-control',
+                  placeholder: 'Name on card',
+                  autocomplete: 'cc-name' %>
+            </div>
+
+            <div class="mb-3">
+              <label for="card-number-element" class="form-label">Card Number</label>
+              <div id="card-number-element" class="form-control" style="height: 40px; padding-top: 10px;"></div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="card-expiry-element" class="form-label">Expiry Date</label>
+                <div id="card-expiry-element" class="form-control" style="height: 40px; padding-top: 10px;"></div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="card-cvc-element" class="form-label">CVC</label>
+                <div id="card-cvc-element" class="form-control" style="height: 40px; padding-top: 10px;"></div>
+              </div>
+            </div>
+
+            <div id="card-errors" role="alert" class="text-danger small"></div>
+
+            <div class="alert alert-warning">
+              <p class="mb-1"><strong>Test Mode</strong></p>
+              <p class="mb-0 small">Use test card: <code>4242 4242 4242 4242</code></p>
+              <p class="mb-0 small">Any future expiry date and any 3-digit CVC</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Notes -->
+        <div class="card mb-4">
+          <div class="card-header bg-white">
+            <h3 class="h5 mb-0">Order Notes (Optional)</h3>
+          </div>
+          <div class="card-body">
+            <label for="order_notes" class="form-label">Special instructions or delivery notes</label>
             <%= text_area_tag :order_notes, '', 
                 class: 'form-control',
                 rows: 3,
@@ -271,15 +226,66 @@
         </div>
 
         <!-- Form Actions -->
-        <div class="form-actions">
-          <%= f.submit 'Place Order', class: 'btn-place-order', id: 'submit-button', 
+        <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+          <%= link_to 'Return to Cart', cart_path, class: 'btn btn-outline-primary btn-lg' %>
+          <%= f.submit 'Place Order', class: 'btn btn-success btn-lg px-5', id: 'submit-button', 
               data: { disable_with: 'Processing Payment...' } %>
-          <%= link_to 'Return to Cart', cart_path, class: 'btn-back' %>
         </div>
 
-        <!-- Hidden field for Stripe payment method -->
         <%= hidden_field_tag :stripe_payment_method_id, '', id: 'stripe-payment-method-id' %>
       <% end %>
+    </div>
+
+    <!-- Order Summary Sidebar -->
+    <div class="col-lg-4">
+      <div class="card sticky-top" style="top: 20px;">
+        <div class="card-header bg-white">
+          <h3 class="h5 mb-0">Order Summary</h3>
+        </div>
+        <div class="card-body">
+          <% @cart_items.each do |item| %>
+            <div class="d-flex mb-3 pb-3 border-bottom">
+              <div class="flex-shrink-0 me-3">
+                <% if item[:product].cover_image.attached? %>
+                  <%= image_tag item[:product].cover_image, alt: item[:product].title, 
+                      class: 'rounded', style: 'width: 60px; height: 80px; object-fit: cover;' %>
+                <% else %>
+                  <div class="bg-gradient text-white rounded d-flex align-items-center justify-content-center" 
+                       style="width: 60px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    📚
+                  </div>
+                <% end %>
+              </div>
+              <div class="flex-grow-1">
+                <p class="mb-1 fw-semibold small"><%= item[:product].title %></p>
+                <p class="mb-1 text-muted small">Qty: <%= item[:quantity] %></p>
+                <p class="mb-0 text-muted small"><%= number_to_currency(item[:product].current_price) %> each</p>
+              </div>
+              <div class="text-end">
+                <strong><%= number_to_currency(item[:product].current_price * item[:quantity]) %></strong>
+              </div>
+            </div>
+          <% end %>
+
+          <div class="d-flex justify-content-between mb-2">
+            <span>Subtotal (<%= pluralize(@cart_items.sum { |i| i[:quantity] }, 'item') %>):</span>
+            <strong><%= number_to_currency(@subtotal) %></strong>
+          </div>
+          
+          <div class="d-flex justify-content-between mb-2 text-muted">
+            <span>Tax:</span>
+            <span id="tax-display">Select province</span>
+          </div>
+
+          <hr>
+
+          <div class="d-flex justify-content-between mb-2 fs-5 fw-bold">
+            <span>Total:</span>
+            <span id="total-display"><%= number_to_currency(@subtotal) %>+</span>
+          </div>
+          <p class="text-muted small fst-italic mb-0">Final amount calculated after selecting province</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -287,581 +293,89 @@
 <!-- Load Stripe.js -->
 <script src="https://js.stripe.com/v3/"></script>
 
-<style>
-  .checkout-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-
-  .breadcrumb {
-    margin-bottom: 20px;
-    color: #7f8c8d;
-    font-size: 0.9em;
-  }
-
-  .breadcrumb a {
-    color: #3498db;
-    text-decoration: none;
-  }
-
-  .breadcrumb a:hover {
-    text-decoration: underline;
-  }
-
-  .checkout-header {
-    text-align: center;
-    margin-bottom: 40px;
-    padding: 20px 0;
-    border-bottom: 2px solid #ecf0f1;
-  }
-
-  .checkout-header h1 {
-    font-size: 2.5em;
-    color: #2c3e50;
-    margin: 0;
-  }
-
-  .alert {
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 6px;
-  }
-
-  .alert-danger {
-    background: #fee;
-    color: #c33;
-    border-left: 4px solid #c33;
-  }
-
-  .alert-danger ul {
-    margin: 10px 0 0 20px;
-  }
-
-  .checkout-content {
-    display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 40px;
-  }
-
-  /* Order Summary Sidebar */
-  .order-summary-sidebar {
-    order: 2;
-    background: #f8f9fa;
-    padding: 30px;
-    border-radius: 8px;
-    height: fit-content;
-    position: sticky;
-    top: 80px;
-    max-height: calc(100vh - 100px);
-    overflow-y: auto;
-}
-
-  .order-summary-sidebar h2 {
-    font-size: 1.5em;
-    margin: 0 0 20px 0;
-    color: #2c3e50;
-  }
-
-  .summary-items {
-    margin-bottom: 20px;
-  }
-
-  .summary-item {
-    display: grid;
-    grid-template-columns: 60px 1fr auto;
-    gap: 15px;
-    padding: 15px 0;
-    border-bottom: 1px solid #ddd;
-  }
-
-  .summary-item:last-child {
-    border-bottom: none;
-  }
-
-  .summary-item-image {
-    width: 60px;
-    height: 80px;
-    overflow: hidden;
-    border-radius: 4px;
-  }
-
-  .summary-item-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .placeholder-mini {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5em;
-    border-radius: 4px;
-  }
-
-  .summary-item-details {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .summary-item-title {
-    font-size: 0.95em;
-    color: #2c3e50;
-    margin: 0;
-    font-weight: 500;
-  }
-
-  .summary-item-qty {
-    font-size: 0.85em;
-    color: #7f8c8d;
-    margin: 0;
-  }
-
-  .summary-item-unit-price {
-    font-size: 0.8em;
-    color: #95a5a6;
-    margin: 0;
-  }
-
-  .summary-item-price {
-    font-weight: 600;
-    color: #2c3e50;
-    align-self: center;
-  }
-
-  .summary-totals {
-    margin-top: 20px;
-  }
-
-  .summary-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    color: #2c3e50;
-  }
-
-  .tax-row {
-    font-size: 0.9em;
-    color: #7f8c8d;
-  }
-
-  .total-row {
-    font-size: 1.3em;
-    font-weight: 700;
-    margin-top: 15px;
-    color: #2c3e50;
-  }
-
-  .tax-note {
-    font-size: 0.85em;
-    color: #7f8c8d;
-    font-style: italic;
-    margin-top: 10px;
-  }
-
-  hr {
-    border: none;
-    border-top: 1px solid #ddd;
-    margin: 15px 0;
-  }
-
-  /* Checkout Form */
-  .checkout-form-section {
-    order: 1;
-  }
-
-  .checkout-form {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-  }
-
-  .form-section {
-    margin-bottom: 40px;
-    padding-bottom: 30px;
-    border-bottom: 2px solid #ecf0f1;
-  }
-
-  .form-section:last-of-type {
-    border-bottom: none;
-    margin-bottom: 20px;
-  }
-
-  .form-section h2 {
-    font-size: 1.5em;
-    color: #2c3e50;
-    margin: 0 0 20px 0;
-  }
-
-  .customer-info-display {
-    background: #e8f5e9;
-    padding: 15px;
-    border-radius: 6px;
-    border-left: 4px solid #27ae60;
-  }
-
-  .customer-info-display p {
-    margin: 0;
-    color: #2c3e50;
-  }
-
-  .saved-address-option {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .address-radio-option {
-    display: flex;
-    gap: 12px;
-    padding: 15px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-
-  .address-radio-option:hover {
-    border-color: #3498db;
-    background: #f8f9fa;
-  }
-
-  .address-radio-option input[type="radio"] {
-    margin-top: 3px;
-  }
-
-  .address-radio-option:has(input[type="radio"]:checked) {
-    border-color: #3498db;
-    background: #e3f2fd;
-  }
-
-  .address-option-content {
-    flex: 1;
-  }
-
-  .saved-address-display {
-    margin-top: 10px;
-    padding: 10px;
-    background: white;
-    border-radius: 4px;
-    font-size: 0.9em;
-  }
-
-  .saved-address-display p {
-    margin: 5px 0;
-    color: #555;
-  }
-
-  .form-group {
-    margin-bottom: 20px;
-  }
-
-  .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: #2c3e50;
-    font-weight: 500;
-    font-size: 0.95em;
-  }
-
-  .form-control {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1em;
-    transition: border-color 0.3s;
-  }
-
-  .form-control:focus {
-    outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-
-  textarea.form-control {
-    resize: vertical;
-    min-height: 80px;
-  }
-
-  /* Stripe Card Element */
-  .secure-badge {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    background: #e8f5e9;
-    padding: 15px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-  }
-
-  .secure-badge span {
-    font-size: 2em;
-  }
-
-  .secure-badge p {
-    margin: 5px 0 0 0;
-    font-size: 0.9em;
-    color: #555;
-  }
-
-  .stripe-card-element {
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    background: white;
-  }
-
-  .stripe-card-element.StripeElement--focus {
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-  }
-
-  .card-errors {
-    color: #c33;
-    font-size: 0.9em;
-    margin-top: 10px;
-  }
-
-  .payment-test-mode {
-    background: #fff3cd;
-    padding: 15px;
-    border-radius: 6px;
-    margin-top: 15px;
-    border-left: 4px solid #ffc107;
-  }
-
-  .payment-test-mode p {
-    margin: 5px 0;
-    color: #856404;
-    font-size: 0.9em;
-  }
-
-  .payment-test-mode code {
-    background: white;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-family: monospace;
-  }
-
-  .form-actions {
-    display: flex;
-    gap: 15px;
-    margin-top: 30px;
-  }
-
-  .btn-place-order {
-    flex: 2;
-    padding: 16px;
-    background: #27ae60;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 1.1em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-
-  .btn-place-order:hover:not(:disabled) {
-    background: #229954;
-  }
-
-  .btn-place-order:disabled {
-    background: #95a5a6;
-    cursor: not-allowed;
-  }
-
-  .btn-back {
-    flex: 1;
-    padding: 16px;
-    background: white;
-    color: #3498db;
-    border: 2px solid #3498db;
-    border-radius: 6px;
-    font-size: 1.1em;
-    font-weight: 600;
-    text-align: center;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
-  }
-
-  .btn-back:hover {
-    background: #3498db;
-    color: white;
-    text-decoration: none;
-  }
-
-  @media (max-width: 1024px) {
-    .checkout-content {
-      grid-template-columns: 1fr;
-    }
-
-    .order-summary-sidebar {
-      order: 1;
-      position: static;
-    }
-
-    .checkout-form-section {
-      order: 2;
-    }
-
-    .form-row {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .checkout-form {
-      padding: 20px;
-    }
-
-    .form-actions {
-      flex-direction: column;
-    }
-
-    .btn-place-order,
-    .btn-back {
-      flex: 1;
-    }
-  }
-</style>
-
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Check if Stripe key is available
     const stripeKey = '<%= Rails.configuration.stripe[:publishable_key].to_s %>';
-    console.log('Stripe Key loaded:', stripeKey ? 'Yes' : 'No'); // Debug log
     
     if (!stripeKey || stripeKey === '') {
       console.error('Stripe publishable key not found!');
-      document.getElementById('card-element').innerHTML = '<div style="color: red; padding: 15px;">Error: Stripe keys not configured. Please check your credentials.</div>';
       return;
     }
     
-    // Initialize Stripe
     const stripe = Stripe(stripeKey);
     const elements = stripe.elements();
     
-    // Create separate card elements for better UX
     const cardNumberElement = elements.create('cardNumber', {
       style: {
         base: {
           fontSize: '16px',
-          color: '#2c3e50',
-          '::placeholder': {
-            color: '#95a5a6',
-          },
+          color: '#212529',
+          '::placeholder': { color: '#6c757d' }
         },
-        invalid: {
-          color: '#c33',
-        },
-      },
+        invalid: { color: '#dc3545' }
+      }
     });
     
     const cardExpiryElement = elements.create('cardExpiry', {
       style: {
         base: {
           fontSize: '16px',
-          color: '#2c3e50',
-          '::placeholder': {
-            color: '#95a5a6',
-          },
+          color: '#212529',
+          '::placeholder': { color: '#6c757d' }
         },
-        invalid: {
-          color: '#c33',
-        },
-      },
+        invalid: { color: '#dc3545' }
+      }
     });
     
     const cardCvcElement = elements.create('cardCvc', {
       style: {
         base: {
           fontSize: '16px',
-          color: '#2c3e50',
-          '::placeholder': {
-            color: '#95a5a6',
-          },
+          color: '#212529',
+          '::placeholder': { color: '#6c757d' }
         },
-        invalid: {
-          color: '#c33',
-        },
-      },
+        invalid: { color: '#dc3545' }
+      }
     });
     
     cardNumberElement.mount('#card-number-element');
     cardExpiryElement.mount('#card-expiry-element');
     cardCvcElement.mount('#card-cvc-element');
-    console.log('Stripe card elements mounted'); // Debug log
     
-    // Handle card validation errors
     const displayError = document.getElementById('card-errors');
     
     [cardNumberElement, cardExpiryElement, cardCvcElement].forEach(element => {
       element.on('change', function(event) {
-        if (event.error) {
-          displayError.textContent = event.error.message;
-        } else {
-          displayError.textContent = '';
-        }
+        displayError.textContent = event.error ? event.error.message : '';
       });
     });
     
-    // Handle form submission
     const form = document.getElementById('checkout-form');
     const submitButton = document.getElementById('submit-button');
     
     form.addEventListener('submit', async function(event) {
       event.preventDefault();
-      console.log('Form submitted'); // Debug log
-      
       submitButton.disabled = true;
       
-      // Get cardholder name
       const cardholderName = document.getElementById('cardholder_name').value;
       
       if (!cardholderName) {
-        document.getElementById('card-errors').textContent = 'Please enter the cardholder name';
+        displayError.textContent = 'Please enter the cardholder name';
         submitButton.disabled = false;
         return;
       }
       
-      // Create payment method with separate card elements
       const {error, paymentMethod} = await stripe.createPaymentMethod({
         type: 'card',
         card: cardNumberElement,
-        billing_details: {
-          name: cardholderName,
-        },
+        billing_details: { name: cardholderName }
       });
       
       if (error) {
-        console.error('Stripe error:', error); // Debug log
-        document.getElementById('card-errors').textContent = error.message;
+        displayError.textContent = error.message;
         submitButton.disabled = false;
       } else {
-        console.log('Payment method created:', paymentMethod.id); // Debug log
-        // Add payment method ID to form
         document.getElementById('stripe-payment-method-id').value = paymentMethod.id;
-        
-        // Submit form (Rails will handle with redirect)
-        console.log('About to submit form to:', form.action); // Debug log
-        console.log('Payment method ID:', paymentMethod.id); // Debug log
         HTMLFormElement.prototype.submit.call(form);
       }
     });
@@ -894,35 +408,25 @@
       const provinces = JSON.parse(provinceSelect.dataset.provinces);
       const subtotal = parseFloat(provinceSelect.dataset.subtotal);
       
-      console.log('Provinces data loaded:', provinces.length, 'provinces'); // Debug
-      console.log('Subtotal:', subtotal); // Debug
-      
-      // Calculate tax immediately if a province is already selected
       const initialProvinceId = parseInt(provinceSelect.value);
       if (initialProvinceId) {
         calculateAndDisplayTax(initialProvinceId);
       }
       
       provinceSelect.addEventListener('change', function() {
-        const selectedProvinceId = parseInt(this.value);
-        calculateAndDisplayTax(selectedProvinceId);
+        calculateAndDisplayTax(parseInt(this.value));
       });
       
       function calculateAndDisplayTax(provinceId) {
         const province = provinces.find(p => p.id === provinceId);
         
         if (province) {
-          console.log('Calculating tax for:', province.name); // Debug
-          
           const gst = subtotal * (province.gst_rate / 100);
           const pst = subtotal * (province.pst_rate / 100);
           const hst = subtotal * (province.hst_rate / 100);
           const totalTax = gst + pst + hst;
           const total = subtotal + totalTax;
           
-          console.log('Tax breakdown:', { gst, pst, hst, totalTax, total }); // Debug
-          
-          // Format currency
           const formatCurrency = (amount) => {
             return new Intl.NumberFormat('en-CA', {
               style: 'currency',
@@ -932,21 +436,12 @@
           
           document.getElementById('tax-display').textContent = formatCurrency(totalTax);
           document.getElementById('total-display').textContent = formatCurrency(total);
-          
-          // Update note
-          const taxNote = document.querySelector('.tax-note');
-          if (taxNote) {
-            taxNote.textContent = 'Tax calculated for ' + (province.name || provinceSelect.options[provinceSelect.selectedIndex].text);
-          }
         } else {
-          document.getElementById('tax-display').textContent = 'Select province to calculate';
-          const formatCurrency = (amount) => {
-            return new Intl.NumberFormat('en-CA', {
-              style: 'currency',
-              currency: 'CAD'
-            }).format(amount);
-          };
-          document.getElementById('total-display').textContent = formatCurrency(subtotal) + '+';
+          document.getElementById('tax-display').textContent = 'Select province';
+          document.getElementById('total-display').textContent = new Intl.NumberFormat('en-CA', {
+            style: 'currency',
+            currency: 'CAD'
+          }).format(subtotal) + '+';
         }
       }
     }

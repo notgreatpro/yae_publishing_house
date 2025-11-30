@@ -1,160 +1,76 @@
 <!-- app/views/orders/confirmation.html.erb -->
-<div class="confirmation-container">
-  <div class="confirmation-success">
-    <div class="success-icon">✓</div>
-    <h1>Order Placed Successfully!</h1>
-    <p class="order-number">Order #<%= @order.id %></p>
+
+<div class="container my-5">
+  <!-- Success Message Card -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm" style="background-color: #e8f5e9;">
+        <div class="card-body text-center py-5">
+          <div class="mb-4">
+            <div class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center shadow" 
+                 style="width: 100px; height: 100px; font-size: 4rem; color: #27ae60;">
+              ✓
+            </div>
+          </div>
+          <h1 class="display-5 fw-bold mb-3" style="color: #27ae60;">Order Placed Successfully!</h1>
+          <p class="text-secondary fs-5 mb-0">Order #<%= @order.id %></p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="confirmation-details">
-    <h2>Order Details</h2>
-    
-    <div class="detail-section">
-      <h3>Shipping Address</h3>
-      <p><%= @order.address_line1 %></p>
-      <% if @order.address_line2.present? %>
-        <p><%= @order.address_line2 %></p>
-      <% end %>
-      <p><%= @order.city %>, <%= @order.province.name %> <%= @order.postal_code %></p>
-    </div>
+  <!-- Order Details -->
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h2 class="h4 mb-4">Order Details</h2>
+          
+          <!-- Shipping Address -->
+          <div class="mb-4 pb-4 border-bottom">
+            <h3 class="h5 mb-3" style="color: #2c3e50;">Shipping Address</h3>
+            <p class="mb-1"><%= @order.address_line1 %></p>
+            <% if @order.address_line2.present? %>
+              <p class="mb-1"><%= @order.address_line2 %></p>
+            <% end %>
+            <p class="mb-0"><%= @order.city %>, <%= @order.province.name %> <%= @order.postal_code %></p>
+          </div>
 
-    <div class="detail-section">
-      <h3>Order Items</h3>
-      <% @order.order_items.each do |item| %>
-        <div class="order-item">
-          <span><%= item.product.title %> (x<%= item.quantity %>)</span>
-          <span><%= number_to_currency(item.price_at_purchase * item.quantity) %></span>
+          <!-- Order Items -->
+          <div class="mb-4 pb-4 border-bottom">
+            <h3 class="h5 mb-3" style="color: #2c3e50;">Order Items</h3>
+            <% @order.order_items.each do |item| %>
+              <div class="d-flex justify-content-between py-2">
+                <span><%= item.product.title %> (x<%= item.quantity %>)</span>
+                <span><%= number_to_currency(item.price_at_purchase * item.quantity) %></span>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="mb-4">
+            <h3 class="h5 mb-3" style="color: #2c3e50;">Order Summary</h3>
+            <div class="d-flex justify-content-between py-2">
+              <span>Subtotal:</span>
+              <span><%= number_to_currency(@order.subtotal) %></span>
+            </div>
+            <div class="d-flex justify-content-between py-2">
+              <span>Tax:</span>
+              <span><%= number_to_currency(@order.tax_amount) %></span>
+            </div>
+            <div class="d-flex justify-content-between py-3 border-top mt-2" style="border-top: 2px solid #2c3e50 !important;">
+              <strong class="fs-5">Total:</strong>
+              <strong class="fs-5"><%= number_to_currency(@order.total_amount) %></strong>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="d-flex gap-3 mt-4">
+            <%= link_to 'View Order Details', order_path(@order), class: 'btn btn-primary flex-fill py-3 fw-semibold' %>
+            <%= link_to 'Continue Shopping', root_path, class: 'btn btn-outline-secondary flex-fill py-3 fw-semibold' %>
+          </div>
         </div>
-      <% end %>
-    </div>
-
-    <div class="detail-section">
-      <h3>Order Summary</h3>
-      <div class="order-item">
-        <span>Subtotal:</span>
-        <span><%= number_to_currency(@order.subtotal) %></span>
       </div>
-      <div class="order-item">
-        <span>Tax:</span>
-        <span><%= number_to_currency(@order.tax_amount) %></span>
-      </div>
-      <div class="order-item total">
-        <span><strong>Total:</strong></span>
-        <span><strong><%= number_to_currency(@order.total_amount) %></strong></span>
-      </div>
-    </div>
-
-    <div class="confirmation-actions">
-      <%= link_to 'View Order Details', order_path(@order), class: 'btn-primary' %>
-      <%= link_to 'Continue Shopping', root_path, class: 'btn-secondary' %>
     </div>
   </div>
 </div>
-
-<style>
-  .confirmation-container {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
-  }
-
-  .confirmation-success {
-    text-align: center;
-    background: #e8f5e9;
-    padding: 40px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-  }
-
-  .success-icon {
-    font-size: 4em;
-    color: #27ae60;
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-  }
-
-  .confirmation-success h1 {
-    color: #27ae60;
-    margin-bottom: 10px;
-  }
-
-  .order-number {
-    color: #7f8c8d;
-    font-size: 1.2em;
-  }
-
-  .confirmation-details {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-  }
-
-  .detail-section {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #ecf0f1;
-  }
-
-  .detail-section:last-of-type {
-    border-bottom: none;
-  }
-
-  .detail-section h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-  }
-
-  .order-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-  }
-
-  .order-item.total {
-    font-size: 1.2em;
-    padding-top: 15px;
-    border-top: 2px solid #2c3e50;
-    margin-top: 10px;
-  }
-
-  .confirmation-actions {
-    display: flex;
-    gap: 15px;
-    margin-top: 30px;
-  }
-
-  .btn-primary, .btn-secondary {
-    flex: 1;
-    padding: 15px;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: 600;
-    transition: all 0.3s;
-  }
-
-  .btn-primary {
-    background: #3498db;
-    color: white;
-  }
-
-  .btn-primary:hover {
-    background: #2980b9;
-  }
-
-  .btn-secondary {
-    background: #ecf0f1;
-    color: #2c3e50;
-  }
-
-  .btn-secondary:hover {
-    background: #d5dbdb;
-  }
-</style>

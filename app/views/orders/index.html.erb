@@ -1,390 +1,119 @@
 <!-- app/views/orders/index.html.erb -->
 <!-- Feature 3.2.1 - List all past orders (4%) -->
 
-<div class="orders-container">
-  <div class="breadcrumb">
-    <%= link_to 'Home', root_path %> &gt; My Orders
+<div class="container my-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><%= link_to 'Home', root_path %></li>
+      <li class="breadcrumb-item active" aria-current="page">My Orders</li>
+    </ol>
+  </nav>
+
+  <div class="text-center mb-5 pb-4 border-bottom">
+    <h1 class="display-4 mb-2" style="color: #2c3e50;">My Orders</h1>
+    <p class="text-muted fs-5"><%= pluralize(@orders.count, 'order') %></p>
   </div>
 
-  <header class="orders-header">
-    <h1>My Orders</h1>
-    <p class="order-count"><%= pluralize(@orders.count, 'order') %></p>
-  </header>
-
   <% if @orders.any? %>
-    <div class="orders-list">
-      <% @orders.each do |order| %>
-        <div class="order-card">
-          <div class="order-card-header">
-            <div class="order-info">
-              <h3>Order #<%= order.id %></h3>
-              <p class="order-date"><%= order.created_at.strftime('%B %d, %Y') %></p>
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <% @orders.each do |order| %>
+          <div class="card shadow-sm mb-4">
+            <!-- Card Header -->
+            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #f8f9fa;">
+              <div>
+                <h3 class="h5 mb-1" style="color: #2c3e50;">Order #<%= order.id %></h3>
+                <p class="text-muted small mb-0"><%= order.created_at.strftime('%B %d, %Y') %></p>
+              </div>
+              <% if order.paid? %>
+                <span class="badge rounded-pill" style="background-color: #d4edda; color: #155724; padding: 8px 16px; text-transform: uppercase; font-size: 0.85em;">Paid</span>
+              <% elsif order.shipped? %>
+                <span class="badge rounded-pill" style="background-color: #d1ecf1; color: #0c5460; padding: 8px 16px; text-transform: uppercase; font-size: 0.85em;">Shipped</span>
+              <% elsif order.cancelled? %>
+                <span class="badge rounded-pill" style="background-color: #f8d7da; color: #721c24; padding: 8px 16px; text-transform: uppercase; font-size: 0.85em;">Cancelled</span>
+              <% else %>
+                <span class="badge rounded-pill" style="background-color: #fff3cd; color: #856404; padding: 8px 16px; text-transform: uppercase; font-size: 0.85em;">Pending</span>
+              <% end %>
             </div>
-            <div class="order-status-badge <%= order.status %>">
-              <%= order.status.titleize %>
-            </div>
-          </div>
 
-          <div class="order-card-body">
-            <div class="order-items-preview">
-              <% order.order_items.first(3).each do |item| %>
-                <div class="item-preview">
-                  <div class="item-preview-image">
-                    <% if item.product.cover_image.attached? %>
-                      <%= image_tag item.product.cover_image, alt: item.product.title %>
-                    <% else %>
-                      <div class="placeholder-mini">📚</div>
-                    <% end %>
-                  </div>
-                  <div class="item-preview-details">
-                    <p class="item-preview-title"><%= item.product.title %></p>
-                    <p class="item-preview-qty">Qty: <%= item.quantity %></p>
+            <!-- Card Body -->
+            <div class="card-body p-4">
+              <div class="row">
+                <div class="col-lg-8">
+                  <!-- Order Items Preview -->
+                  <% order.order_items.first(3).each do |item| %>
+                    <div class="d-flex align-items-center mb-3">
+                      <div class="flex-shrink-0 me-3">
+                        <% if item.product.cover_image.attached? %>
+                          <%= image_tag item.product.cover_image, alt: item.product.title, 
+                              class: 'rounded', style: 'width: 50px; height: 70px; object-fit: cover;' %>
+                        <% else %>
+                          <div class="text-white rounded d-flex align-items-center justify-content-center" 
+                               style="width: 50px; height: 70px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 1.2em;">
+                            📚
+                          </div>
+                        <% end %>
+                      </div>
+                      <div class="flex-grow-1">
+                        <p class="mb-1 fw-semibold" style="font-size: 0.95em; color: #2c3e50;"><%= item.product.title %></p>
+                        <p class="mb-0 text-muted small">Qty: <%= item.quantity %></p>
+                      </div>
+                    </div>
+                  <% end %>
+                  
+                  <% if order.order_items.count > 3 %>
+                    <p class="text-muted small fst-italic mb-0">
+                      + <%= order.order_items.count - 3 %> more item(s)
+                    </p>
+                  <% end %>
+                </div>
+
+                <div class="col-lg-4 mt-3 mt-lg-0">
+                  <!-- Order Summary -->
+                  <div class="p-3 rounded" style="background-color: #f8f9fa;">
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Items:</span>
+                      <strong style="color: #2c3e50;"><%= order.order_items.sum(:quantity) %></strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Total:</span>
+                      <strong class="fs-5" style="color: #27ae60;"><%= number_to_currency(order.total_amount) %></strong>
+                    </div>
                   </div>
                 </div>
-              <% end %>
+              </div>
+            </div>
+
+            <!-- Card Footer -->
+            <div class="card-footer d-flex justify-content-between align-items-center" style="background-color: #f8f9fa;">
+              <%= link_to 'View Details', order_path(order), class: 'btn btn-primary px-4 fw-semibold' %>
               
-              <% if order.order_items.count > 3 %>
-                <p class="more-items">+ <%= order.order_items.count - 3 %> more item(s)</p>
+              <% if order.paid? %>
+                <span class="badge rounded-pill d-flex align-items-center gap-2" style="background-color: #d4edda; color: #155724; padding: 8px 14px;">
+                  <span style="font-size: 1.1em;">✓</span> Paid
+                </span>
+              <% elsif order.pending? %>
+                <span class="badge rounded-pill d-flex align-items-center gap-2" style="background-color: #fff3cd; color: #856404; padding: 8px 14px;">
+                  <span style="font-size: 1.1em;">⏱</span> Payment Pending
+                </span>
               <% end %>
             </div>
-
-            <div class="order-summary-preview">
-              <div class="summary-item">
-                <span>Items:</span>
-                <span><%= order.order_items.sum(:quantity) %></span>
-              </div>
-              <div class="summary-item">
-                <span>Total:</span>
-                <span class="total-amount"><%= number_to_currency(order.total_amount) %></span>
-              </div>
-            </div>
           </div>
-
-          <div class="order-card-footer">
-            <%= link_to 'View Details', order_path(order), class: 'btn-view-order' %>
-            
-            <% if order.paid? %>
-              <span class="payment-badge paid">
-                <span class="icon">✓</span> Paid
-              </span>
-            <% elsif order.pending? %>
-              <span class="payment-badge pending">
-                <span class="icon">⏱</span> Payment Pending
-              </span>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
     </div>
   <% else %>
-    <div class="empty-orders">
-      <div class="empty-icon">📦</div>
-      <h2>No orders yet</h2>
-      <p>You haven't placed any orders yet. Start shopping to see your orders here!</p>
-      <%= link_to 'Browse Books', products_path, class: 'btn-browse' %>
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div class="card shadow-sm text-center">
+          <div class="card-body py-5">
+            <div class="mb-4" style="font-size: 5em;">📦</div>
+            <h2 class="h3 mb-3" style="color: #2c3e50;">No orders yet</h2>
+            <p class="text-muted mb-4 fs-5">You haven't placed any orders yet. Start shopping to see your orders here!</p>
+            <%= link_to 'Browse Books', products_path, class: 'btn btn-primary btn-lg px-5 fw-semibold' %>
+          </div>
+        </div>
+      </div>
     </div>
   <% end %>
 </div>
-
-<style>
-  .orders-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-
-  .breadcrumb {
-    margin-bottom: 20px;
-    color: #7f8c8d;
-    font-size: 0.9em;
-  }
-
-  .breadcrumb a {
-    color: #3498db;
-    text-decoration: none;
-  }
-
-  .breadcrumb a:hover {
-    text-decoration: underline;
-  }
-
-  .orders-header {
-    text-align: center;
-    margin-bottom: 40px;
-    padding: 20px 0;
-    border-bottom: 2px solid #ecf0f1;
-  }
-
-  .orders-header h1 {
-    font-size: 2.5em;
-    color: #2c3e50;
-    margin: 0 0 10px 0;
-  }
-
-  .order-count {
-    color: #7f8c8d;
-    font-size: 1.1em;
-    margin: 0;
-  }
-
-  .orders-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .order-card {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: box-shadow 0.3s;
-  }
-
-  .order-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .order-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #ecf0f1;
-  }
-
-  .order-info h3 {
-    font-size: 1.3em;
-    color: #2c3e50;
-    margin: 0 0 5px 0;
-  }
-
-  .order-date {
-    color: #7f8c8d;
-    font-size: 0.9em;
-    margin: 0;
-  }
-
-  .order-status-badge {
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85em;
-  }
-
-  .order-status-badge.pending {
-    background: #fff3cd;
-    color: #856404;
-  }
-
-  .order-status-badge.paid {
-    background: #d4edda;
-    color: #155724;
-  }
-
-  .order-status-badge.shipped {
-    background: #d1ecf1;
-    color: #0c5460;
-  }
-
-  .order-status-badge.cancelled {
-    background: #f8d7da;
-    color: #721c24;
-  }
-
-  .order-card-body {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 30px;
-    padding: 20px;
-  }
-
-  .order-items-preview {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .item-preview {
-    display: grid;
-    grid-template-columns: 50px 1fr;
-    gap: 12px;
-    align-items: center;
-  }
-
-  .item-preview-image {
-    width: 50px;
-    height: 70px;
-    overflow: hidden;
-    border-radius: 4px;
-  }
-
-  .item-preview-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .placeholder-mini {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2em;
-    border-radius: 4px;
-  }
-
-  .item-preview-title {
-    font-size: 0.95em;
-    color: #2c3e50;
-    margin: 0;
-    font-weight: 500;
-  }
-
-  .item-preview-qty {
-    font-size: 0.85em;
-    color: #7f8c8d;
-    margin: 0;
-  }
-
-  .more-items {
-    font-size: 0.9em;
-    color: #7f8c8d;
-    font-style: italic;
-    margin: 5px 0 0 0;
-  }
-
-  .order-summary-preview {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 10px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    min-width: 180px;
-  }
-
-  .summary-item {
-    display: flex;
-    justify-content: space-between;
-    color: #2c3e50;
-  }
-
-  .total-amount {
-    font-size: 1.2em;
-    font-weight: 700;
-    color: #27ae60;
-  }
-
-  .order-card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background: #f8f9fa;
-    border-top: 1px solid #ecf0f1;
-  }
-
-  .btn-view-order {
-    padding: 10px 24px;
-    background: #3498db;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: 600;
-    transition: background 0.3s;
-  }
-
-  .btn-view-order:hover {
-    background: #2980b9;
-    text-decoration: none;
-  }
-
-  .payment-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 20px;
-    font-size: 0.9em;
-    font-weight: 600;
-  }
-
-  .payment-badge.paid {
-    background: #d4edda;
-    color: #155724;
-  }
-
-  .payment-badge.pending {
-    background: #fff3cd;
-    color: #856404;
-  }
-
-  .payment-badge .icon {
-    font-size: 1.1em;
-  }
-
-  .empty-orders {
-    text-align: center;
-    padding: 80px 20px;
-  }
-
-  .empty-icon {
-    font-size: 5em;
-    margin-bottom: 20px;
-  }
-
-  .empty-orders h2 {
-    font-size: 2em;
-    color: #2c3e50;
-    margin-bottom: 15px;
-  }
-
-  .empty-orders p {
-    font-size: 1.2em;
-    color: #7f8c8d;
-    margin-bottom: 30px;
-  }
-
-  .btn-browse {
-    display: inline-block;
-    padding: 15px 30px;
-    background: #3498db;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 1.1em;
-    transition: background 0.3s;
-  }
-
-  .btn-browse:hover {
-    background: #2980b9;
-    text-decoration: none;
-  }
-
-  @media (max-width: 768px) {
-    .order-card-body {
-      grid-template-columns: 1fr;
-    }
-
-    .order-summary-preview {
-      min-width: 100%;
-    }
-
-    .order-card-footer {
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .btn-view-order {
-      width: 100%;
-      text-align: center;
-    }
-  }
-</style>
