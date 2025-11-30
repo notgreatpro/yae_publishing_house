@@ -1,18 +1,9 @@
 <div class="auth-container">
   <div class="auth-card">
-    <h2>Sign In</h2>
+    <h2>Create Account</h2>
 
-    <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-      <% if resource.errors.any? %>
-        <div id="error_explanation">
-          <h2><%= pluralize(resource.errors.count, "error") %> prohibited this customer from being saved:</h2>
-          <ul>
-            <% resource.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), data: { turbo: false }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
 
       <div class="field">
         <%= f.label :first_name %>
@@ -43,12 +34,12 @@
       </div>
 
       <div class="actions">
-        <%= f.submit "Sign In", class: 'btn-submit' %>
+        <%= f.submit "Create Account", class: 'btn-submit' %>
       </div>
     <% end %>
 
     <div class="auth-links">
-      <p>Already have a Yae Publishing House account? <%= link_to "Log in", new_customer_session_path %></p>
+      <p>Already have an account? <%= link_to "Log in", new_customer_session_path %></p>
     </div>
   </div>
 </div>
@@ -82,30 +73,6 @@
     font-size: 1.8em;
   }
 
-  #error_explanation {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 25px;
-    color: #721c24;
-  }
-
-  #error_explanation h2 {
-    font-size: 1.2em;
-    margin-bottom: 15px;
-    color: #721c24;
-  }
-
-  #error_explanation ul {
-    margin: 0;
-    padding-left: 20px;
-  }
-
-  #error_explanation li {
-    margin: 5px 0;
-  }
-
   .field {
     margin-bottom: 25px;
   }
@@ -117,9 +84,15 @@
     font-weight: 600;
   }
 
-  .field em {
-    color: #7f8c8d;
-    font-size: 0.85em;
+  .checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .checkbox-field label {
+    margin-bottom: 0;
+    font-weight: normal;
   }
 
   .form-input {

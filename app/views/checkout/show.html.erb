@@ -82,7 +82,7 @@
 
     <!-- Checkout Form -->
     <div class="checkout-form-section">
-      <%= form_with url: checkout_path, method: :post, local: false, id: 'checkout-form', class: 'checkout-form' do |f| %>
+      <%= form_with url: checkout_path, method: :post, local: true, id: 'checkout-form', class: 'checkout-form' do |f| %>
         
         <!-- Customer Information -->
         <div class="form-section">
@@ -745,7 +745,7 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     // Check if Stripe key is available
-    const stripeKey = '<%= Rails.configuration.stripe[:publishable_key] %>';
+    const stripeKey = '<%= Rails.configuration.stripe[:publishable_key].to_s %>';
     console.log('Stripe Key loaded:', stripeKey ? 'Yes' : 'No'); // Debug log
     
     if (!stripeKey || stripeKey === '') {
@@ -860,7 +860,9 @@
         document.getElementById('stripe-payment-method-id').value = paymentMethod.id;
         
         // Submit form (Rails will handle with redirect)
-        form.submit();
+        console.log('About to submit form to:', form.action); // Debug log
+        console.log('Payment method ID:', paymentMethod.id); // Debug log
+        HTMLFormElement.prototype.submit.call(form);
       }
     });
     

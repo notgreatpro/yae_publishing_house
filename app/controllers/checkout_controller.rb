@@ -78,7 +78,7 @@ class CheckoutController < ApplicationController
         # Clear the cart
         session[:cart] = {}
         
-        redirect_to order_confirmation_path(@order), notice: 'Order placed successfully! Payment confirmed.'
+       redirect_to confirmation_order_path(@order), notice: 'Order placed successfully! Payment confirmed.'
       rescue Stripe::CardError => e
         # Card was declined
         @order.destroy

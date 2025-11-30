@@ -11,7 +11,6 @@ class Customer < ApplicationRecord
   # Basic info required for signup
   validates :first_name, presence: true, length: { maximum: 50 }
   validates :last_name, presence: true, length: { maximum: 50 }
-  validates :email, presence: true, uniqueness: true
   
   # Address fields are OPTIONAL (users can add during checkout or signup)
   validates :address_line1, presence: true, if: :address_present?
