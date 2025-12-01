@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_29_012142) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_30_235754) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -169,6 +169,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_29_012142) do
     t.index ["stripe_payment_id"], name: "index_orders_on_stripe_payment_id"
   end
 
+  create_table "pages", force: :cascade do |t|
+    t.string "title"
+    t.text "content"
+    t.string "slug"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_pages_on_slug", unique: true
+  end
+
   create_table "product_authors", force: :cascade do |t|
     t.bigint "product_id", null: false
     t.bigint "author_id", null: false
@@ -202,6 +211,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_29_012142) do
     t.decimal "hst_rate"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "code"
   end
 
   create_table "site_contents", force: :cascade do |t|

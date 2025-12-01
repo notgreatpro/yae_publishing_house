@@ -34,29 +34,30 @@ Product.destroy_all
 Author.destroy_all
 Category.destroy_all
 SiteContent.destroy_all
+Page.destroy_all  # Add this line
 AdminUser.destroy_all
 
-puts " All existing data cleared!"
+puts "✓ All existing data cleared!"
 
 # ---------------------------------------- #
 # PROVINCES 
 # ---------------------------------------- #
-puts "\n Creating Canadian Provinces & Territories..."
+puts "\n✨ Creating Canadian Provinces & Territories..."
 
 provinces_data = [
-  { name: 'Alberta', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
-  { name: 'British Columbia', gst_rate: 5.0, pst_rate: 7.0, hst_rate: 0.0 },
-  { name: 'Manitoba', gst_rate: 5.0, pst_rate: 7.0, hst_rate: 0.0 },
-  { name: 'New Brunswick', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
-  { name: 'Newfoundland and Labrador', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
-  { name: 'Northwest Territories', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
-  { name: 'Nova Scotia', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
-  { name: 'Nunavut', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
-  { name: 'Ontario', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 13.0 },
-  { name: 'Prince Edward Island', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
-  { name: 'Quebec', gst_rate: 5.0, pst_rate: 9.975, hst_rate: 0.0 },
-  { name: 'Saskatchewan', gst_rate: 5.0, pst_rate: 6.0, hst_rate: 0.0 },
-  { name: 'Yukon', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 }
+  { name: 'Alberta', code: 'AB', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
+  { name: 'British Columbia', code: 'BC', gst_rate: 5.0, pst_rate: 7.0, hst_rate: 0.0 },
+  { name: 'Manitoba', code: 'MB', gst_rate: 5.0, pst_rate: 7.0, hst_rate: 0.0 },
+  { name: 'New Brunswick', code: 'NB', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
+  { name: 'Newfoundland and Labrador', code: 'NL', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
+  { name: 'Northwest Territories', code: 'NT', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
+  { name: 'Nova Scotia', code: 'NS', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
+  { name: 'Nunavut', code: 'NU', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 },
+  { name: 'Ontario', code: 'ON', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 13.0 },
+  { name: 'Prince Edward Island', code: 'PE', gst_rate: 0.0, pst_rate: 0.0, hst_rate: 15.0 },
+  { name: 'Quebec', code: 'QC', gst_rate: 5.0, pst_rate: 9.975, hst_rate: 0.0 },
+  { name: 'Saskatchewan', code: 'SK', gst_rate: 5.0, pst_rate: 6.0, hst_rate: 0.0 },
+  { name: 'Yukon', code: 'YT', gst_rate: 5.0, pst_rate: 0.0, hst_rate: 0.0 }
 ]
 
 provinces = {}
@@ -64,12 +65,12 @@ provinces_data.each do |province_data|
   provinces[province_data[:name]] = Province.create!(province_data)
 end
 
-puts "Created #{Province.count} provinces & territories"
+puts "✓ Created #{Province.count} provinces & territories"
 
 # ---------------------------------------- #
 # ADMIN USER
 # ---------------------------------------- #
-puts "\n Creating Admin User for ActiveAdmin..."
+puts "\n✨ Creating Admin User for ActiveAdmin..."
 admin_user = AdminUser.find_or_create_by!(username: 'YPHAdmin') do |admin|
   admin.email = 'admin@yaepublishinghouse.com'
   admin.password = '$TimeToRead$'
@@ -79,9 +80,86 @@ puts "✓ Admin User created: #{admin_user.username}"
 puts "  Password: $TimeToRead$"
 
 # ---------------------------------------- #
+# PAGES (Feature 1.4)
+# ---------------------------------------- #
+puts "\n✨ Creating About and Contact Pages (Feature 1.4)..."
+
+Page.create!(
+  title: 'About Yae Publishing House',
+  slug: 'about',
+  content: <<~CONTENT
+    "Boring. Utterly boring... Ugh, what could have possibly persuaded these people to become authors? Say, why don't you write out your story 
+    and submit it to Yae Publishing House? I'm sure that would keep me amused— 
+    Ahem, I'm sure it would be a best-seller." - Yae Miko, Founder of Yae Publishing House
+
+
+    Welcome to Yae Publishing House, we're Inazuma's largest book publishing and bookstore since 1984. We have commited to open 7948 
+    stores worldwide including Teyvat and we employ over 14 000 employees serving book lovers to enjoy its fullest.
+    We have selection of numerous books and lightnovels with different authors (of course some authors from Teyvat too) to
+    worked hard ensuring their products will be brought to our stores.
+
+    Our Story
+
+    Yae Publishing House was founded by Lady Guuji of the Grand Narukami Shrine Yae Miko who was interested on reading light novels 
+    as her hobby. We first launched in 1984 with the first store opened on Inazuma City (the store was connected to our headquarters).
+    Yae Publishing House was quickly becoming Inazuma's leading publishing company ensuring readers can read their favourite books.
+
+    
+    Our Mission
+
+    Our mission is everyone deserved to read books and its very important to read to boost vocabulary and wording structure. Its our duty
+    to find solutions not only our customers happy but reading our books from our authors and editors.
+
+    
+    Community Commitment
+
+    We have a huge Yae Publishing House community across Teyvat and worldwide commited to hosting our events, collabing other companies. We thank
+    you for be part of our community that its growing strong.
+
+    Thank you for choosing Yae Publishing House. Happy reading!
+
+  CONTENT
+)
+
+Page.create!(
+  title: 'Contact Us',
+  slug: 'contact',
+  content: <<~CONTENT
+    We'd love to hear from you! Whether you have a question about our books, need help with an order, or just want to chat about literature, we're here to help.
+
+    Questions About Orders?
+
+    If you have questions about a current or past order, please include your order number when contacting us. Logged-in customers can view their complete order history anytime by visiting the "My Orders" section.
+
+    Store Inquiries
+
+    Looking for a specific book? Want to know if we have something in stock? Interested in a particular genre or author? Our knowledgeable team is happy to help you find exactly what you're looking for.
+
+    Event Information
+
+    Interested in hosting an author event, book signing, or book club meeting? We love bringing authors and readers together! Contact us to discuss possibilities and availability.
+
+    Bulk Orders & Educational Institutions
+
+    We offer special pricing for bulk orders and work closely with schools, libraries, and educational institutions. Please reach out to discuss your specific needs.
+
+    Publisher & Author Inquiries
+
+    Are you an author or publisher interested in working with Yae Publishing House? We're always looking for exciting new voices and stories to share with our readers.
+
+    Response Time
+
+    We typically respond to all inquiries within 24 hours during business days. For urgent matters, please call us directly during business hours.
+  CONTENT
+)
+
+puts "✓ Created #{Page.count} pages (About & Contact)"
+puts "  - Pages are editable at /admin/pages"
+
+# ---------------------------------------- #
 # CATEGORIES
 # ---------------------------------------- #
-puts "\n Creating Categories..."
+puts "\n✨ Creating Categories..."
 categories = {
   light_novels: Category.create!(category_name: "Light Novels", description: "Japanese light novels and serialized stories"),
   manga: Category.create!(category_name: "Manga", description: "Japanese manga and comics"),
@@ -94,12 +172,12 @@ categories = {
   childrens: Category.create!(category_name: "Children's Books", description: "Books for young readers"),
   adventure: Category.create!(category_name: "Adventure", description: "Action-packed adventure stories")
 }
-puts "#{categories.count} categories created!"
+puts "✓ #{categories.count} categories created!"
 
 # ---------------------------------------- #
 # AUTHORS (REAL + GENSHIN)
 # ---------------------------------------- #
-puts "\n Creating Authors..."
+puts "\n✨ Creating Authors..."
 
 authors = {
   pursina: Author.create!(author_name: "Pursina", biography: "Author of The Saga of Hamavaran series", nationality: COUNTRIES.sample),
@@ -107,18 +185,18 @@ authors = {
   mr_nine: Author.create!(author_name: "Mr. Nine", biography: "Author of Flowers for Princess Fischl", nationality: COUNTRIES.sample),
   yae_miko: Author.create!(author_name: "Yae Miko", biography: "The Guuji of Grand Narukami Shrine", nationality: COUNTRIES.sample),
 
-  haruki: Author.create!(author_name: "Haruki Murakami", biography: "Japanese writer known for surreal fiction", nationality: COUNTRIES.sample),
-  banana: Author.create!(author_name: "Banana Yoshimoto", biography: "Author of Kitchen", nationality: COUNTRIES.sample),
-  natsume: Author.create!(author_name: "Natsume Soseki", biography: "Author of Kokoro", nationality: COUNTRIES.sample),
-  osamu: Author.create!(author_name: "Osamu Dazai", biography: "Author of No Longer Human", nationality: COUNTRIES.sample),
+  haruki: Author.create!(author_name: "Haruki Murakami", biography: "Japanese writer known for surreal fiction", nationality: "Japan"),
+  banana: Author.create!(author_name: "Banana Yoshimoto", biography: "Author of Kitchen", nationality: "Japan"),
+  natsume: Author.create!(author_name: "Natsume Soseki", biography: "Author of Kokoro", nationality: "Japan"),
+  osamu: Author.create!(author_name: "Osamu Dazai", biography: "Author of No Longer Human", nationality: "Japan"),
 
-  orwell: Author.create!(author_name: "George Orwell", biography: "Author of 1984", nationality: COUNTRIES.sample),
-  tolkien: Author.create!(author_name: "J.R.R. Tolkien", biography: "Creator of LOTR", nationality: COUNTRIES.sample),
-  king: Author.create!(author_name: "Stephen King", biography: "Master of horror", nationality: COUNTRIES.sample),
-  rowling: Author.create!(author_name: "J.K. Rowling", biography: "Writer of Harry Potter", nationality: COUNTRIES.sample)
+  orwell: Author.create!(author_name: "George Orwell", biography: "Author of 1984", nationality: "United Kingdom"),
+  tolkien: Author.create!(author_name: "J.R.R. Tolkien", biography: "Creator of LOTR", nationality: "United Kingdom"),
+  king: Author.create!(author_name: "Stephen King", biography: "Master of horror", nationality: "United States"),
+  rowling: Author.create!(author_name: "J.K. Rowling", biography: "Writer of Harry Potter", nationality: "United Kingdom")
 }
 
-puts " #{Author.count} authors created!"
+puts "✓ #{Author.count} authors created!"
 
 # ---------------------------------------- #
 # PRODUCT COUNTER
@@ -128,7 +206,7 @@ product_count = 0
 # ---------------------------------------- #
 # INAZUMA BOOKS
 # ---------------------------------------- #
-puts "\n Creating Inazuma Books..."
+puts "\n✨ Creating Inazuma Books..."
 
 inazuma_books = [
   { title: "The Saga of Hamavaran Vol. 1", author: :pursina, category: :light_novels, desc: "Epic Hamavaran adventures", pages: 320, price: 16.99 },
@@ -171,12 +249,12 @@ inazuma_books.each do |book|
   product_count += 1
 end
 
-puts " #{inazuma_books.count} Inazuma books created!"
+puts "✓ #{inazuma_books.count} Inazuma books created!"
 
 # ---------------------------------------- #
 # REAL WORLD BOOKS
 # ---------------------------------------- #
-puts "\n Creating Real World Books..."
+puts "\n✨ Creating Real World Books..."
 
 real_world_books = [
   { title: "Norwegian Wood", author: :haruki, category: :fiction, desc: "Story of loss", pages: 296, price: 16.99 },
@@ -222,12 +300,12 @@ real_world_books.each do |book|
   product_count += 1
 end
 
-puts " #{real_world_books.count} real-world books created!"
+puts "✓ #{real_world_books.count} real-world books created!"
 
 # ---------------------------------------- #
 # EXTRA RANDOM AUTHORS (DIVERSE)
 # ---------------------------------------- #
-puts "\n Creating Additional Random Books..."
+puts "\n✨ Creating Additional Random Books..."
 
 extra_authors = 10.times.map do
   Author.create!(
@@ -260,29 +338,12 @@ remaining.times do
   product_count += 1
 end
 
-puts " Added #{remaining} random books (Total now #{product_count})"
-
-# ---------------------------------------- #
-# SITE CONTENT
-# ---------------------------------------- #
-puts "\n Creating Site Content..."
-
-SiteContent.create!(
-  page_name: "about",
-  content: "Welcome to Yae Publishing House, your premier destination for light novels, manga, and literature from across Teyvat and beyond. Founded by the Guuji of Grand Narukami Shrine, we bring you the finest stories from Inazuma and the world."
-)
-
-SiteContent.create!(
-  page_name: "contact",
-  content: "Contact us at the Grand Narukami Shrine on Mt. Yougou, Inazuma. Email: publishing@yaehouse.com | Phone: (555) YAE-MIKO"
-)
-
-puts " Site content created!"
+puts "✓ Added #{remaining} random books (Total now #{product_count})"
 
 # ---------------------------------------- #
 # CUSTOMERS
 # ---------------------------------------- #
-puts "\n Creating Sample Customers..."
+puts "\n✨ Creating Sample Customers..."
 
 canadian_cities = ["Toronto", "Vancouver", "Montreal", "Calgary", "Winnipeg", "Edmonton", "Regina", "Saskatoon", "Halifax", "Quebec City", "Victoria", "Kamloops", "London", "Charlottetown"]
 all_provinces = Province.all.to_a
@@ -304,28 +365,37 @@ all_provinces = Province.all.to_a
   )
 end
 
-puts " 5 sample customers created with addresses!"
+puts "✓ 5 sample customers created with addresses!"
 
 # ---------------------------------------- #
 # FINAL SUMMARY
 # ---------------------------------------- #
 puts "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-puts "  SEEDING COMPLETE! "
+puts "✨ SEEDING COMPLETE! ✨"
 puts "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-puts "\n Database Summary:"
+puts "\n📊 Database Summary:"
 puts "   AdminUsers: #{AdminUser.count}"
+puts "   Pages: #{Page.count} (About & Contact)"
 puts "   Provinces: #{Province.count}"
 puts "   Customers: #{Customer.count}"
 puts "   Categories: #{Category.count}"
 puts "   Authors: #{Author.count}"
 puts "   Products: #{Product.count}"
 puts "   Product-Author Links: #{ProductAuthor.count}"
-puts "   Site Content Pages: #{SiteContent.count}"
 
-puts "\n Admin Login:"
+puts "\n🔐 Admin Login:"
 puts "   URL: http://localhost:3000/admin"
 puts "   Username: YPHAdmin"
 puts "   Password: $TimeToRead$"
 
-puts "\n May the Sacred Sakura bless your publishing ventures!"AdminUser.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?
+puts "\n📝 Edit Pages:"
+puts "   URL: http://localhost:3000/admin/pages"
+puts "   - About page (slug: 'about')"
+puts "   - Contact page (slug: 'contact')"
+
+puts "\n📚 Public Pages:"
+puts "   About: http://localhost:3000/about"
+puts "   Contact: http://localhost:3000/contact"
+
+puts "\n✨ May the Sacred Sakura bless your publishing ventures! ✨"

@@ -1,0 +1,72 @@
+<!-- app/views/layouts/_navbar.html.erb -->
+<!-- Feature 4.1.4 - View Partials -->
+<nav class="navbar navbar-expand-lg sticky-top shadow-sm" style="background: var(--yae-pink); border-bottom: 3px solid var(--yae-purple);">
+  <div class="container-fluid">
+    <!-- Brand Logo -->
+    <%= link_to root_path, class: "navbar-brand" do %>
+      <%= image_tag 'Yae_Publishing_House_logo.png', alt: 'Yae Publishing House', style: 'height: 60px;' %>
+    <% end %>
+    
+    <!-- Mobile Hamburger -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <!-- Navigation Links -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item">
+          <%= link_to "Home", root_path, class: 'nav-link fw-semibold', style: 'color: var(--yae-purple);' %>
+        </li>
+        
+        <!-- Categories Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" 
+             data-bs-toggle="dropdown" aria-expanded="false" style="color: var(--yae-purple);">
+            Categories
+          </a>
+          <ul class="dropdown-menu">
+            <%= link_to "All Books", root_path, class: "dropdown-item" %>
+            <li><hr class="dropdown-divider"></li>
+            <% Category.order(:category_name).each do |category| %>
+              <li>
+                <%= link_to category_path(category), class: "dropdown-item" do %>
+                  <%= category.category_name %>
+                  <span class="badge bg-secondary ms-2"><%= category.products.count %></span>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </li>
+        
+        <% if customer_signed_in? %>
+          <li class="nav-item">
+            <%= link_to "My Orders", orders_path, class: 'nav-link fw-semibold', style: 'color: var(--yae-purple);' %>
+          </li>
+          <li class="nav-item">
+            <span class="nav-link" style="color: var(--yae-purple);">Hello, <%= current_customer.first_name %></span>
+          </li>
+          <li class="nav-item">
+            <%= button_to "Log Out", destroy_customer_session_path, 
+              method: :delete, 
+              class: 'nav-link fw-semibold btn btn-link text-decoration-none',
+              style: 'color: var(--yae-purple); border: none; background: none; padding: 0.5rem 1rem;' %>
+          </li>
+        <% else %>
+          <li class="nav-item">
+            <%= link_to "Log In", new_customer_session_path, class: 'nav-link fw-semibold', style: 'color: var(--yae-purple);' %>
+          </li>
+          <li class="nav-item">
+            <%= link_to "Sign Up", new_customer_registration_path, class: 'nav-link fw-semibold', style: 'color: var(--yae-purple);' %>
+          </li>
+        <% end %>
+        
+        <li class="nav-item ms-2">
+          <%= link_to cart_path, class: "btn btn-success fw-bold" do %>
+            Your Cart (<%= cart_count %>)
+          <% end %>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

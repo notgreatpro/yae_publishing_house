@@ -1,5 +1,6 @@
 <!-- app/views/categories/show.html.erb -->
 <!-- Feature 2.2 - Navigate through products by category -->
+<!-- Feature 4.1.4 - Using view partials -->
 <div class="container-fluid py-5" style="background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%); min-height: 100vh;">
   
   <!-- Breadcrumb -->
@@ -32,52 +33,7 @@
   <div class="container">
     <% if @products.any? %>
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-        <% @products.each do |product| %>
-          <div class="col">
-            <div class="card h-100 shadow-sm hover-lift">
-              <!-- Product Image -->
-              <% if product.cover_image.attached? %>
-                <%= link_to product_path(product) do %>
-                  <%= image_tag product.cover_image, class: "card-img-top", style: "height: 350px; object-fit: cover;" %>
-                <% end %>
-              <% else %>
-                <%= link_to product_path(product) do %>
-                  <div class="bg-gradient text-white d-flex align-items-center justify-content-center" 
-                       style="height: 350px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <span style="font-size: 5rem;">📚</span>
-                  </div>
-                <% end %>
-              <% end %>
-
-              <!-- New Badge -->
-              <% if product.created_at > 3.days.ago %>
-                <span class="position-absolute top-0 start-0 m-2 badge bg-success fs-6">
-                  NEW
-                </span>
-              <% end %>
-
-              <div class="card-body d-flex flex-column">
-                <h5 class="card-title fw-bold" style="min-height: 48px;">
-                  <%= link_to product.title, product_path(product), class: "text-decoration-none text-dark" %>
-                </h5>
-                
-                <% if product.authors.any? %>
-                  <p class="card-text text-muted fst-italic small mb-2">
-                    by <%= product.authors.map(&:author_name).join(', ') %>
-                  </p>
-                <% end %>
-
-                <!-- Price -->
-                <p class="fs-4 fw-bold text-success mb-3">
-                  <%= number_to_currency(product.current_price) %>
-                </p>
-
-                <!-- View Details Button -->
-                <%= link_to "View Details", product_path(product), class: "btn btn-primary w-100 mt-auto fw-semibold" %>
-              </div>
-            </div>
-          </div>
-        <% end %>
+        <%= render partial: 'products/product_card', collection: @products, as: :product %>
       </div>
 
       <!-- Pagination -->

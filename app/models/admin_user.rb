@@ -1,6 +1,8 @@
+# app/models/admin_user.rb
 class AdminUser < ApplicationRecord
   devise :database_authenticatable, 
-         :recoverable, :rememberable, :trackable
+         :recoverable, :rememberable, :trackable,
+         authentication_keys: [:username]  
   
   validates :username, presence: true, uniqueness: { case_sensitive: false }
   validates :password, presence: true, length: { minimum: 6 }, if: :password_required?

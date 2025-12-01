@@ -5,7 +5,7 @@ class Province < ApplicationRecord
 
   # Validations (add these if they don't exist)
   validates :name, presence: true
-  validates :province_code, presence: true, uniqueness: true
+  validates :code, presence: true, uniqueness: true
 
   # Ransack methods for Active Admin search
   def self.ransackable_associations(auth_object = nil)
