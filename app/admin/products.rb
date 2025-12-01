@@ -1,110 +1,147 @@
-ActiveAdmin.register Customer do
-  menu priority: 5
+ActiveAdmin.register Product do
+  menu priority: 2
   
-  permit_params :email, :password, :password_confirmation, :first_name, :last_name,
-                :address_line1, :address_line2, :city, :postal_code, :province_id
+  permit_params :title, :description, :isbn, :current_price,
+                :stock_quantity, :category_id, :publisher, :published_date,
+                :pages, :language, :cover_image, author_ids: []
 
   # Index page
   index do
     selectable_column
     id_column
-    column :email
-    column :first_name
-    column :last_name
-    column :city
-    column :province do |customer|
-      customer.province&.name
+    column "Cover" do |product|
+      if product.cover_image.attached?
+        image_tag url_for(product.cover_image), size: "50x75"
+      else
+        "No image"
+      end
     end
-    column "Orders Count" do |customer|
-      customer.orders.count
+    column :title
+    column "Authors" do |product|
+      product.authors.map(&:author_name).join(", ")
     end
+    column :category do |product|
+      product.category&.name
+    end
+    column :isbn
+    column "Price" do |product|
+      number_to_currency(product.current_price)
+    end
+    column :stock_quantity
     column :created_at
     actions
   end
 
   # Filters
-  filter :email
-  filter :first_name
-  filter :last_name
-  filter :city
-  filter :province
+  filter :title
+  filter :authors
+  filter :category
+  filter :isbn
+  filter :current_price
+  filter :stock_quantity
+  filter :publisher
+  filter :language
   filter :created_at
+
+  # Form
+  form do |f|
+    f.inputs 'Book Information' do
+      f.input :title
+      f.input :authors, 
+              as: :check_boxes, 
+              collection: Author.all.map { |a| [a.author_name, a.id] },
+              hint: "Select one or more authors"
+      f.input :category,
+              as: :select,
+              collection: Category.all.map { |c| [c.name, c.id] },
+              include_blank: "Select a category"
+      f.input :description, as: :text, input_html: { rows: 10 }
+      f.input :isbn, hint: "ISBN-13 format"
+      f.input :publisher
+      f.input :published_date, as: :datepicker
+      f.input :pages, hint: "Number of pages"
+      f.input :language, hint: "e.g., English, French, etc."
+    end
+    
+    f.inputs 'Pricing & Stock' do
+      f.input :current_price, label: "Price", hint: "Enter amount in dollars"
+      f.input :stock_quantity, hint: "Number of copies in stock"
+    end
+    
+    f.inputs 'Cover Image' do
+      f.input :cover_image, 
+              as: :file, 
+              hint: f.object.cover_image.attached? ? 
+                image_tag(url_for(f.object.cover_image), height: 150) : 
+                "Upload a cover image (JPG, PNG)"
+    end
+    
+    f.actions
+  end
 
   # Show page
   show do
     attributes_table do
-      row :id
-      row :email
-      row :first_name
-      row :last_name
-      row :full_name
-      row :address_line1
-      row :address_line2
-      row :city
-      row :postal_code
-      row :province do |customer|
-        customer.province&.name
+      row "Cover Image" do |product|
+        if product.cover_image.attached?
+          image_tag url_for(product.cover_image), height: 300
+        else
+          "No cover image"
+        end
       end
+      row :title
+      row "Authors" do |product|
+        product.authors.map { |a| link_to a.author_name, admin_author_path(a) }.join(", ").html_safe
+      end
+      row :category do |product|
+        link_to product.category.name, admin_category_path(product.category) if product.category
+      end
+      row :description do |product|
+        simple_format(product.description)
+      end
+      row :isbn
+      row :publisher
+      row :published_date
+      row :pages
+      row :language
+      row "Price" do |product|
+        number_to_currency(product.current_price)
+      end
+      row :stock_quantity
       row :created_at
       row :updated_at
     end
 
-    panel "Orders" do
-      if customer.orders.any?
-        table_for customer.orders do
-          column "Order ID" do |order|
-            link_to "##{order.id}", admin_order_path(order)
+    panel "Order History" do
+      if product.order_items.any?
+        table_for product.order_items do
+          column "Order" do |item|
+            link_to "##{item.order.id}", admin_order_path(item.order)
           end
-          column "Total" do |order|
-            number_to_currency(order.total_amount)
+          column "Customer" do |item|
+            item.order.customer.email if item.order.customer
           end
-          column "Status" do |order|
-            status_tag order.status
+          column "Quantity", :quantity
+          column "Price" do |item|
+            number_to_currency(item.price_at_purchase)
           end
-          column "Date" do |order|
-            order.created_at.strftime('%b %d, %Y')
+          column "Date" do |item|
+            item.created_at.strftime('%b %d, %Y')
           end
         end
       else
-        para "No orders yet"
+        para "No orders for this product yet"
       end
     end
   end
 
-  # Form
-  form do |f|
-    f.inputs 'Customer Information' do
-      f.input :email
-      f.input :first_name
-      f.input :last_name
-      
-      if f.object.new_record?
-        f.input :password
-        f.input :password_confirmation
-      end
-    end
-
-    f.inputs 'Address (Optional)' do
-      f.input :address_line1
-      f.input :address_line2
-      f.input :city
-      f.input :postal_code, hint: "Format: A1A 1A1"
-      f.input :province, 
-              as: :select,
-              collection: Province.all.map { |p| [p.name, p.id] },
-              include_blank: "Select a province"
-    end
-
-    f.actions
-  end
-
-  # Ransack methods
+  # Ransack methods for search
   def self.ransackable_associations(auth_object = nil)
-    ["orders", "province"]
+    ["category", "authors", "product_authors", "order_items"]
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["id", "email", "first_name", "last_name", "address_line1", "address_line2", 
-     "city", "postal_code", "province_id", "created_at", "updated_at"]
+    ["id", "title", "description", "isbn", "current_price", "stock_quantity", 
+     "publisher", "pages", "language", "category_id", "created_at", "updated_at"]
   end
 end

@@ -25,7 +25,6 @@
                     <%= image_tag item[:product].cover_image, class: "img-fluid rounded", style: "max-height: 140px; object-fit: cover;" %>
                   <% else %>
                     <div class="bg-gradient rounded text-center py-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                      <span style="font-size: 3rem;">📚</span>
                     </div>
                   <% end %>
                 </div>
@@ -126,9 +125,6 @@
   <% else %>
     <!-- Empty Cart Message -->
     <div class="text-center py-5">
-      <div class="mb-4">
-        <span style="font-size: 6rem;">🛒</span>
-      </div>
       <h2 class="mb-3">Your cart is empty</h2>
       <p class="text-muted mb-4 fs-5">It seems your cart doesn't have books...</p>
       <%= link_to "Browse Books Here", products_path, class: "btn btn-primary btn-lg px-5" %>
