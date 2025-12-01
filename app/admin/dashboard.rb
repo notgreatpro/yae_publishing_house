@@ -32,7 +32,7 @@ ActiveAdmin.register_page 'Dashboard' do
           low_stock = Product.where('stock_quantity < ?', 5).limit(5)
           if low_stock.any?
             table_for low_stock do
-              column('Product') { |product| link_to(product.name, admin_product_path(product)) }
+              column('Product') { |product| link_to(product.title, admin_product_path(product)) }
               column('Stock') { |product| product.stock_quantity }
             end
           else

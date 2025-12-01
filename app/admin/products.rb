@@ -2,7 +2,7 @@ ActiveAdmin.register Product do
   menu priority: 2
   
   permit_params :title, :description, :isbn, :current_price,
-                :stock_quantity, :category_id, :publisher, :published_date,
+                :stock_quantity, :category_id, :publisher, :publication_date,
                 :pages, :language, :cover_image, author_ids: []
 
   # Index page
@@ -21,7 +21,7 @@ ActiveAdmin.register Product do
       product.authors.map(&:author_name).join(", ")
     end
     column :category do |product|
-      product.category&.name
+      product.category&.category_name
     end
     column :isbn
     column "Price" do |product|
@@ -41,6 +41,7 @@ ActiveAdmin.register Product do
   filter :stock_quantity
   filter :publisher
   filter :language
+  filter :publication_date
   filter :created_at
 
   # Form
@@ -53,12 +54,12 @@ ActiveAdmin.register Product do
               hint: "Select one or more authors"
       f.input :category,
               as: :select,
-              collection: Category.all.map { |c| [c.name, c.id] },
+              collection: Category.all.map { |c| [c.category_name, c.id] },
               include_blank: "Select a category"
       f.input :description, as: :text, input_html: { rows: 10 }
       f.input :isbn, hint: "ISBN-13 format"
       f.input :publisher
-      f.input :published_date, as: :datepicker
+      f.input :publication_date, as: :datepicker, hint: "Date the book was published"
       f.input :pages, hint: "Number of pages"
       f.input :language, hint: "e.g., English, French, etc."
     end
@@ -69,11 +70,15 @@ ActiveAdmin.register Product do
     end
     
     f.inputs 'Cover Image' do
-      f.input :cover_image, 
-              as: :file, 
-              hint: f.object.cover_image.attached? ? 
-                image_tag(url_for(f.object.cover_image), height: 150) : 
-                "Upload a cover image (JPG, PNG)"
+      if f.object.persisted? && f.object.cover_image.attached?
+        f.input :cover_image, 
+                as: :file, 
+                hint: image_tag(url_for(f.object.cover_image), height: 150)
+      else
+        f.input :cover_image, 
+                as: :file, 
+                hint: "Upload a cover image (JPG, PNG)"
+      end
     end
     
     f.actions
@@ -94,14 +99,14 @@ ActiveAdmin.register Product do
         product.authors.map { |a| link_to a.author_name, admin_author_path(a) }.join(", ").html_safe
       end
       row :category do |product|
-        link_to product.category.name, admin_category_path(product.category) if product.category
+        link_to product.category.category_name, admin_category_path(product.category) if product.category
       end
       row :description do |product|
         simple_format(product.description)
       end
       row :isbn
       row :publisher
-      row :published_date
+      row :publication_date
       row :pages
       row :language
       row "Price" do |product|
@@ -142,6 +147,7 @@ ActiveAdmin.register Product do
 
   def self.ransackable_attributes(auth_object = nil)
     ["id", "title", "description", "isbn", "current_price", "stock_quantity", 
-     "publisher", "pages", "language", "category_id", "created_at", "updated_at"]
+     "publisher", "pages", "language", "category_id", "publication_date", 
+     "created_at", "updated_at"]
   end
 end

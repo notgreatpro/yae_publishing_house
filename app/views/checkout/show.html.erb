@@ -238,7 +238,7 @@
 
     <!-- Order Summary Sidebar -->
     <div class="col-lg-4">
-      <div class="card sticky-top" style="top: 20px;">
+      <div class="card order-summary-sticky">
         <div class="card-header bg-white">
           <h3 class="h5 mb-0">Order Summary</h3>
         </div>
@@ -289,6 +289,42 @@
     </div>
   </div>
 </div>
+
+<style>
+  /* Sticky sidebar that doesn't overlap header */
+  .order-summary-sticky {
+    position: sticky;
+    top: 80px; /* Adjust this value based on your header height */
+    z-index: 100;
+    max-height: calc(100vh - 100px); /* Prevents sidebar from being taller than viewport */
+    overflow-y: auto; /* Allows scrolling within sidebar if content is long */
+  }
+
+  /* Optional: Add smooth scrolling within the sidebar */
+  .order-summary-sticky .card-body {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+  }
+
+  /* Optional: Style the scrollbar */
+  .order-summary-sticky .card-body::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .order-summary-sticky .card-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  .order-summary-sticky .card-body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+  }
+
+  .order-summary-sticky .card-body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+</style>
 
 <!-- Load Stripe.js -->
 <script src="https://js.stripe.com/v3/"></script>
