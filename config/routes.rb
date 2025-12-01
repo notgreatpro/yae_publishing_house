@@ -42,6 +42,8 @@ Rails.application.routes.draw do
   # Public Content Pages (Feature 1.4)
   get 'about', to: 'pages#about'
   get 'contact', to: 'pages#contact'
+  get 'privacy', to: 'pages#privacy'      
+  get 'terms', to: 'pages#terms'          
   
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check

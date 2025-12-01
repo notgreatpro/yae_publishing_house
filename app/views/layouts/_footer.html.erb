@@ -81,19 +81,17 @@
           &copy; <%= Time.current.year %> Yae Publishing House. All rights reserved.
         </p>
       </div>
-      <div class="col-md-6 text-center text-md-end">
-        <ul class="list-inline mb-0">
-          <li class="list-inline-item">
-            <a href="#" class="text-white-50 text-decoration-none">Privacy Policy</a>
-          </li>
-          <li class="list-inline-item">|</li>
-          <li class="list-inline-item">
-            <a href="#" class="text-white-50 text-decoration-none">Terms of Service</a>
-          </li>
-          <li class="list-inline-item">|</li>
-          <li class="list-inline-item">
-            <a href="#" class="text-white-50 text-decoration-none">Shipping Info</a>
-          </li>
+         <div class="col-md-6 text-center text-md-end">
+          <ul class="list-inline mb-0">
+              <li class="list-inline-item">
+                <%= link_to "Privacy Policy", privacy_path, class: "text-white-50 text-decoration-none" %>
+                </li>
+                <li class="list-inline-item">|</li>
+                <li class="list-inline-item">
+                <%= link_to "Terms of Service", terms_path, class: "text-white-50 text-decoration-none" %>
+              </li>
+            </ul>
+          </div>
         </ul>
       </div>
     </div>

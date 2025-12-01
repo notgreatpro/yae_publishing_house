@@ -1,20 +1,32 @@
 # app/controllers/pages_controller.rb
-# Feature 1.4 - Show pages for contact and about
+# Feature 1.4 - Show pages for contact, about, privacy, and terms
 
 class PagesController < ApplicationController
   def about
     @page = Page.find_by(slug: 'about')
-    
-    unless @page
-      render html: '<h1>About page not found</h1><p>Please create an "About" page in the admin panel with slug "about".</p>'.html_safe, status: :not_found
-    end
+    render_page_or_not_found(@page, 'About')
   end
 
   def contact
     @page = Page.find_by(slug: 'contact')
-    
-    unless @page
-      render html: '<h1>Contact page not found</h1><p>Please create a "Contact" page in the admin panel with slug "contact".</p>'.html_safe, status: :not_found
+    render_page_or_not_found(@page, 'Contact')
+  end
+
+  def privacy
+    @page = Page.find_by(slug: 'privacy')
+    render_page_or_not_found(@page, 'Privacy Policy')
+  end
+
+  def terms
+    @page = Page.find_by(slug: 'terms')
+    render_page_or_not_found(@page, 'Terms of Service')
+  end
+
+  private
+
+  def render_page_or_not_found(page, page_name)
+    unless page
+      render html: "<h1>#{page_name} page not found</h1><p>Please create a \"#{page_name}\" page in the admin panel with slug \"#{page.slug rescue page_name.downcase.gsub(' ', '-')}\".</p>".html_safe, status: :not_found
     end
   end
 end

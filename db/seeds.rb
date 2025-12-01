@@ -153,7 +153,186 @@ Page.create!(
   CONTENT
 )
 
-puts "✓ Created #{Page.count} pages (About & Contact)"
+puts "Created #{Page.count} pages (About & Contact)"
+# Privacy Policy Page
+Page.create!(
+  title: 'Privacy Policy',
+  slug: 'privacy',
+  content: <<~CONTENT
+    Effective Date: November 30, 2025
+
+    Your Privacy Matters
+
+    At Yae Publishing House, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our website and services.
+
+    Information We Collect
+
+    We collect information that you provide directly to us, including:
+    - Name, email address, and contact information when you create an account
+    - Shipping and billing addresses for order processing
+    - Payment information (processed securely through our payment provider)
+    - Order history and purchase preferences
+    - Communications you send to us
+
+    We also automatically collect certain information when you visit our website:
+    - Browser type and device information
+    - IP address and location data
+    - Pages visited and time spent on our site
+    - Referral sources
+
+    How We Use Your Information
+
+    We use your information to:
+    - Process and fulfill your orders
+    - Communicate with you about your orders and account
+    - Send you promotional emails (you can opt out at any time)
+    - Improve our website and customer service
+    - Prevent fraud and enhance security
+    - Comply with legal obligations
+
+    Information Sharing
+
+    We do not sell your personal information to third parties. We may share your information with:
+    - Service providers who help us operate our business (shipping carriers, payment processors)
+    - Law enforcement when required by law
+    - Business partners with your explicit consent
+
+    Data Security
+
+    We implement industry-standard security measures to protect your information, including:
+    - Encrypted data transmission (SSL/TLS)
+    - Secure payment processing
+    - Regular security audits
+    - Restricted access to personal information
+
+    Your Rights
+
+    You have the right to:
+    - Access the personal information we hold about you
+    - Request correction of inaccurate information
+    - Request deletion of your account and data
+    - Opt out of marketing communications
+    - Request a copy of your data
+
+    Cookies
+
+    We use cookies to enhance your browsing experience and analyze site traffic. You can control cookie preferences through your browser settings.
+
+    Children's Privacy
+
+    Our services are not directed to children under 13. We do not knowingly collect information from children under 13.
+
+    Changes to This Policy
+
+    We may update this Privacy Policy from time to time. We will notify you of significant changes by posting a notice on our website.
+
+    Contact Us
+
+    If you have questions about this Privacy Policy, please contact us at privacy@yaepublishing.com or visit our Contact page.
+  CONTENT
+)
+
+# Terms of Service Page
+Page.create!(
+  title: 'Terms of Service',
+  slug: 'terms',
+  content: <<~CONTENT
+    Effective Date: November 30, 2025
+
+    Agreement to Terms
+
+    By accessing and using Yae Publishing House's website and services, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.
+
+    Use of Our Services
+
+    You agree to use our services only for lawful purposes and in accordance with these Terms. You may not:
+    - Use our services in any way that violates applicable laws or regulations
+    - Attempt to gain unauthorized access to our systems
+    - Interfere with the proper functioning of our website
+    - Use automated systems to access our site without permission
+    - Impersonate another person or entity
+
+    Account Registration
+
+    To make purchases, you must create an account. You are responsible for:
+    - Maintaining the confidentiality of your account credentials
+    - All activities that occur under your account
+    - Notifying us immediately of any unauthorized use
+
+    Product Information and Pricing
+
+    We strive to provide accurate product descriptions and pricing. However:
+    - Product images may differ slightly from actual items
+    - Prices are subject to change without notice
+    - We reserve the right to limit quantities
+    - We may refuse or cancel orders at our discretion
+
+    Orders and Payment
+
+    By placing an order, you:
+    - Agree to pay all charges at the prices in effect when you place your order
+    - Authorize us to charge your payment method
+    - Acknowledge that all sales are final unless otherwise stated
+
+    Shipping and Delivery
+
+    We ship to addresses within Canada. Shipping times vary by location and are estimates only. We are not responsible for:
+    - Delays caused by shipping carriers
+    - Incorrect addresses provided by customers
+    - Items lost or damaged during shipping (we will work with you to resolve these issues)
+
+    Returns and Refunds
+
+    Please review our Return Policy for detailed information about returns and refunds. Generally:
+    - Items must be returned within 30 days of delivery
+    - Items must be in original, unopened condition
+    - Refunds are processed within 5-10 business days
+    - Shipping costs are non-refundable
+
+    Intellectual Property
+
+    All content on our website, including text, images, logos, and designs, is the property of Yae Publishing House or our licensors. You may not:
+    - Reproduce, distribute, or modify our content without permission
+    - Use our trademarks without authorization
+    - Copy or scrape our website content
+
+    Limitation of Liability
+
+    To the fullest extent permitted by law:
+    - We are not liable for indirect, incidental, or consequential damages
+    - Our total liability is limited to the amount you paid for the product or service
+    - We do not guarantee uninterrupted or error-free service
+
+    Indemnification
+
+    You agree to indemnify and hold harmless Yae Publishing House from any claims, damages, or expenses arising from your use of our services or violation of these Terms.
+
+    Dispute Resolution
+
+    Any disputes will be resolved through:
+    - Good faith negotiations
+    - Binding arbitration if negotiations fail
+    - Courts in Manitoba, Canada (if arbitration is not applicable)
+
+    Governing Law
+
+    These Terms are governed by the laws of Manitoba, Canada, without regard to conflict of law principles.
+
+    Changes to Terms
+
+    We reserve the right to modify these Terms at any time. Continued use of our services after changes constitutes acceptance of the modified Terms.
+
+    Contact Information
+
+    For questions about these Terms of Service, please contact us at legal@yaepublishing.com or visit our Contact page.
+
+    Severability
+
+    If any provision of these Terms is found to be unenforceable, the remaining provisions will continue in full force and effect.
+  CONTENT
+)
+
+puts "Created Privacy Policy and Terms of Service pages"
 puts "  - Pages are editable at /admin/pages"
 
 # ---------------------------------------- #
@@ -172,12 +351,12 @@ categories = {
   childrens: Category.create!(category_name: "Children's Books", description: "Books for young readers"),
   adventure: Category.create!(category_name: "Adventure", description: "Action-packed adventure stories")
 }
-puts "✓ #{categories.count} categories created!"
+puts "#{categories.count} categories created!"
 
 # ---------------------------------------- #
 # AUTHORS (REAL + GENSHIN)
 # ---------------------------------------- #
-puts "\n✨ Creating Authors..."
+puts "\nCreating Authors..."
 
 authors = {
   pursina: Author.create!(author_name: "Pursina", biography: "Author of The Saga of Hamavaran series", nationality: COUNTRIES.sample),
@@ -196,7 +375,7 @@ authors = {
   rowling: Author.create!(author_name: "J.K. Rowling", biography: "Writer of Harry Potter", nationality: "United Kingdom")
 }
 
-puts "✓ #{Author.count} authors created!"
+puts "#{Author.count} authors created!"
 
 # ---------------------------------------- #
 # PRODUCT COUNTER
@@ -206,7 +385,7 @@ product_count = 0
 # ---------------------------------------- #
 # INAZUMA BOOKS
 # ---------------------------------------- #
-puts "\n✨ Creating Inazuma Books..."
+puts "\nCreating Inazuma Books..."
 
 inazuma_books = [
   { title: "The Saga of Hamavaran Vol. 1", author: :pursina, category: :light_novels, desc: "Epic Hamavaran adventures", pages: 320, price: 16.99 },
@@ -254,7 +433,7 @@ puts "✓ #{inazuma_books.count} Inazuma books created!"
 # ---------------------------------------- #
 # REAL WORLD BOOKS
 # ---------------------------------------- #
-puts "\n✨ Creating Real World Books..."
+puts "\nCreating Real World Books..."
 
 real_world_books = [
   { title: "Norwegian Wood", author: :haruki, category: :fiction, desc: "Story of loss", pages: 296, price: 16.99 },
@@ -300,12 +479,12 @@ real_world_books.each do |book|
   product_count += 1
 end
 
-puts "✓ #{real_world_books.count} real-world books created!"
+puts "#{real_world_books.count} real-world books created!"
 
 # ---------------------------------------- #
 # EXTRA RANDOM AUTHORS (DIVERSE)
 # ---------------------------------------- #
-puts "\n✨ Creating Additional Random Books..."
+puts "\n Creating Additional Random Books..."
 
 extra_authors = 10.times.map do
   Author.create!(
@@ -343,7 +522,7 @@ puts "✓ Added #{remaining} random books (Total now #{product_count})"
 # ---------------------------------------- #
 # CUSTOMERS
 # ---------------------------------------- #
-puts "\n✨ Creating Sample Customers..."
+puts "\nCreating Sample Customers..."
 
 canadian_cities = ["Toronto", "Vancouver", "Montreal", "Calgary", "Winnipeg", "Edmonton", "Regina", "Saskatoon", "Halifax", "Quebec City", "Victoria", "Kamloops", "London", "Charlottetown"]
 all_provinces = Province.all.to_a
@@ -365,16 +544,16 @@ all_provinces = Province.all.to_a
   )
 end
 
-puts "✓ 5 sample customers created with addresses!"
+puts "5 sample customers created with addresses!"
 
 # ---------------------------------------- #
 # FINAL SUMMARY
 # ---------------------------------------- #
 puts "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-puts "✨ SEEDING COMPLETE! ✨"
+puts "SEEDING COMPLETE! "
 puts "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-puts "\n📊 Database Summary:"
+puts "\n Database Summary:"
 puts "   AdminUsers: #{AdminUser.count}"
 puts "   Pages: #{Page.count} (About & Contact)"
 puts "   Provinces: #{Province.count}"
@@ -384,18 +563,18 @@ puts "   Authors: #{Author.count}"
 puts "   Products: #{Product.count}"
 puts "   Product-Author Links: #{ProductAuthor.count}"
 
-puts "\n🔐 Admin Login:"
+puts "\n Admin Login:"
 puts "   URL: http://localhost:3000/admin"
 puts "   Username: YPHAdmin"
 puts "   Password: $TimeToRead$"
 
-puts "\n📝 Edit Pages:"
+puts "\n Edit Pages:"
 puts "   URL: http://localhost:3000/admin/pages"
 puts "   - About page (slug: 'about')"
 puts "   - Contact page (slug: 'contact')"
 
-puts "\n📚 Public Pages:"
+puts "\n Public Pages:"
 puts "   About: http://localhost:3000/about"
 puts "   Contact: http://localhost:3000/contact"
 
-puts "\n✨ May the Sacred Sakura bless your publishing ventures! ✨"
+puts "\nMay the Sacred Sakura bless your publishing ventures!"
