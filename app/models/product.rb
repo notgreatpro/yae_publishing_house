@@ -29,4 +29,16 @@ class Product < ApplicationRecord
      "publisher", "pages", "language", "category_id", "created_by_id", 
      "created_at", "updated_at"]
   end
+   # Add these variant methods
+  def thumbnail
+    cover_image.variant(resize_to_limit: [100, 150]) if cover_image.attached?
+  end
+  
+  def medium_image
+    cover_image.variant(resize_to_limit: [300, 400]) if cover_image.attached?
+  end
+  
+  def large_image
+    cover_image.variant(resize_to_limit: [600, 800]) if cover_image.attached?
+  end
 end

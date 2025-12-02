@@ -11,7 +11,7 @@ ActiveAdmin.register Product do
     id_column
     column "Cover" do |product|
       if product.cover_image.attached?
-        image_tag url_for(product.cover_image), size: "50x75"
+        image_tag product.thumbnail, size: "50x75"
       else
         "No image"
       end
@@ -73,7 +73,7 @@ ActiveAdmin.register Product do
       if f.object.persisted? && f.object.cover_image.attached?
         f.input :cover_image, 
                 as: :file, 
-                hint: image_tag(url_for(f.object.cover_image), height: 150)
+                hint: image_tag(f.object.medium_image, height: 150) 
       else
         f.input :cover_image, 
                 as: :file, 
@@ -89,7 +89,7 @@ ActiveAdmin.register Product do
     attributes_table do
       row "Cover Image" do |product|
         if product.cover_image.attached?
-          image_tag url_for(product.cover_image), height: 300
+          image_tag product.large_image, height: 300
         else
           "No cover image"
         end

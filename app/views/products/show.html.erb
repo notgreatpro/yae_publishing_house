@@ -13,7 +13,7 @@
     <!-- Product Image Column -->
     <div class="col-lg-5 col-md-6 mb-4">
       <% if @product.cover_image.attached? %>
-        <%= image_tag @product.cover_image, alt: @product.title, class: 'img-fluid rounded shadow' %>
+       <%= image_tag @product.large_image, alt: @product.title, class: 'img-fluid rounded shadow' %>
       <% else %>
         <div class="placeholder-image-large d-flex flex-column align-items-center justify-content-center rounded shadow">
           <p class="text-white mt-3">No cover image available</p>
