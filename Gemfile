@@ -36,6 +36,7 @@ gem 'activeadmin'
 gem 'bootstrap5-kaminari-views'
 gem 'sassc'
 gem 'inherited_resources' 
+gem 'image_processing', '~> 1.2'
 
 
 # Reduces boot times through caching; required in config/boot.rb
