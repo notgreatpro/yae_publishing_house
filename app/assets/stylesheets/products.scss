@@ -1,0 +1,142 @@
+/* Card styling */
+.card {
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15) !important;
+  }
+}
+
+/* Product image wrapper */
+.product-image-wrapper {
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+/* Product images */
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* Professional placeholder for missing images */
+.product-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle pattern overlay for placeholder */
+.product-placeholder::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(255,255,255,0.03) 10px,
+      rgba(255,255,255,0.03) 20px
+    );
+}
+
+.placeholder-content {
+  text-align: center;
+  z-index: 1;
+  position: relative;
+}
+
+/* Product title */
+.product-title {
+  font-size: 1rem;
+  line-height: 1.4;
+  height: 2.8rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  
+  a:hover {
+    color: #0d6efd !important;
+  }
+}
+
+/* Card body */
+.card-body {
+  min-height: 200px;
+}
+
+/* Description text */
+.card-text {
+  line-height: 1.5;
+  height: 4.5rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* Price styling */
+.h5 {
+  font-size: 1.5rem;
+}
+
+/* Button styling */
+.btn-primary {
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}
+
+/* Badge styling */
+.badge {
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Category buttons */
+.btn-lg {
+  border-radius: 8px;
+}
+
+/* Smooth transitions */
+.product-image, .product-placeholder {
+  transition: transform 0.3s ease;
+  
+  .card:hover & {
+    transform: scale(1.02);
+  }
+}
