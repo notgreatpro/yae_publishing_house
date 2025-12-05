@@ -195,7 +195,7 @@
         </div>
       <% else %>
         <div class="alert alert-info">
-          <%= link_to 'Log In', new_customer_session_path %> to leave a review.
+          <%= link_to 'Sign in', new_customer_session_path %> to leave a review.
         </div>
       <% end %>
 
@@ -314,6 +314,128 @@
       </div>
     </div>
   </div>
+
+  <!-- You May Also Like Section -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <h3 class="mb-4">You May Also Like</h3>
+      
+      <div class="recommendations-carousel">
+        <div class="row g-3">
+          <% @related_products.each do |product| %>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+              <div class="recommendation-card">
+                <%= link_to product_path(product), class: 'text-decoration-none' do %>
+                  <div class="recommendation-image mb-2">
+                    <% if product.cover_image.attached? %>
+                      <%= image_tag product.medium_image, 
+                          alt: product.title, 
+                          class: 'img-fluid rounded shadow-sm' %>
+                    <% else %>
+                      <div class="placeholder-recommendation">
+                        <i class="bi bi-book fs-1 text-muted"></i>
+                      </div>
+                    <% end %>
+                  </div>
+                  
+                  <div class="recommendation-info">
+                    <h6 class="recommendation-title text-dark mb-1">
+                      <%= truncate(product.title, length: 50) %>
+                    </h6>
+                    
+                    <% if product.authors.any? %>
+                      <p class="recommendation-author text-muted small mb-2">
+                        <%= product.authors.first.author_name %>
+                      </p>
+                    <% end %>
+
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                      <% if product.average_rating > 0 %>
+                        <div class="recommendation-stars">
+                          <%= render 'shared/star_rating', rating: product.average_rating %>
+                        </div>
+                        <span class="text-muted small">
+                          (<%= product.ratings_count %>)
+                        </span>
+                      <% end %>
+                    </div>
+                    
+                    <div class="recommendation-price">
+                      <span class="text-success fw-bold fs-5">
+                        <%= number_to_currency(product.current_price) %>
+                      </span>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recently Viewed Section -->
+  <% if @recently_viewed_products.present? %>
+    <div class="row mt-5 mb-5">
+      <div class="col-12">
+        <h3 class="mb-4">Recently Viewed</h3>
+        
+        <div class="recommendations-carousel">
+          <div class="row g-3">
+            <% @recently_viewed_products.each do |product| %>
+              <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                <div class="recommendation-card">
+                  <%= link_to product_path(product), class: 'text-decoration-none' do %>
+                    <div class="recommendation-image mb-2">
+                      <% if product.cover_image.attached? %>
+                        <%= image_tag product.medium_image, 
+                            alt: product.title, 
+                            class: 'img-fluid rounded shadow-sm' %>
+                      <% else %>
+                        <div class="placeholder-recommendation">
+                          <i class="bi bi-book fs-1 text-muted"></i>
+                        </div>
+                      <% end %>
+                    </div>
+                    
+                    <div class="recommendation-info">
+                      <h6 class="recommendation-title text-dark mb-1">
+                        <%= truncate(product.title, length: 50) %>
+                      </h6>
+                      
+                      <% if product.authors.any? %>
+                        <p class="recommendation-author text-muted small mb-2">
+                          <%= product.authors.first.author_name %>
+                        </p>
+                      <% end %>
+
+                      <div class="d-flex align-items-center gap-2 mb-2">
+                        <% if product.average_rating > 0 %>
+                          <div class="recommendation-stars">
+                            <%= render 'shared/star_rating', rating: product.average_rating %>
+                          </div>
+                          <span class="text-muted small">
+                            (<%= product.ratings_count %>)
+                          </span>
+                        <% end %>
+                      </div>
+                      
+                      <div class="recommendation-price">
+                        <span class="text-success fw-bold fs-5">
+                          <%= number_to_currency(product.current_price) %>
+                        </span>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
 </div>
 
 <style>

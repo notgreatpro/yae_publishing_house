@@ -35,30 +35,31 @@ class ProductsController < ApplicationController
   # Feature 2.3 - View product details on own page ⭐
   def show
     @product = Product.includes(:category, :authors).find(params[:id])
+    
+    # Track recently viewed products
+    track_recently_viewed(@product)
+    
+    # Get related products (same category, excluding current product)
+    @related_products = Product
+      .where(category_id: @product.category_id)
+      .where.not(id: @product.id)
+      .order('RANDOM()')
+      .limit(6)
+    
+    # If not enough related products, add random products
+    if @related_products.size < 6
+      additional_products = Product
+        .where.not(id: [@product.id] + @related_products.pluck(:id))
+        .order('RANDOM()')
+        .limit(6 - @related_products.size)
+      @related_products = (@related_products.to_a + additional_products.to_a).first(6)
+    end
+    
+    # Get recently viewed products from session
+    @recently_viewed_products = get_recently_viewed_products
+    
   rescue ActiveRecord::RecordNotFound
     redirect_to products_path, alert: 'Product not found'
-  end
-  
-  # Future: Feature 2.6 - Search by keyword and category
-  def search
-    @products = Product.includes(:category, :authors)
-    
-    # Keyword search in title or description
-    if params[:keyword].present?
-      keyword = "%#{params[:keyword]}%"
-      @products = @products.where(
-        'title LIKE ? OR description LIKE ?', 
-        keyword, keyword
-      )
-    end
-    
-    # Filter by category
-    if params[:category_id].present? && params[:category_id] != ''
-      @products = @products.where(category_id: params[:category_id])
-    end
-    
-    @products = @products.page(params[:page]).per(12)
-    render :index
   end
   
   # Feature 2.6 - Search by keyword and category (4%) ⭐
@@ -84,5 +85,32 @@ class ProductsController < ApplicationController
     
     # Render the index view with search results
     render :index
+  end
+
+  private
+
+  def track_recently_viewed(product)
+    # Initialize recently_viewed in session if it doesn't exist
+    session[:recently_viewed] ||= []
+    
+    # Remove the current product if it's already in the list
+    session[:recently_viewed].delete(product.id)
+    
+    # Add current product to the beginning
+    session[:recently_viewed].unshift(product.id)
+    
+    # Keep only the last 10 viewed products
+    session[:recently_viewed] = session[:recently_viewed].first(10)
+  end
+
+  def get_recently_viewed_products
+    return [] unless session[:recently_viewed].present?
+    
+    # Get products, excluding the current product
+    product_ids = session[:recently_viewed].reject { |id| id == @product.id }
+    
+    # Fetch products maintaining the order and limit to 6
+    Product.where(id: product_ids.first(6))
+           .sort_by { |product| product_ids.index(product.id) }
   end
 end
