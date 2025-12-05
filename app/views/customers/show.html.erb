@@ -1,0 +1,246 @@
+<!-- app/views/customers/show.html.erb -->
+
+<div class="container mt-4">
+  <div class="row">
+    <!-- Sidebar Navigation -->
+    <div class="col-lg-3 col-md-4 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-center mb-3">
+            <div class="avatar-circle bg-primary text-white mb-2">
+              <h1 class="mb-0"><%= @customer.first_name[0].upcase %><%= @customer.last_name[0].upcase %></h1>
+            </div>
+            <h5 class="mb-1"><%= @customer.full_name %></h5>
+            <p class="text-muted small mb-0"><%= @customer.email %></p>
+          </div>
+          
+          <hr>
+          
+          <ul class="nav flex-column profile-nav">
+            <li class="nav-item">
+              <a class="nav-link active" href="#account-info" data-bs-toggle="tab">
+                <i class="bi bi-person-circle me-2"></i> Account Info
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#order-history" data-bs-toggle="tab">
+                <i class="bi bi-bag-check me-2"></i> Order History
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#my-reviews" data-bs-toggle="tab">
+                <i class="bi bi-star me-2"></i> My Reviews
+              </a>
+            </li>
+            <li class="nav-item">
+              <%= link_to edit_customer_profile_path, class: 'nav-link' do %>
+                <i class="bi bi-pencil-square me-2"></i> Edit Profile
+              <% end %>
+            </li>
+            <li class="nav-item">
+              <%= link_to destroy_customer_session_path, method: :delete, class: 'nav-link text-danger' do %>
+                <i class="bi bi-box-arrow-right me-2"></i> Log Out
+              <% end %>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-lg-9 col-md-8">
+      <div class="tab-content">
+        <!-- Account Info Tab -->
+        <div class="tab-pane fade show active" id="account-info">
+          <div class="card">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i> Account Information</h5>
+            </div>
+            <div class="card-body">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <h6 class="text-muted mb-1">First Name</h6>
+                  <p class="fs-5"><%= @customer.first_name %></p>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="text-muted mb-1">Last Name</h6>
+                  <p class="fs-5"><%= @customer.last_name %></p>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-12">
+                  <h6 class="text-muted mb-1">Email Address</h6>
+                  <p class="fs-5"><%= @customer.email %></p>
+                </div>
+              </div>
+
+              <hr>
+
+              <h5 class="mb-3">Shipping Address</h5>
+              <% if @customer.has_complete_address? %>
+                <div class="alert alert-success" role="alert">
+                  <i class="bi bi-check-circle-fill me-2"></i> Address on file
+                </div>
+                
+                <address class="fs-5">
+                  <%= @customer.address_line1 %><br>
+                  <% if @customer.address_line2.present? %>
+                    <%= @customer.address_line2 %><br>
+                  <% end %>
+                  <%= @customer.city %>, <%= @customer.province.code %> <%= @customer.postal_code %>
+                </address>
+              <% else %>
+                <div class="alert alert-warning" role="alert">
+                  <i class="bi bi-exclamation-triangle-fill me-2"></i> No shipping address on file
+                </div>
+                <p class="text-muted">Add your shipping address to speed up checkout.</p>
+              <% end %>
+
+              <div class="mt-3">
+                <%= link_to 'Edit Profile', edit_customer_profile_path, class: 'btn btn-primary' %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order History Tab -->
+        <div class="tab-pane fade" id="order-history">
+          <div class="card">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0"><i class="bi bi-bag-check me-2"></i> Recent Orders</h5>
+            </div>
+            <div class="card-body">
+              <% if @orders.any? %>
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Order #</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% @orders.each do |order| %>
+                        <tr>
+                          <td><strong>#<%= order.id %></strong></td>
+                          <td><%= order.created_at.strftime('%B %d, %Y') %></td>
+                          <td><%= number_to_currency(order.total_amount) %></td>
+                          <td>
+                            <span class="badge bg-<%= order_status_color(order.status) %>">
+                              <%= order.status.titleize %>
+                            </span>
+                          </td>
+                          <td>
+                            <%= link_to 'View', order_path(order), class: 'btn btn-sm btn-outline-primary' %>
+                          </td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="mt-3">
+                  <%= link_to 'View All Orders', orders_path, class: 'btn btn-primary' %>
+                </div>
+              <% else %>
+                <div class="text-center py-5">
+                  <i class="bi bi-bag-x display-1 text-muted"></i>
+                  <h5 class="mt-3">No Orders Yet</h5>
+                  <p class="text-muted">Start shopping to see your order history here.</p>
+                  <%= link_to 'Browse Products', products_path, class: 'btn btn-primary' %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- My Reviews Tab -->
+        <div class="tab-pane fade" id="my-reviews">
+          <div class="card">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0"><i class="bi bi-star me-2"></i> My Reviews</h5>
+            </div>
+            <div class="card-body">
+              <% if @ratings.any? %>
+                <% @ratings.each do |rating| %>
+                  <div class="card mb-3">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="flex-grow-1">
+                          <h6 class="mb-1">
+                            <%= link_to rating.product.title, product_path(rating.product), class: 'text-decoration-none' %>
+                          </h6>
+                          <div class="rating-stars-small mb-2">
+                            <%= render 'shared/star_rating', rating: rating.score %>
+                          </div>
+                        </div>
+                        <small class="text-muted"><%= time_ago_in_words(rating.created_at) %> ago</small>
+                      </div>
+                      
+                      <% if rating.review.present? %>
+                        <p class="mb-2"><%= rating.review %></p>
+                      <% end %>
+
+                      <div class="mt-2">
+                        <%= link_to 'View Product', product_path(rating.product), class: 'btn btn-sm btn-outline-primary' %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              <% else %>
+                <div class="text-center py-5">
+                  <i class="bi bi-star display-1 text-muted"></i>
+                  <h5 class="mt-3">No Reviews Yet</h5>
+                  <p class="text-muted">Share your thoughts on products you've purchased.</p>
+                  <%= link_to 'Browse Products', products_path, class: 'btn btn-primary' %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .avatar-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+  }
+
+  .profile-nav .nav-link {
+    color: #333;
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    transition: all 0.2s;
+  }
+
+  .profile-nav .nav-link:hover {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+  }
+
+  .profile-nav .nav-link.active {
+    background-color: #0d6efd;
+    color: white;
+  }
+
+  .rating-stars-small {
+    font-size: 1rem;
+  }
+
+  .rating-stars-small i {
+    color: #ffc107;
+  }
+</style>

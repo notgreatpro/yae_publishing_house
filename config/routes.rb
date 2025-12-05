@@ -49,6 +49,11 @@ Rails.application.routes.draw do
   get 'privacy', to: 'pages#privacy'      
   get 'terms', to: 'pages#terms'          
   
+  # Customer profile routes
+  get 'profile', to: 'customers#show', as: 'customer_profile'
+  get 'profile/edit', to: 'customers#edit', as: 'edit_customer_profile'
+  patch 'profile', to: 'customers#update'
+
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 end
