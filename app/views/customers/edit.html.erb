@@ -27,6 +27,50 @@
 
             <!-- Personal Information -->
             <h5 class="mb-3">Personal Information</h5>
+
+            <!-- Profile Picture Section -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Profile Picture</label>
+              
+              <div class="d-flex align-items-center gap-3">
+                <% if @customer.profile_picture.attached? %>
+                  <%= image_tag @customer.profile_picture.variant(resize_to_fill: [100, 100]), 
+                      class: 'rounded-circle', 
+                      style: 'width: 80px; height: 80px; object-fit: cover;' %>
+                <% else %>
+                  <div class="avatar-circle-small bg-primary text-white">
+                    <h3 class="mb-0"><%= @customer.initials %></h3>
+                  </div>
+                <% end %>
+                
+                <div class="flex-grow-1">
+                  <%= f.file_field :profile_picture, 
+                      accept: 'image/png,image/jpeg,image/jpg,image/gif',
+                      class: 'form-control',
+                      onchange: 'previewProfilePicture(event)' %>
+                  <small class="text-muted">JPG, PNG, or GIF. Max size 5MB.</small>
+                  
+                  <% if @customer.profile_picture.attached? %>
+                    <div class="mt-2">
+                      <%= button_to 'Remove Current Picture', 
+                          remove_profile_picture_path, 
+                          method: :delete, 
+                          class: 'btn btn-sm btn-outline-danger',
+                          data: { confirm: 'Are you sure you want to remove your profile picture?' } %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+
+              <!-- Preview Container -->
+              <div id="profile-picture-preview" class="mt-3" style="display: none;">
+                <p class="text-muted mb-2">New picture preview:</p>
+                <img id="preview-image" class="rounded-circle" 
+                     style="width: 100px; height: 100px; object-fit: cover;" />
+              </div>
+            </div>
+
+            <hr>
             
             <div class="row mb-3">
               <div class="col-md-6">
@@ -127,4 +171,36 @@
       });
     }
   });
+
+  // Preview profile picture before upload
+  function previewProfilePicture(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('profile-picture-preview');
+    const previewImage = document.getElementById('preview-image');
+    
+    if (file) {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        previewImage.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      
+      reader.readAsDataURL(file);
+    } else {
+      preview.style.display = 'none';
+    }
+  }
 </script>
+
+<style>
+  .avatar-circle-small {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+</style>

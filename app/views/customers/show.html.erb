@@ -7,9 +7,15 @@
       <div class="card">
         <div class="card-body">
           <div class="text-center mb-3">
-            <div class="avatar-circle bg-primary text-white mb-2">
-              <h1 class="mb-0"><%= @customer.first_name[0].upcase %><%= @customer.last_name[0].upcase %></h1>
-            </div>
+            <% if @customer.profile_picture.attached? %>
+              <%= image_tag @customer.profile_picture.variant(resize_to_fill: [150, 150]), 
+                  class: 'rounded-circle mb-2', 
+                  style: 'width: 100px; height: 100px; object-fit: cover;' %>
+            <% else %>
+              <div class="avatar-circle bg-primary text-white mb-2">
+                <h1 class="mb-0"><%= @customer.initials %></h1>
+              </div>
+            <% end %>
             <h5 class="mb-1"><%= @customer.full_name %></h5>
             <p class="text-muted small mb-0"><%= @customer.email %></p>
           </div>

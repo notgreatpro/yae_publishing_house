@@ -33,7 +33,8 @@ class CustomersController < ApplicationController
       :address_line2, 
       :city, 
       :postal_code, 
-      :province_id
+      :province_id,
+      :profile_picture 
     )
   end
 end

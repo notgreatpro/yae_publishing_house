@@ -4,6 +4,7 @@ class Customer < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
   
+  has_one_attached :profile_picture
   # Associations
   has_many :orders, dependent: :destroy
   has_many :ratings, dependent: :destroy
@@ -25,6 +26,10 @@ class Customer < ApplicationRecord
   # Helper method to get full name
   def full_name
     "#{first_name} #{last_name}".strip
+  end
+  
+  def initials
+    "#{first_name[0]}#{last_name[0]}".upcase
   end
   
   # Check if customer has complete address

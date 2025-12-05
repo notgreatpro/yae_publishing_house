@@ -54,6 +54,7 @@ Rails.application.routes.draw do
   get 'profile/edit', to: 'customers#edit', as: 'edit_customer_profile'
   patch 'profile', to: 'customers#update'
 
+  delete 'profile/picture', to: 'customers#remove_profile_picture', as: 'remove_profile_picture'
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 end
