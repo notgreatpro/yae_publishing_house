@@ -1,3 +1,4 @@
+# app/models/customer.rb
 class Customer < ApplicationRecord
   # Devise handles authentication
   devise :database_authenticatable, :registerable,
@@ -5,6 +6,7 @@ class Customer < ApplicationRecord
   
   # Associations
   has_many :orders, dependent: :destroy
+  has_many :ratings, dependent: :destroy
   belongs_to :province, optional: true
   
   # Validations
@@ -32,7 +34,7 @@ class Customer < ApplicationRecord
 
   # Ransack methods for Active Admin search
   def self.ransackable_associations(auth_object = nil)
-    ["orders", "province"]
+    ["orders", "province", "ratings"]
   end
 
   def self.ransackable_attributes(auth_object = nil)

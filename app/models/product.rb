@@ -1,5 +1,7 @@
+# app/models/product.rb
+
 class Product < ApplicationRecord
-  # Active Storage - Add this line
+  # Active Storage
   has_one_attached :cover_image
   
   # Associations
@@ -8,6 +10,7 @@ class Product < ApplicationRecord
   has_many :product_authors, dependent: :destroy
   has_many :authors, through: :product_authors
   has_many :order_items, dependent: :destroy
+  has_many :ratings, dependent: :destroy
   
   # Validations
   validates :title, presence: true, length: { minimum: 1, maximum: 255 }
@@ -21,15 +24,16 @@ class Product < ApplicationRecord
 
   # Ransack methods for Active Admin search
   def self.ransackable_associations(auth_object = nil)
-    ["category", "authors", "product_authors", "order_items", "admin"]
+    ["category", "authors", "product_authors", "order_items", "admin", "ratings"]
   end
 
   def self.ransackable_attributes(auth_object = nil)
     ["id", "title", "isbn", "description", "current_price", "stock_quantity", 
      "publisher", "pages", "language", "category_id", "created_by_id", 
-     "created_at", "updated_at"]
+     "created_at", "updated_at", "average_rating", "ratings_count"]
   end
-    # UPDATED variant methods (return the actual variant, not conditional)
+  
+  # Image variants
   def thumbnail
     cover_image.variant(resize_to_limit: [600, 800])
   end
@@ -40,5 +44,22 @@ class Product < ApplicationRecord
   
   def large_image
     cover_image.variant(resize_to_limit: [600, 800])
+  end
+
+  # Rating methods
+  def update_rating_stats
+    stats = ratings.group(:product_id).average(:score)
+    update_columns(
+      average_rating: stats[id] || 0.0,
+      ratings_count: ratings.count
+    )
+  end
+
+  def customer_rating(customer)
+    ratings.find_by(customer: customer)
+  end
+
+  def rated_by?(customer)
+    customer && ratings.exists?(customer: customer)
   end
 end

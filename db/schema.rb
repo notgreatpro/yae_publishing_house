@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_30_235754) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_04_233124) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -201,6 +201,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_30_235754) do
     t.string "cover_image_url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "average_rating", precision: 3, scale: 2, default: "0.0"
+    t.integer "ratings_count", default: 0
     t.index ["category_id"], name: "index_products_on_category_id"
   end
 
@@ -212,6 +214,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_30_235754) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "code"
+  end
+
+  create_table "ratings", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.bigint "customer_id", null: false
+    t.integer "score", null: false
+    t.text "review"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["customer_id"], name: "index_ratings_on_customer_id"
+    t.index ["product_id", "customer_id"], name: "index_ratings_on_product_id_and_customer_id", unique: true
+    t.index ["product_id"], name: "index_ratings_on_product_id"
   end
 
   create_table "site_contents", force: :cascade do |t|
@@ -233,5 +247,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_30_235754) do
   add_foreign_key "product_authors", "authors"
   add_foreign_key "product_authors", "products"
   add_foreign_key "products", "categories"
+  add_foreign_key "ratings", "customers"
+  add_foreign_key "ratings", "products"
   add_foreign_key "site_contents", "admins", column: "updated_by_id"
 end

@@ -12,16 +12,15 @@
   <div class="row mt-4">
     <!-- Product Image Column -->
     <div class="col-lg-5 col-md-6 mb-4">
-      <!-- Around line 12-20 -->
-        <% if @product.cover_image.attached? %>
-          <%= image_tag @product.large_image, alt: @product.title, class: 'img-fluid rounded shadow' %>
-        <% else %>
-          <div class="placeholder-image-large d-flex flex-column align-items-center justify-content-center rounded shadow">
-            <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-book text-white" viewBox="0 0 16 16">
-              <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
-            </svg>
-            <p class="text-white mt-3">No cover image available</p>
-          </div>
+      <% if @product.cover_image.attached? %>
+        <%= image_tag @product.large_image, alt: @product.title, class: 'img-fluid rounded shadow' %>
+      <% else %>
+        <div class="placeholder-image-large d-flex flex-column align-items-center justify-content-center rounded shadow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-book text-white" viewBox="0 0 16 16">
+            <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
+          </svg>
+          <p class="text-white mt-3">No cover image available</p>
+        </div>
       <% end %>
     </div>
 
@@ -34,6 +33,19 @@
           by <%= @product.authors.map(&:author_name).join(', ') %>
         </p>
       <% end %>
+
+      <!-- Rating Display -->
+      <div class="mb-3">
+        <div class="d-flex align-items-center">
+          <div class="rating-stars me-2">
+            <%= render 'shared/star_rating', rating: @product.average_rating %>
+          </div>
+          <span class="text-muted">
+            <%= number_with_precision(@product.average_rating, precision: 1) %>
+            (<%= @product.ratings_count %> <%= 'review'.pluralize(@product.ratings_count) %>)
+          </span>
+        </div>
+      </div>
 
       <!-- Badges -->
       <div class="mb-3">
@@ -144,6 +156,108 @@
       </div>
     </div>
   </div>
+
+  <!-- Reviews Section -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <h3 class="h4 mb-4">Customer Reviews</h3>
+
+      <!-- Customer's Rating Form -->
+      <% if customer_signed_in? %>
+        <div class="card mb-4">
+          <div class="card-body">
+            <% if @product.rated_by?(current_customer) %>
+              <% customer_rating = @product.customer_rating(current_customer) %>
+              <h5 class="card-title">Your Review</h5>
+              <%= form_with model: customer_rating, url: product_rating_path(@product, customer_rating), 
+                  method: :patch, local: true, class: 'rating-form' do |f| %>
+                
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Rating</label>
+                  <div class="star-rating-input">
+                    <% (1..5).reverse_each do |i| %>
+                      <%= f.radio_button :score, i, id: "rating_#{i}", class: 'd-none', checked: customer_rating.score == i %>
+                      <label for="rating_<%= i %>" class="star-label">
+                        <i class="bi bi-star-fill"></i>
+                      </label>
+                    <% end %>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <%= f.label :review, 'Your Review (Optional)', class: 'form-label fw-semibold' %>
+                  <%= f.text_area :review, class: 'form-control', rows: 4, 
+                      placeholder: 'Share your thoughts about this book...' %>
+                </div>
+
+                <div class="d-flex gap-2">
+                  <%= f.submit 'Update Review', class: 'btn btn-primary' %>
+                  <%= button_to 'Delete Review', product_rating_path(@product, customer_rating), 
+                      method: :delete, class: 'btn btn-outline-danger',
+                      data: { confirm: 'Are you sure you want to delete your review?' } %>
+                </div>
+              <% end %>
+            <% else %>
+              <h5 class="card-title">Write a Review</h5>
+              <%= form_with model: Rating.new, url: product_ratings_path(@product), 
+                  local: true, class: 'rating-form' do |f| %>
+                
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Rating</label>
+                  <div class="star-rating-input">
+                    <% (1..5).reverse_each do |i| %>
+                      <%= f.radio_button :score, i, id: "rating_#{i}", class: 'd-none' %>
+                      <label for="rating_<%= i %>" class="star-label">
+                        <i class="bi bi-star-fill"></i>
+                      </label>
+                    <% end %>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <%= f.label :review, 'Your Review (Optional)', class: 'form-label fw-semibold' %>
+                  <%= f.text_area :review, class: 'form-control', rows: 4, 
+                      placeholder: 'Share your thoughts about this book...' %>
+                </div>
+
+                <%= f.submit 'Submit Review', class: 'btn btn-primary' %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <div class="alert alert-info">
+          <%= link_to 'Sign in', new_customer_session_path %> to leave a review.
+        </div>
+      <% end %>
+
+      <!-- Display All Reviews -->
+      <div class="reviews-list">
+        <% @product.ratings.order(created_at: :desc).each do |rating| %>
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <h6 class="mb-1"><%= rating.customer.full_name %></h6>
+                  <div class="rating-stars-small">
+                    <%= render 'shared/star_rating', rating: rating.score %>
+                  </div>
+                </div>
+                <small class="text-muted"><%= time_ago_in_words(rating.created_at) %> ago</small>
+              </div>
+              <% if rating.review.present? %>
+                <p class="mb-0 mt-2"><%= rating.review %></p>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @product.ratings.empty? %>
+          <p class="text-muted">No reviews yet. Be the first to review this book!</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -153,4 +267,58 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 400px;
   }
+
+  .star-rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 5px;
+  }
+
+  .star-label {
+    cursor: pointer;
+    font-size: 2rem;
+    color: #ddd;
+    transition: color 0.2s;
+  }
+
+  .star-rating-input input:checked ~ label,
+  .star-rating-input label:hover,
+  .star-rating-input label:hover ~ label {
+    color: #ffc107;
+  }
+
+  .rating-stars i,
+  .rating-stars-small i {
+    color: #ffc107;
+  }
+
+  .rating-stars {
+    font-size: 1.5rem;
+  }
+
+  .rating-stars-small {
+    font-size: 1rem;
+  }
 </style>
+
+<script>
+  // Ensure star rating displays correctly on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    const ratingInputs = document.querySelectorAll('.star-rating-input input[type="radio"]');
+    ratingInputs.forEach(input => {
+      if (input.checked) {
+        const labels = input.parentElement.querySelectorAll('label');
+        let foundChecked = false;
+        labels.forEach(label => {
+          if (label.getAttribute('for') === input.id) {
+            foundChecked = true;
+          }
+          if (foundChecked) {
+            label.style.color = '#ffc107';
+          }
+        });
+      }
+    });
+  });
+</script>

@@ -1,0 +1,21 @@
+<!-- app/views/shared/_star_rating.html.erb -->
+
+<% 
+  full_stars = rating.floor
+  half_star = (rating % 1) >= 0.5 ? 1 : 0
+  empty_stars = 5 - full_stars - half_star
+%>
+
+<span class="rating-stars">
+  <% full_stars.times do %>
+    <i class="bi bi-star-fill"></i>
+  <% end %>
+  
+  <% if half_star == 1 %>
+    <i class="bi bi-star-half"></i>
+  <% end %>
+  
+  <% empty_stars.times do %>
+    <i class="bi bi-star"></i>
+  <% end %>
+</span>

@@ -38,6 +38,10 @@ Rails.application.routes.draw do
       get 'confirmation'
     end
   end
+
+   resources :products do
+    resources :ratings, only: [:create, :update, :destroy]
+  end
   
   # Public Content Pages (Feature 1.4)
   get 'about', to: 'pages#about'
