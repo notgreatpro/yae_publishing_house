@@ -88,6 +88,11 @@
               <%= f.email_field :email, class: 'form-control', placeholder: 'your.email@example.com' %>
               <small class="text-muted">We'll never share your email with anyone else.</small>
             </div>
+            <div class="mb-3">
+              <%= f.label :phone, 'Phone Number (Optional)', class: 'form-label fw-semibold' %>
+              <%= f.telephone_field :phone, class: 'form-control', placeholder: '(123) 456-7890' %>
+                <small class="text-muted">Optional - for order updates</small>
+            </div>
 
             <hr>
 

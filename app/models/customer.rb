@@ -20,6 +20,7 @@ class Customer < ApplicationRecord
   validates :city, presence: true, if: :address_present?
   validates :postal_code, presence: true, format: { with: /\A[A-Z]\d[A-Z] ?\d[A-Z]\d\z/i }, if: :address_present?
   validates :province_id, presence: true, if: :address_present?
+  validates :phone, length: { maximum: 20 }, allow_blank: true
   
   validates :address_line2, length: { maximum: 255 }, allow_blank: true
   

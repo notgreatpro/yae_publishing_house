@@ -3,7 +3,7 @@ ActiveAdmin.register Product do
   
   permit_params :title, :description, :isbn, :current_price,
                 :stock_quantity, :category_id, :publisher, :publication_date,
-                :pages, :language, :cover_image, author_ids: []
+                :pages, :language, :cover_image, :on_sale, author_ids: []
 
   # Index page
   index do
@@ -28,6 +28,9 @@ ActiveAdmin.register Product do
       number_to_currency(product.current_price)
     end
     column :stock_quantity
+    column "On Sale" do |product|
+      status_tag product.on_sale ? 'Yes' : 'No', product.on_sale ? :ok : nil
+    end
     column :created_at
     actions
   end
@@ -42,6 +45,7 @@ ActiveAdmin.register Product do
   filter :publisher
   filter :language
   filter :publication_date
+  filter :on_sale, as: :select, collection: [['On Sale', true], ['Not On Sale', false]]
   filter :created_at
 
   # Form
@@ -67,6 +71,7 @@ ActiveAdmin.register Product do
     f.inputs 'Pricing & Stock' do
       f.input :current_price, label: "Price", hint: "Enter amount in dollars"
       f.input :stock_quantity, hint: "Number of copies in stock"
+      f.input :on_sale, label: "On Sale", as: :boolean, hint: "Check to display 'ON SALE' badge on product"
     end
     
     f.inputs 'Cover Image' do
@@ -113,6 +118,9 @@ ActiveAdmin.register Product do
         number_to_currency(product.current_price)
       end
       row :stock_quantity
+      row "On Sale" do |product|
+        status_tag product.on_sale ? 'Yes' : 'No', product.on_sale ? :ok : nil
+      end
       row :created_at
       row :updated_at
     end
@@ -148,6 +156,6 @@ ActiveAdmin.register Product do
   def self.ransackable_attributes(auth_object = nil)
     ["id", "title", "description", "isbn", "current_price", "stock_quantity", 
      "publisher", "pages", "language", "category_id", "publication_date", 
-     "created_at", "updated_at"]
+     "created_at", "updated_at", "on_sale"]
   end
 end

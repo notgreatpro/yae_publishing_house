@@ -31,6 +31,7 @@ class CustomersController < ApplicationController
       :email,
       :address_line1, 
       :address_line2, 
+      :phone,
       :city, 
       :postal_code, 
       :province_id,

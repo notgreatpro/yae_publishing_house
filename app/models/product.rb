@@ -30,7 +30,7 @@ class Product < ApplicationRecord
   def self.ransackable_attributes(auth_object = nil)
     ["id", "title", "isbn", "description", "current_price", "stock_quantity", 
      "publisher", "pages", "language", "category_id", "created_by_id", 
-     "created_at", "updated_at", "average_rating", "ratings_count"]
+     "created_at", "updated_at", "average_rating", "ratings_count", "on_sale"]
   end
   
   # Image variants
@@ -53,10 +53,6 @@ class Product < ApplicationRecord
       average_rating: stats[id] || 0.0,
       ratings_count: ratings.count
     )
-  end
-
-  def customer_rating(customer)
-    ratings.find_by(customer: customer)
   end
 
   def customer_ratings(customer)
