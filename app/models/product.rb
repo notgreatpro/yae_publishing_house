@@ -59,7 +59,7 @@ class Product < ApplicationRecord
     ratings.find_by(customer: customer)
   end
 
-  def rated_by?(customer)
-    customer && ratings.exists?(customer: customer)
+  def customer_ratings(customer)
+    ratings.where(customer: customer).order(created_at: :desc)
   end
 end

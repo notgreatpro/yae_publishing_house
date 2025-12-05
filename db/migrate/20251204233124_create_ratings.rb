@@ -8,8 +8,8 @@ class CreateRatings < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
-    # Ensure a customer can only rate a product once
-    add_index :ratings, [:product_id, :customer_id], unique: true
+    # Add index for faster lookups (removed unique constraint to allow multiple reviews per customer)
+    add_index :ratings, [:product_id, :customer_id]
     
     # Add average rating and rating count to products table
     add_column :products, :average_rating, :decimal, precision: 3, scale: 2, default: 0.0

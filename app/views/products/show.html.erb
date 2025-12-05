@@ -164,70 +164,38 @@
 
       <!-- Customer's Rating Form -->
       <% if customer_signed_in? %>
+        <!-- New Review Form -->
         <div class="card mb-4">
           <div class="card-body">
-            <% if @product.rated_by?(current_customer) %>
-              <% customer_rating = @product.customer_rating(current_customer) %>
-              <h5 class="card-title">Your Review</h5>
-              <%= form_with model: customer_rating, url: product_rating_path(@product, customer_rating), 
-                  method: :patch, local: true, class: 'rating-form' do |f| %>
-                
-                <div class="mb-3">
-                  <label class="form-label fw-semibold">Rating</label>
-                  <div class="star-rating-input">
-                    <% (1..5).reverse_each do |i| %>
-                      <%= f.radio_button :score, i, id: "rating_#{i}", class: 'd-none', checked: customer_rating.score == i %>
-                      <label for="rating_<%= i %>" class="star-label">
-                        <i class="bi bi-star-fill"></i>
-                      </label>
-                    <% end %>
-                  </div>
+            <h5 class="card-title">Write a Review</h5>
+            <%= form_with model: Rating.new, url: product_ratings_path(@product), 
+                local: true, class: 'rating-form' do |f| %>
+              
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Rating</label>
+                <div class="star-rating-input">
+                  <% (1..5).reverse_each do |i| %>
+                    <%= f.radio_button :score, i, id: "rating_new_#{i}", class: 'd-none' %>
+                    <label for="rating_new_<%= i %>" class="star-label">
+                      <i class="bi bi-star-fill"></i>
+                    </label>
+                  <% end %>
                 </div>
+              </div>
 
-                <div class="mb-3">
-                  <%= f.label :review, 'Your Review (Optional)', class: 'form-label fw-semibold' %>
-                  <%= f.text_area :review, class: 'form-control', rows: 4, 
-                      placeholder: 'Share your thoughts about this book...' %>
-                </div>
+              <div class="mb-3">
+                <%= f.label :review, 'Your Review (Optional)', class: 'form-label fw-semibold' %>
+                <%= f.text_area :review, class: 'form-control', rows: 4, 
+                    placeholder: 'Share your thoughts about this book...' %>
+              </div>
 
-                <div class="d-flex gap-2">
-                  <%= f.submit 'Update Review', class: 'btn btn-primary' %>
-                  <%= button_to 'Delete Review', product_rating_path(@product, customer_rating), 
-                      method: :delete, class: 'btn btn-outline-danger',
-                      data: { confirm: 'Are you sure you want to delete your review?' } %>
-                </div>
-              <% end %>
-            <% else %>
-              <h5 class="card-title">Write a Review</h5>
-              <%= form_with model: Rating.new, url: product_ratings_path(@product), 
-                  local: true, class: 'rating-form' do |f| %>
-                
-                <div class="mb-3">
-                  <label class="form-label fw-semibold">Rating</label>
-                  <div class="star-rating-input">
-                    <% (1..5).reverse_each do |i| %>
-                      <%= f.radio_button :score, i, id: "rating_#{i}", class: 'd-none' %>
-                      <label for="rating_<%= i %>" class="star-label">
-                        <i class="bi bi-star-fill"></i>
-                      </label>
-                    <% end %>
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <%= f.label :review, 'Your Review (Optional)', class: 'form-label fw-semibold' %>
-                  <%= f.text_area :review, class: 'form-control', rows: 4, 
-                      placeholder: 'Share your thoughts about this book...' %>
-                </div>
-
-                <%= f.submit 'Submit Review', class: 'btn btn-primary' %>
-              <% end %>
+              <%= f.submit 'Submit Review', class: 'btn btn-success' %>
             <% end %>
           </div>
         </div>
       <% else %>
         <div class="alert alert-info">
-          <%= link_to 'Sign in', new_customer_session_path %> to leave a review.
+          <%= link_to 'Log In', new_customer_session_path %> to leave a review.
         </div>
       <% end %>
 
@@ -236,18 +204,106 @@
         <% @product.ratings.order(created_at: :desc).each do |rating| %>
           <div class="card mb-3">
             <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <div>
-                  <h6 class="mb-1"><%= rating.customer.full_name %></h6>
-                  <div class="rating-stars-small">
-                    <%= render 'shared/star_rating', rating: rating.score %>
-                  </div>
+              <div class="d-flex gap-3">
+                <!-- Customer Profile Picture -->
+                <div class="flex-shrink-0">
+                  <% if rating.customer.profile_picture.attached? %>
+                    <%= image_tag rating.customer.profile_picture.variant(resize_to_fill: [60, 60]), 
+                        class: 'rounded-circle', 
+                        style: 'width: 60px; height: 60px; object-fit: cover;',
+                        alt: rating.customer.full_name %>
+                  <% else %>
+                    <div class="review-avatar-circle bg-primary text-white">
+                      <span class="fw-bold"><%= rating.customer.initials %></span>
+                    </div>
+                  <% end %>
                 </div>
-                <small class="text-muted"><%= time_ago_in_words(rating.created_at) %> ago</small>
+
+                <!-- Review Content -->
+                <div class="flex-grow-1">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                      <h6 class="mb-1"><%= rating.customer.full_name %></h6>
+                      <div class="rating-stars-small mb-1">
+                        <%= render 'shared/star_rating', rating: rating.score %>
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <small class="text-muted">
+                        <%= rating.created_at.utc.strftime('%B %d, %Y at %I:%M %p UTC') %>
+                      </small>
+                      
+                      <!-- Three Dots Menu for Current Customer's Reviews -->
+                      <% if customer_signed_in? && rating.customer == current_customer %>
+                        <div class="dropdown">
+                          <button class="btn btn-sm btn-link text-muted p-0" type="button" 
+                                  id="reviewMenu<%= rating.id %>" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots-vertical fs-5"></i>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="reviewMenu<%= rating.id %>">
+                            <li>
+                              <a class="dropdown-item" href="#" onclick="showEditForm(<%= rating.id %>); return false;">
+                                <i class="bi bi-pencil me-2"></i> Edit Review
+                              </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                              <%= button_to product_rating_path(@product, rating), 
+                                  method: :delete, 
+                                  class: 'dropdown-item text-danger',
+                                  data: { confirm: 'Are you sure you want to delete this review?' },
+                                  form: { style: 'display: inline;' } do %>
+                                <i class="bi bi-trash me-2"></i> Delete Review
+                              <% end %>
+                            </li>
+                          </ul>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                  
+                  <!-- Review Text (Normal View) -->
+                  <div id="review-view-<%= rating.id %>">
+                    <% if rating.review.present? %>
+                      <p class="mb-0"><%= rating.review %></p>
+                    <% end %>
+                  </div>
+
+                  <!-- Edit Form (Hidden by Default) -->
+                  <% if customer_signed_in? && rating.customer == current_customer %>
+                    <div id="review-edit-<%= rating.id %>" style="display: none;">
+                      <%= form_with model: rating, url: product_rating_path(@product, rating), 
+                          method: :patch, local: true, class: 'rating-form mt-2' do |f| %>
+                        
+                        <div class="mb-3">
+                          <label class="form-label fw-semibold small">Rating</label>
+                          <div class="star-rating-input">
+                            <% (1..5).reverse_each do |i| %>
+                              <%= f.radio_button :score, i, id: "rating_edit_#{rating.id}_#{i}", class: 'd-none', checked: rating.score == i %>
+                              <label for="rating_edit_<%= rating.id %>_<%= i %>" class="star-label">
+                                <i class="bi bi-star-fill"></i>
+                              </label>
+                            <% end %>
+                          </div>
+                        </div>
+
+                        <div class="mb-3">
+                          <%= f.label :review, 'Your Review (Optional)', class: 'form-label fw-semibold small' %>
+                          <%= f.text_area :review, class: 'form-control', rows: 3, 
+                              placeholder: 'Share your thoughts about this book...' %>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                          <%= f.submit 'Update Review', class: 'btn btn-primary btn-sm' %>
+                          <button type="button" class="btn btn-secondary btn-sm" onclick="hideEditForm(<%= rating.id %>)">
+                            Cancel
+                          </button>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
               </div>
-              <% if rating.review.present? %>
-                <p class="mb-0 mt-2"><%= rating.review %></p>
-              <% end %>
             </div>
           </div>
         <% end %>
@@ -321,4 +377,16 @@
       }
     });
   });
+
+  // Show edit form for a review
+  function showEditForm(ratingId) {
+    document.getElementById('review-view-' + ratingId).style.display = 'none';
+    document.getElementById('review-edit-' + ratingId).style.display = 'block';
+  }
+
+  // Hide edit form for a review
+  function hideEditForm(ratingId) {
+    document.getElementById('review-view-' + ratingId).style.display = 'block';
+    document.getElementById('review-edit-' + ratingId).style.display = 'none';
+  }
 </script>

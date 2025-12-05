@@ -5,8 +5,6 @@ class Rating < ApplicationRecord
 
   validates :score, presence: true, 
             inclusion: { in: 1..5, message: "must be between 1 and 5" }
-  validates :customer_id, uniqueness: { scope: :product_id, 
-            message: "can only rate a product once" }
   validates :review, length: { maximum: 1000 }, allow_blank: true
 
   after_save :update_product_rating

@@ -184,7 +184,9 @@
                             <%= render 'shared/star_rating', rating: rating.score %>
                           </div>
                         </div>
-                        <small class="text-muted"><%= time_ago_in_words(rating.created_at) %> ago</small>
+                        <small class="text-muted">
+                          <%= rating.created_at.utc.strftime('%b %d, %Y at %I:%M %p UTC') %>
+                        </small>
                       </div>
                       
                       <% if rating.review.present? %>
