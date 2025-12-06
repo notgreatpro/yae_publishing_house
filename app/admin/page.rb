@@ -58,13 +58,15 @@ ActiveAdmin.register Page do
     column :slug do |page|
       span page.slug, style: 'font-family: monospace; background: #f0f0f0; padding: 2px 6px; border-radius: 3px;'
     end
-    column "Status", :published do |page|
+    column "Status" do |page|
       if page.respond_to?(:published)
-        status_tag(page.published ? "Published" : "Draft", 
-                   page.published ? :ok : :warning,
-                   style: 'font-weight: bold;')
+        if page.published
+          span "Published", class: "status_tag ok"
+        else
+          span "Draft", class: "status_tag warning"
+        end
       else
-        status_tag("Active", :ok)
+        span "Active", class: "status_tag ok"
       end
     end
     column "Word Count" do |page|
@@ -93,7 +95,6 @@ ActiveAdmin.register Page do
   # Enhanced filters
   filter :title
   filter :slug
-  filter :published, as: :select rescue nil
   filter :created_at
   filter :updated_at
 
@@ -265,12 +266,12 @@ ActiveAdmin.register Page do
                 
                 if (previewPanel.classList.contains('active')) {
                   previewPanel.classList.remove('active');
-                  previewBtn.textContent = ' Toggle Live Preview';
+                  previewBtn.textContent = 'Toggle Live Preview';
                 } else {
                   previewPanel.classList.add('active');
-                  previewBtn.textContent = ' Hide Preview';
+                  previewBtn.textContent = 'Hide Preview';
                   const content = editor.innerHTML;
-                  previewPanel.innerHTML = '<h3 style="margin-top:0; color: #667eea;"> Live Preview</h3><hr style="margin: 15px 0; border: none; border-top: 2px solid #667eea;">' + content;
+                  previewPanel.innerHTML = '<h3 style="margin-top:0; color: #667eea;">Live Preview</h3><hr style="margin: 15px 0; border: none; border-top: 2px solid #667eea;">' + content;
                 }
               });
               
@@ -278,7 +279,7 @@ ActiveAdmin.register Page do
               editor.addEventListener('trix-change', function() {
                 if (previewPanel.classList.contains('active')) {
                   const content = editor.innerHTML;
-                  previewPanel.innerHTML = '<h3 style="margin-top:0; color: #667eea;"> Live Preview</h3><hr style="margin: 15px 0; border: none; border-top: 2px solid #667eea;">' + content;
+                  previewPanel.innerHTML = '<h3 style="margin-top:0; color: #667eea;">Live Preview</h3><hr style="margin: 15px 0; border: none; border-top: 2px solid #667eea;">' + content;
                 }
               });
             }
@@ -335,7 +336,7 @@ ActiveAdmin.register Page do
         
         # Preview toggle button
         text_node <<-HTML.html_safe
-          <button type="button" id="preview-toggle" class="preview-toggle">👁️ Toggle Live Preview</button>
+          <button type="button" id="preview-toggle" class="preview-toggle">Toggle Live Preview</button>
           <div id="preview-panel" class="preview-panel"></div>
         HTML
         
@@ -370,19 +371,15 @@ ActiveAdmin.register Page do
     columns do
       column span: 2 do
         panel "Page Details" do
-          attributes_table_for page do
+          attributes_table do
             row :id
-            row :title do |p|
-              span p.title, style: 'font-size: 18px; font-weight: 600;'
-            end
-            row :slug do |p|
-              code p.slug, style: 'background: #f0f0f0; padding: 4px 8px; border-radius: 3px;'
-            end
-            if page.respond_to?(:published)
-              row :status do |p|
-                status_tag(p.published ? "Published" : "Draft", 
-                          p.published ? :ok : :warning,
-                          style: 'font-size: 14px;')
+            row :title
+            row :slug
+            row :status do |p|
+              if p.published
+                span "Published", class: "status_tag ok"
+              else
+                span "Draft", class: "status_tag warning"
               end
             end
             row :created_at
@@ -393,19 +390,19 @@ ActiveAdmin.register Page do
       
       column span: 1 do
         panel "Statistics" do
-          if page.content.present? && page.content.body.present?
+          if resource.content.present? && resource.content.body.present?
             div style: 'padding: 15px;' do
               div style: 'margin-bottom: 15px;' do
                 strong "Word Count: "
-                span page.content.body.to_plain_text.split.size, style: 'font-size: 24px; color: #667eea;'
+                span resource.content.body.to_plain_text.split.size, style: 'font-size: 24px; color: #667eea;'
               end
               div style: 'margin-bottom: 15px;' do
                 strong "Characters: "
-                span page.content.body.to_plain_text.length, style: 'font-size: 24px; color: #764ba2;'
+                span resource.content.body.to_plain_text.length, style: 'font-size: 24px; color: #764ba2;'
               end
               div do
                 strong "Last Updated: "
-                span time_ago_in_words(page.updated_at) + " ago", style: 'color: #666;'
+                span time_ago_in_words(resource.updated_at) + " ago", style: 'color: #666;'
               end
             end
           else
@@ -416,11 +413,11 @@ ActiveAdmin.register Page do
         panel "Quick Actions" do
           div style: 'padding: 15px;' do
             div style: 'margin-bottom: 10px;' do
-              link_to "Edit Page", edit_admin_page_path(page), 
+              link_to "Edit Page", edit_admin_page_path(resource), 
                       style: 'display: inline-block; padding: 8px 16px; background: #5e6469; color: white; text-decoration: none; border-radius: 4px; margin-right: 10px;'
             end
             div style: 'margin-bottom: 10px;' do
-              link_to " Duplicate", duplicate_admin_page_path(page), 
+              link_to "Duplicate", duplicate_admin_page_path(resource), 
                       method: :post,
                       data: { confirm: 'Create a copy of this page?' },
                       style: 'display: inline-block; padding: 8px 16px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;'
@@ -430,11 +427,11 @@ ActiveAdmin.register Page do
       end
     end
     
-    panel "Content Preview", style: 'margin-top: 20px;' do
+    panel "Content Preview" do
       div style: 'padding: 30px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);' do
-        h1 page.title, style: 'margin-top: 0; color: #2c3e50; border-bottom: 3px solid #667eea; padding-bottom: 15px;'
-        if page.content.present? && page.content.body.present?
-          div page.content.body.to_s.html_safe, style: 'line-height: 1.8; color: #34495e;'
+        h1 resource.title, style: 'margin-top: 0; color: #2c3e50; border-bottom: 3px solid #667eea; padding-bottom: 15px;'
+        if resource.content.present? && resource.content.body.present?
+          div resource.content.body.to_s.html_safe, style: 'line-height: 1.8; color: #34495e;'
         else
           para 'No content to preview', style: 'color: #999; font-style: italic;'
         end
