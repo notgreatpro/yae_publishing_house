@@ -2,7 +2,7 @@
 class Page < ApplicationRecord
   validates :title, presence: true
   validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9\-]+\z/, message: "only allows lowercase letters, numbers, and hyphens" }
-  validates :content, presence: true
+  has_rich_text :content 
 
   # For Ransack (ActiveAdmin searching)
   def self.ransackable_attributes(auth_object = nil)

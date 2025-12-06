@@ -21,7 +21,7 @@
       <div class="card shadow-sm border-0 mb-5">
         <div class="card-body p-5">
           <div class="page-content" style="font-size: 1.1rem; line-height: 1.8; color: #2c3e50;">
-            <%= simple_format(@page.content, {}, sanitize: false) %>
+            <%= @page.content.body %>
           </div>
         </div>
       </div>
@@ -66,4 +66,32 @@
   .page-content strong {
     color: var(--yae-purple);
   }
+
+  .page-content h1, .page-content h2, .page-content h3 {
+  color: var(--yae-purple);
+  font-weight: bold;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.page-content h2 { font-size: 1.75rem; }
+.page-content h3 { font-size: 1.5rem; }
+
+.page-content strong {
+  font-weight: 600;
+  color: var(--yae-purple);
+}
+
+.page-content em {
+  font-style: italic;
+}
+
+.page-content ul, .page-content ol {
+  margin-bottom: 1.5rem;
+  padding-left: 2rem;
+}
+
+.page-content li {
+  margin-bottom: 0.5rem;
+}
 </style>

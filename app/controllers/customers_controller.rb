@@ -15,11 +15,32 @@ class CustomersController < ApplicationController
   def update
     @customer = current_customer
     
-    if @customer.update(customer_params)
-      redirect_to customer_profile_path, notice: 'Profile updated successfully!'
+    # Check if password is being updated
+    if customer_params[:password].present?
+      # Password update requires current password
+      if @customer.update_with_password(customer_params)
+        bypass_sign_in(@customer) # Sign in the customer bypassing validation in case their password changed
+        redirect_to customer_profile_path, notice: 'Profile and password updated successfully!'
+      else
+        render :edit, status: :unprocessable_entity
+      end
     else
-      render :edit, status: :unprocessable_entity
+      # Regular update without password
+      # Remove password params if blank
+      params_without_password = customer_params.except(:password, :password_confirmation, :current_password)
+      
+      if @customer.update(params_without_password)
+        redirect_to customer_profile_path, notice: 'Profile updated successfully!'
+      else
+        render :edit, status: :unprocessable_entity
+      end
     end
+  end
+
+  def remove_profile_picture
+    @customer = current_customer
+    @customer.profile_picture.purge
+    redirect_to edit_customer_profile_path, notice: 'Profile picture removed successfully!'
   end
 
   private
@@ -29,13 +50,16 @@ class CustomersController < ApplicationController
       :first_name, 
       :last_name, 
       :email,
+      :phone,
+      :password,
+      :password_confirmation,
+      :current_password,
       :address_line1, 
       :address_line2, 
-      :phone,
       :city, 
       :postal_code, 
       :province_id,
-      :profile_picture 
+      :profile_picture
     )
   end
 end
