@@ -1,52 +1,53 @@
 <!-- app/views/devise/sessions/new.html.erb -->
 
-<div class="container">
-  <div class="row justify-content-center min-vh-100 align-items-center py-5">
-    <div class="col-md-6 col-lg-5">
-      <div class="card shadow-lg border-0 rounded-3">
-        <div class="card-body p-5">
-          <h2 class="text-center mb-4" style="color: #2c3e50; font-size: 1.8em;">Log In</h2>
+<div class="yae-auth-page">
+  <div class="container">
+    <div class="row justify-content-center min-vh-100 align-items-center py-5">
+      <div class="col-md-6 col-lg-5">
+        <div class="yae-auth-card">
+          <div class="yae-auth-header">
+            <h2 class="yae-auth-title">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Log In
+            </h2>
+          </div>
 
-          <%= form_for(resource, as: resource_name, url: session_path(resource_name), data: { turbo: false }) do |f| %>
-            <div class="mb-4">
-              <%= f.label :email, class: 'form-label fw-semibold', style: 'color: #2c3e50;' %>
-              <%= f.email_field :email, autofocus: true, autocomplete: "email", 
-                  class: 'form-control', 
-                  placeholder: 'your.email@example.com',
-                  style: 'padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px;' %>
-            </div>
+          <div class="yae-auth-body">
+            <%= form_for(resource, as: resource_name, url: session_path(resource_name), data: { turbo: false }) do |f| %>
+              <div class="yae-form-group">
+                <%= f.label :email, class: 'yae-auth-label' %>
+                <%= f.email_field :email, autofocus: true, autocomplete: "email", 
+                    class: 'yae-auth-input', 
+                    placeholder: 'YPHAdmin' %>
+              </div>
 
-            <div class="mb-4">
-              <%= f.label :password, class: 'form-label fw-semibold', style: 'color: #2c3e50;' %>
-              <%= f.password_field :password, autocomplete: "current-password", 
-                  class: 'form-control', 
-                  placeholder: '••••••••',
-                  style: 'padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px;' %>
-            </div>
+              <div class="yae-form-group">
+                <%= f.label :password, class: 'yae-auth-label' %>
+                <%= f.password_field :password, autocomplete: "current-password", 
+                    class: 'yae-auth-input', 
+                    placeholder: '••••••••' %>
+              </div>
 
-            <% if devise_mapping.rememberable? %>
-              <div class="mb-4">
-                <div class="form-check">
-                  <%= f.check_box :remember_me, class: 'form-check-input' %>
-                  <%= f.label :remember_me, class: 'form-check-label' %>
+              <% if devise_mapping.rememberable? %>
+                <div class="yae-form-check">
+                  <%= f.check_box :remember_me, class: 'yae-check-input', id: 'remember_me' %>
+                  <%= f.label :remember_me, class: 'yae-check-label', for: 'remember_me' %>
                 </div>
+              <% end %>
+
+              <div class="yae-form-submit">
+                <%= f.submit "Log In", class: 'btn yae-auth-submit-btn' %>
               </div>
             <% end %>
 
-            <div class="mt-4">
-              <%= f.submit "Log In", class: 'btn w-100', 
-                  style: 'padding: 15px; background: #27ae60; color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: 600;' %>
+            <div class="yae-auth-footer">
+              <p class="yae-auth-text">
+                Don't have a Yae Publishing House account? 
+                <%= link_to "Sign up", new_customer_registration_path, class: 'yae-auth-link' %>
+              </p>
+              <p class="yae-auth-forgot">
+                <%= link_to "Forgot your password?", new_customer_password_path, class: 'yae-auth-link' %>
+              </p>
             </div>
-          <% end %>
-
-          <div class="text-center mt-4 pt-4 border-top">
-            <p style="color: #2c3e50; margin: 10px 0;">
-              Don't have a Yae Publishing House account? 
-              <%= link_to "Sign up", new_customer_registration_path, class: 'text-decoration-none', style: 'color: #3498db;' %>
-            </p>
-            <p style="margin: 10px 0;">
-              <%= link_to "Forgot your password?", new_customer_password_path, class: 'text-decoration-none', style: 'color: #3498db;' %>
-            </p>
           </div>
         </div>
       </div>
@@ -55,22 +56,161 @@
 </div>
 
 <style>
-  body {
-    background: #f8f9fa;
+  :root {
+    --yae-pink: #E91E8C;
+    --yae-purple: #8B2C7F;
+    --yae-dark: #4A1942;
+    --yae-light-pink: #F8C8DC;
   }
-  
-  .form-control:focus {
+
+  .yae-auth-page {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    min-height: 100vh;
+  }
+
+  .yae-auth-card {
+    background: white;
+    border-radius: 25px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    border: 3px solid var(--yae-purple);
+  }
+
+  .yae-auth-header {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    padding: 2.5rem 2rem;
+    text-align: center;
+  }
+
+  .yae-auth-title {
+    color: white;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .yae-auth-body {
+    padding: 3rem 2.5rem;
+  }
+
+  .yae-form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-auth-label {
+    display: block;
+    font-weight: 600;
+    color: var(--yae-dark);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+
+  .yae-auth-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f9fafb;
+  }
+
+  .yae-auth-input:focus {
     outline: none;
-    border-color: #3498db !important;
-    box-shadow: none !important;
+    border-color: var(--yae-purple);
+    box-shadow: 0 0 0 3px rgba(139, 44, 127, 0.1);
+    background: white;
   }
-  
-  .btn:hover {
-    background: #229954 !important;
+
+  .yae-form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
   }
-  
-  .form-check-input:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+
+  .yae-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: 0.75rem;
+    cursor: pointer;
+    accent-color: var(--yae-purple);
+  }
+
+  .yae-check-label {
+    color: #6b7280;
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .yae-form-submit {
+    margin-top: 2rem;
+  }
+
+  .yae-auth-submit-btn {
+    width: 100%;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .yae-auth-submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    color: white;
+  }
+
+  .yae-auth-footer {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #f3f4f6;
+    text-align: center;
+  }
+
+  .yae-auth-text {
+    color: var(--yae-dark);
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .yae-auth-forgot {
+    margin: 0.75rem 0 0 0;
+  }
+
+  .yae-auth-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  .yae-auth-link:hover {
+    color: var(--yae-purple);
+    text-decoration: underline;
+  }
+
+  /* Responsive */
+  @media (max-width: 576px) {
+    .yae-auth-body {
+      padding: 2rem 1.5rem;
+    }
+
+    .yae-auth-title {
+      font-size: 1.5rem;
+    }
   }
 </style>
+
+<!-- Ensure Bootstrap Icons are loaded -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
