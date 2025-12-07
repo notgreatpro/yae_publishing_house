@@ -1,117 +1,534 @@
 <!-- app/views/orders/index.html.erb -->
-<!-- Feature 3.2.1 - List all past orders (4%) -->
 
-<div class="container my-4">
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><%= link_to 'Home', root_path %></li>
-      <li class="breadcrumb-item active" aria-current="page">My Orders</li>
-    </ol>
-  </nav>
+<div class="yae-orders-page">
+  <div class="container my-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb yae-breadcrumb">
+        <li class="breadcrumb-item">
+          <%= link_to root_path do %>
+            <i class="bi bi-house-fill me-1"></i>Home
+          <% end %>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">My Orders</li>
+      </ol>
+    </nav>
 
-  <div class="text-center mb-5 pb-4 border-bottom">
-    <h1 class="display-4 mb-2" style="color: #2c3e50;">My Orders</h1>
-    <p class="text-muted fs-5"><%= pluralize(@orders.count, 'order') %></p>
-  </div>
+    <!-- Page Header -->
+    <div class="yae-orders-header">
+      <h1 class="yae-orders-title">
+        <i class="bi bi-bag-check me-3"></i>My Orders
+      </h1>
+      <p class="yae-orders-count"><%= pluralize(@orders.count, 'order') %></p>
+    </div>
 
-  <% if @orders.any? %>
-    <div class="row justify-content-center">
-      <div class="col-lg-10">
-        <% @orders.each do |order| %>
-          <div class="card shadow-sm mb-4">
-            <!-- Card Header -->
-            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #f8f9fa;">
-              <div>
-                <h3 class="h5 mb-1" style="color: #2c3e50;">Order #<%= order.id %></h3>
-                <p class="text-muted small mb-0"><%= order.created_at.strftime('%B %d, %Y') %></p>
-              </div>
-              <% if order.paid? %>
-                <span class="badge rounded-pill" style="background-color: #d4edda; color: #155724; padding: 8px 16px; text-transform: uppercase; font-size: 0.85em;">Paid</span>
-              <% elsif order.shipped? %>
-                <span class="badge rounded-pill" style="background-color: #d1ecf1; color: #0c5460; padding: 8px 16px; text-transform: uppercase; font-size: 0.85em;">Shipped</span>
-              <% elsif order.cancelled? %>
-                <span class="badge rounded-pill" style="background-color: #f8d7da; color: #721c24; padding: 8px 16px; text-transform: uppercase; font-size: 0.85em;">Cancelled</span>
-              <% else %>
-                <span class="badge rounded-pill" style="background-color: #fff3cd; color: #856404; padding: 8px 16px; text-transform: uppercase; font-size: 0.85em;">Pending</span>
-              <% end %>
-            </div>
-
-            <!-- Card Body -->
-            <div class="card-body p-4">
-              <div class="row">
-                <div class="col-lg-8">
-                  <!-- Order Items Preview -->
-                  <% order.order_items.first(3).each do |item| %>
-                    <div class="d-flex align-items-center mb-3">
-                      <div class="flex-shrink-0 me-3">
-                        <% if item.product.cover_image.attached? %>
-                          <%= image_tag item.product.cover_image, alt: item.product.title, 
-                              class: 'rounded', style: 'width: 50px; height: 70px; object-fit: cover;' %>
-                        <% else %>
-                          <div class="text-white rounded d-flex align-items-center justify-content-center" 
-                               style="width: 50px; height: 70px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 1.2em;">
-                          </div>
-                        <% end %>
-                      </div>
-                      <div class="flex-grow-1">
-                        <p class="mb-1 fw-semibold" style="font-size: 0.95em; color: #2c3e50;"><%= item.product.title %></p>
-                        <p class="mb-0 text-muted small">Qty: <%= item.quantity %></p>
-                      </div>
-                    </div>
-                  <% end %>
-                  
-                  <% if order.order_items.count > 3 %>
-                    <p class="text-muted small fst-italic mb-0">
-                      + <%= order.order_items.count - 3 %> more item(s)
-                    </p>
+    <% if @orders.any? %>
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <% @orders.each do |order| %>
+            <div class="yae-order-card">
+              <!-- Card Header -->
+              <div class="yae-order-header">
+                <div class="yae-order-info">
+                  <h3 class="yae-order-number">Order #<%= order.id %></h3>
+                  <p class="yae-order-date">
+                    <i class="bi bi-calendar3 me-2"></i>
+                    <%= order.created_at.strftime('%B %d, %Y') %>
+                  </p>
+                </div>
+                <div class="yae-order-status">
+                  <% if order.paid? %>
+                    <span class="yae-status-badge yae-status-paid">
+                      <i class="bi bi-check-circle-fill me-1"></i>Paid
+                    </span>
+                  <% elsif order.shipped? %>
+                    <span class="yae-status-badge yae-status-shipped">
+                      <i class="bi bi-truck me-1"></i>Shipped
+                    </span>
+                  <% elsif order.cancelled? %>
+                    <span class="yae-status-badge yae-status-cancelled">
+                      <i class="bi bi-x-circle-fill me-1"></i>Cancelled
+                    </span>
+                  <% else %>
+                    <span class="yae-status-badge yae-status-pending">
+                      <i class="bi bi-clock-fill me-1"></i>Pending
+                    </span>
                   <% end %>
                 </div>
+              </div>
 
-                <div class="col-lg-4 mt-3 mt-lg-0">
-                  <!-- Order Summary -->
-                  <div class="p-3 rounded" style="background-color: #f8f9fa;">
-                    <div class="d-flex justify-content-between mb-2">
-                      <span class="text-muted">Items:</span>
-                      <strong style="color: #2c3e50;"><%= order.order_items.sum(:quantity) %></strong>
+              <!-- Card Body -->
+              <div class="yae-order-body">
+                <div class="row">
+                  <div class="col-lg-8">
+                    <!-- Order Items Preview -->
+                    <div class="yae-order-items">
+                      <% order.order_items.first(3).each do |item| %>
+                        <div class="yae-item-preview">
+                          <div class="yae-item-image">
+                            <% if item.product.cover_image.attached? %>
+                              <%= image_tag item.product.thumbnail, alt: item.product.title %>
+                            <% else %>
+                              <div class="yae-item-placeholder">
+                                <i class="bi bi-book"></i>
+                              </div>
+                            <% end %>
+                          </div>
+                          <div class="yae-item-info">
+                            <p class="yae-item-title"><%= truncate(item.product.title, length: 50) %></p>
+                            <p class="yae-item-quantity">Qty: <%= item.quantity %></p>
+                          </div>
+                        </div>
+                      <% end %>
+                      
+                      <% if order.order_items.count > 3 %>
+                        <p class="yae-more-items">
+                          <i class="bi bi-plus-circle me-1"></i>
+                          <%= order.order_items.count - 3 %> more item(s)
+                        </p>
+                      <% end %>
                     </div>
-                    <div class="d-flex justify-content-between">
-                      <span class="text-muted">Total:</span>
-                      <strong class="fs-5" style="color: #27ae60;"><%= number_to_currency(order.total_amount) %></strong>
+                  </div>
+
+                  <div class="col-lg-4 mt-3 mt-lg-0">
+                    <!-- Order Summary -->
+                    <div class="yae-order-summary-mini">
+                      <div class="yae-summary-row">
+                        <span class="yae-summary-label">Items:</span>
+                        <strong class="yae-summary-value"><%= order.order_items.sum(:quantity) %></strong>
+                      </div>
+                      <div class="yae-summary-row">
+                        <span class="yae-summary-label">Total:</span>
+                        <strong class="yae-summary-total"><%= number_to_currency(order.total_amount) %></strong>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Card Footer -->
-            <div class="card-footer d-flex justify-content-between align-items-center" style="background-color: #f8f9fa;">
-              <%= link_to 'View Details', order_path(order), class: 'btn btn-primary px-4 fw-semibold' %>
-              
-              <% if order.paid? %>
-                <span class="badge rounded-pill d-flex align-items-center gap-2" style="background-color: #d4edda; color: #155724; padding: 8px 14px;">
-                  <span style="font-size: 1.1em;">✓</span> Paid
-                </span>
-              <% elsif order.pending? %>
-                <span class="badge rounded-pill d-flex align-items-center gap-2" style="background-color: #fff3cd; color: #856404; padding: 8px 14px;">
-                  <span style="font-size: 1.1em;">⏱</span> Payment Pending
-                </span>
-              <% end %>
+              <!-- Card Footer -->
+              <div class="yae-order-footer">
+                <%= link_to order_path(order), class: 'btn yae-view-details-btn' do %>
+                  <i class="bi bi-eye me-2"></i>View Details
+                <% end %>
+                
+                <div class="yae-footer-status">
+                  <% if order.paid? %>
+                    <span class="yae-footer-badge yae-footer-paid">
+                      <i class="bi bi-check-circle-fill me-1"></i>Paid
+                    </span>
+                  <% elsif order.pending? %>
+                    <span class="yae-footer-badge yae-footer-pending">
+                      <i class="bi bi-clock-fill me-1"></i>Payment Pending
+                    </span>
+                  <% end %>
+                </div>
+              </div>
             </div>
-          </div>
-        <% end %>
+          <% end %>
+        </div>
       </div>
-    </div>
-  <% else %>
-    <div class="row justify-content-center">
-      <div class="col-lg-6">
-        <div class="card shadow-sm text-center">
-          <div class="card-body py-5">
-            <h2 class="h3 mb-3" style="color: #2c3e50;">No orders yet</h2>
-            <p class="text-muted mb-4 fs-5">You haven't placed any orders yet. Start shopping to see your orders here!</p>
-            <%= link_to 'Browse Books', products_path, class: 'btn btn-primary btn-lg px-5 fw-semibold' %>
+    <% else %>
+      <!-- Empty State -->
+      <div class="row justify-content-center">
+        <div class="col-lg-6">
+          <div class="yae-empty-orders">
+            <div class="yae-empty-icon">
+              <i class="bi bi-bag-x"></i>
+            </div>
+            <h2 class="yae-empty-title">No orders yet</h2>
+            <p class="yae-empty-message">You haven't placed any orders yet. Start shopping to see your orders here!</p>
+            <%= link_to products_path, class: 'btn yae-browse-btn' do %>
+              <i class="bi bi-book me-2"></i>Browse Books
+            <% end %>
           </div>
         </div>
       </div>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
 </div>
+
+<style>
+  :root {
+    --yae-pink: #E91E8C;
+    --yae-purple: #8B2C7F;
+    --yae-dark: #4A1942;
+    --yae-light-pink: #F8C8DC;
+  }
+
+  .yae-orders-page {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+
+  /* Breadcrumb */
+  .yae-breadcrumb {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+  }
+
+  .yae-breadcrumb a {
+    color: var(--yae-purple);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  .yae-breadcrumb a:hover {
+    color: var(--yae-pink);
+  }
+
+  /* Page Header */
+  .yae-orders-header {
+    background: white;
+    padding: 3rem 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    text-align: center;
+    border-bottom: 4px solid var(--yae-purple);
+  }
+
+  .yae-orders-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .yae-orders-title i {
+    color: var(--yae-purple);
+  }
+
+  .yae-orders-count {
+    font-size: 1.2rem;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  /* Order Card */
+  .yae-order-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+  }
+
+  .yae-order-card:hover {
+    border-color: var(--yae-purple);
+    box-shadow: 0 6px 30px rgba(139, 44, 127, 0.2);
+    transform: translateY(-3px);
+  }
+
+  /* Order Header */
+  .yae-order-header {
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e5e7eb;
+  }
+
+  .yae-order-number {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 0.5rem;
+  }
+
+  .yae-order-date {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Status Badges */
+  .yae-status-badge {
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .yae-status-paid {
+    background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+    color: #065f46;
+    border: 2px solid #10b981;
+  }
+
+  .yae-status-shipped {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+    border: 2px solid #3b82f6;
+  }
+
+  .yae-status-cancelled {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+    border: 2px solid #dc2626;
+  }
+
+  .yae-status-pending {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border: 2px solid #f59e0b;
+  }
+
+  /* Order Body */
+  .yae-order-body {
+    padding: 2rem;
+  }
+
+  /* Order Items */
+  .yae-order-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .yae-item-preview {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .yae-item-image {
+    width: 50px;
+    height: 70px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .yae-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .yae-item-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+  }
+
+  .yae-item-info {
+    flex: 1;
+  }
+
+  .yae-item-title {
+    font-weight: 600;
+    color: var(--yae-dark);
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .yae-item-quantity {
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  .yae-more-items {
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-style: italic;
+    margin: 0.5rem 0 0 0;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Order Summary Mini */
+  .yae-order-summary-mini {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    padding: 1.5rem;
+    border-radius: 15px;
+    border: 2px solid var(--yae-purple);
+  }
+
+  .yae-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .yae-summary-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .yae-summary-label {
+    color: #6b7280;
+    font-size: 1rem;
+  }
+
+  .yae-summary-value {
+    color: var(--yae-dark);
+    font-size: 1.1rem;
+  }
+
+  .yae-summary-total {
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Order Footer */
+  .yae-order-footer {
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 2px solid #e5e7eb;
+  }
+
+  .yae-view-details-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .yae-view-details-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    color: white;
+  }
+
+  .yae-footer-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .yae-footer-paid {
+    background: #dcfce7;
+    color: #065f46;
+  }
+
+  .yae-footer-pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  /* Empty State */
+  .yae-empty-orders {
+    background: white;
+    padding: 5rem 3rem;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .yae-empty-icon {
+    font-size: 8rem;
+    color: #d1d5db;
+    margin-bottom: 2rem;
+  }
+
+  .yae-empty-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 1rem;
+  }
+
+  .yae-empty-message {
+    font-size: 1.3rem;
+    color: #6b7280;
+    margin-bottom: 2rem;
+  }
+
+  .yae-browse-btn {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    border: none;
+    padding: 1.25rem 3rem;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+  }
+
+  .yae-browse-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(139, 44, 127, 0.4);
+    color: white;
+  }
+
+  /* Responsive */
+  @media (max-width: 767px) {
+    .yae-orders-title {
+      font-size: 2rem;
+    }
+
+    .yae-order-header {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .yae-order-footer {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .yae-view-details-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .yae-empty-orders {
+      padding: 3rem 2rem;
+    }
+
+    .yae-empty-icon {
+      font-size: 5rem;
+    }
+
+    .yae-empty-title {
+      font-size: 2rem;
+    }
+  }
+</style>
+
+<!-- Ensure Bootstrap Icons are loaded -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
