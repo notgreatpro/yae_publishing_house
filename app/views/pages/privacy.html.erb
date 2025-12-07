@@ -27,7 +27,7 @@
         <!-- Page Content -->
         <div class="yae-content-card">
           <div class="yae-content-body">
-            <%= @page.content.body %>
+            <%= @page.content.body.to_s.html_safe %>
           </div>
         </div>
 
@@ -194,6 +194,28 @@
 
   .yae-content-body a:hover {
     color: var(--yae-pink);
+  }
+
+  /* IMAGE STYLING - CRITICAL FOR DISPLAY */
+  .yae-content-body img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 2rem auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .yae-content-body figure {
+    margin: 2rem 0;
+  }
+
+  .yae-content-body figcaption {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
   }
 
   /* Feature Cards */

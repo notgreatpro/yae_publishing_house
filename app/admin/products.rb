@@ -30,7 +30,7 @@ ActiveAdmin.register Product do
     column :stock_quantity
     column "On Sale" do |product|
       if product.on_sale == true
-        status_tag 'Yes', :ok
+        status_tag 'Yes'
       else
         status_tag 'No'
       end
@@ -124,7 +124,7 @@ ActiveAdmin.register Product do
       row :stock_quantity
       row "On Sale" do |product|
          if product.on_sale == true
-          status_tag 'Yes', :ok
+          status_tag 'Yes'
         else
          status_tag 'No'
        end

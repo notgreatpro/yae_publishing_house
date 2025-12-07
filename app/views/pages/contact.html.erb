@@ -1,142 +1,134 @@
 <!-- app/views/pages/contact.html.erb -->
-<!-- Feature 1.4 - Contact page show view -->
 
-<div class="container my-5">
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><%= link_to 'Home', root_path %></li>
-      <li class="breadcrumb-item active" aria-current="page">Contact Us</li>
-    </ol>
-  </nav>
+<div class="yae-page">
+  <div class="container my-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb yae-breadcrumb">
+        <li class="breadcrumb-item">
+          <%= link_to root_path do %>
+            <i class="bi bi-house-fill me-1"></i>Home
+          <% end %>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Contact Us</li>
+      </ol>
+    </nav>
 
-  <div class="row justify-content-center">
-    <div class="col-lg-10">
-      <!-- Page Header -->
-      <div class="text-center mb-5">
-        <h1 class="display-3 fw-bold mb-3" style="color: var(--yae-purple);">
-          <%= @page.title %>
-        </h1>
-        <div class="mx-auto" style="width: 100px; height: 4px; background: linear-gradient(90deg, var(--yae-pink), var(--yae-purple));"></div>
-      </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <!-- Page Header -->
+        <div class="yae-page-header">
+          <h1 class="yae-page-title">
+            <%= @page.title %>
+          </h1>
+          <div class="yae-title-underline"></div>
+        </div>
 
-      <div class="row g-4 mb-5">
-        <!-- Contact Information Card -->
-        <div class="col-lg-6">
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-body p-4">
-              <h3 class="h4 mb-4" style="color: var(--yae-purple);">
+        <!-- Main Content Section -->
+        <div class="row g-4 mb-5">
+          <!-- Get in Touch Card -->
+          <div class="col-lg-6">
+            <div class="yae-contact-card">
+              <h3 class="yae-contact-section-title">
                 <i class="bi bi-chat-dots-fill me-2"></i>Get in Touch
               </h3>
               
-              <div class="page-content" style="font-size: 1.05rem; line-height: 1.8; color: #2c3e50;">
+              <div class="yae-contact-content">
                 <%= @page.content.body.to_s.html_safe %>
               </div>
 
-              <hr class="my-4">
+              <hr class="yae-divider">
 
-              <!-- Contact Details -->
-              <div class="mb-3">
-                <div class="d-flex align-items-start mb-3 contact-item">
-                  <div class="me-3" style="color: var(--yae-purple); font-size: 1.5rem;">
-                    <i class="bi bi-geo-alt-fill"></i>
-                  </div>
-                  <div>
-                    <h5 class="mb-1">Visit Us</h5>
-                    <p class="text-muted mb-0">657 Watatsumi Ave E<br>Inazuma City, Inazuma 74857</p>
-                  </div>
+              <!-- Email Contact -->
+              <div class="yae-contact-item">
+                <div class="yae-contact-icon-wrapper">
+                  <i class="bi bi-envelope-fill"></i>
                 </div>
-
-                <div class="d-flex align-items-start mb-3 contact-item">
-                  <div class="me-3" style="color: var(--yae-purple); font-size: 1.5rem;">
-                    <i class="bi bi-envelope-fill"></i>
-                  </div>
-                  <div>
-                    <h5 class="mb-1">Email Us</h5>
-                    <p class="mb-0">
-                      <a href="mailto:info@yaepublishinghouse.co.in" class="text-decoration-none contact-link">
-                        info@yaepublishinghouse.co.in
-                      </a>
-                    </p>
-                  </div>
+                <div>
+                  <h5 class="yae-contact-label">Email Us</h5>
+                  <p class="mb-0">
+                    <a href="mailto:info@yaepublishinghouse.co.in" class="yae-contact-link">
+                      info@yaepublishinghouse.co.in
+                    </a>
+                  </p>
                 </div>
+              </div>
 
-                <div class="d-flex align-items-start contact-item">
-                  <div class="me-3" style="color: var(--yae-purple); font-size: 1.5rem;">
-                    <i class="bi bi-telephone-fill"></i>
-                  </div>
-                  <div>
-                    <h5 class="mb-1">Call Us</h5>
-                    <p class="mb-0">
-                      <a href="tel:+17567483985" class="text-decoration-none contact-link">
-                        (756)-748-3985
-                      </a>
-                    </p>
-                  </div>
+              <!-- Phone Contact -->
+              <div class="yae-contact-item">
+                <div class="yae-contact-icon-wrapper">
+                  <i class="bi bi-telephone-fill"></i>
+                </div>
+                <div>
+                  <h5 class="yae-contact-label">Call Us</h5>
+                  <p class="mb-0">
+                    <a href="tel:+17567483985" class="yae-contact-link">
+                      (756)-748-3985
+                    </a>
+                  </p>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Business Hours Card -->
-        <div class="col-lg-6">
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-body p-4">
-              <h3 class="h4 mb-4" style="color: var(--yae-purple);">
+          <!-- Business Hours Card -->
+          <div class="col-lg-6">
+            <div class="yae-contact-card">
+              <h3 class="yae-contact-section-title">
                 <i class="bi bi-clock-fill me-2"></i>Business Hours
               </h3>
               
-              <div class="list-group list-group-flush">
-                <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-3">
-                  <span class="fw-semibold">
-                    <i class="bi bi-calendar-week me-2" style="color: var(--yae-purple);"></i>Monday - Friday
-                  </span>
-                  <span class="badge bg-light text-dark">9:00 AM - 10:30 PM</span>
+              <div class="yae-hours-list">
+                <div class="yae-hours-item">
+                  <div class="yae-hours-day">
+                    <i class="bi bi-calendar-week me-2"></i>Monday - Friday
+                  </div>
+                  <span class="yae-hours-time">9:00 AM - 10:30 PM</span>
                 </div>
-                <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-3">
-                  <span class="fw-semibold">
-                    <i class="bi bi-calendar-event me-2" style="color: var(--yae-purple);"></i>Saturday
-                  </span>
-                  <span class="badge bg-light text-dark">10:00 AM - 6:00 PM</span>
+                <div class="yae-hours-item">
+                  <div class="yae-hours-day">
+                    <i class="bi bi-calendar-event me-2"></i>Saturday
+                  </div>
+                  <span class="yae-hours-time">10:00 AM - 6:00 PM</span>
                 </div>
-                <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-3">
-                  <span class="fw-semibold">
-                    <i class="bi bi-calendar-check me-2" style="color: var(--yae-purple);"></i>Sunday
-                  </span>
-                  <span class="badge bg-light text-dark">12:00 PM - 5:00 PM</span>
+                <div class="yae-hours-item">
+                  <div class="yae-hours-day">
+                    <i class="bi bi-calendar-check me-2"></i>Sunday
+                  </div>
+                  <span class="yae-hours-time">12:00 PM - 5:00 PM</span>
                 </div>
               </div>
 
-              <hr class="my-4">
+              <hr class="yae-divider">
 
-              <h4 class="h5 mb-3" style="color: var(--yae-purple);">
+              <h4 class="yae-follow-title">
                 <i class="bi bi-share-fill me-2"></i>Follow Us
               </h4>
-              <div class="d-flex gap-3">
-                <a href="https://facebook.com" target="_blank" class="btn btn-outline-primary rounded-circle social-btn" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" aria-label="Facebook">
-                  <i class="bi bi-facebook fs-5"></i>
+              <div class="yae-social-links">
+                <a href="https://facebook.com" target="_blank" class="yae-social-btn yae-social-facebook" aria-label="Facebook">
+                  <i class="bi bi-facebook"></i>
                 </a>
-                <a href="https://twitter.com" target="_blank" class="btn btn-outline-info rounded-circle social-btn" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" aria-label="Twitter">
-                  <i class="bi bi-twitter fs-5"></i>
+                <a href="https://twitter.com" target="_blank" class="yae-social-btn yae-social-twitter" aria-label="Twitter">
+                  <i class="bi bi-twitter"></i>
                 </a>
-                <a href="https://instagram.com" target="_blank" class="btn btn-outline-danger rounded-circle social-btn" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" aria-label="Instagram">
-                  <i class="bi bi-instagram fs-5"></i>
+                <a href="https://instagram.com" target="_blank" class="yae-social-btn yae-social-instagram" aria-label="Instagram">
+                  <i class="bi bi-instagram"></i>
                 </a>
-                <a href="https://linkedin.com" target="_blank" class="btn btn-outline-primary rounded-circle social-btn" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" aria-label="LinkedIn">
-                  <i class="bi bi-linkedin fs-5"></i>
+                <a href="https://linkedin.com" target="_blank" class="yae-social-btn yae-social-linkedin" aria-label="LinkedIn">
+                  <i class="bi bi-linkedin"></i>
                 </a>
               </div>
 
-              <div class="mt-4 p-3 rounded help-card" style="background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);">
+              <div class="yae-help-card">
                 <p class="mb-0 text-center">
-                  <i class="bi bi-question-circle-fill me-2" style="color: var(--yae-purple);"></i>
+                  <i class="bi bi-question-circle-fill me-2"></i>
                   <strong>Need help with an order?</strong><br>
                   <% if customer_signed_in? %>
-                    <%= link_to orders_path, class: 'text-decoration-none fw-semibold mt-2 d-inline-block', style: 'color: var(--yae-purple);' do %>
+                    <%= link_to orders_path, class: 'yae-help-link' do %>
                       <i class="bi bi-bag-check me-1"></i>View My Orders
                     <% end %>
                   <% else %>
-                    <%= link_to new_customer_session_path, class: 'text-decoration-none fw-semibold mt-2 d-inline-block', style: 'color: var(--yae-purple);' do %>
+                    <%= link_to new_customer_session_path, class: 'yae-help-link' do %>
                       <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
                     <% end %> to view your orders
                   <% end %>
@@ -145,75 +137,415 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Map Section -->
-      <div class="row">
-        <div class="col-12">
-          <div class="card shadow-lg border-0 mb-5" style="border-radius: 15px; overflow: hidden;">
-            <div class="position-relative" style="height: 400px;">
-              <!-- Map Image -->
-              <%= image_tag 'inazuma_map.png', 
-                  alt: 'Yae Publishing House Location - Inazuma City Map',
-                  class: 'w-100 h-100',
-                  style: 'object-fit: cover; filter: brightness(0.95); display: block;' %>
-              
-              <!-- Overlay Gradient -->
-              <div class="position-absolute top-0 start-0 w-100 h-100" 
-                   style="background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.4) 100%); pointer-events: none;"></div>
-              
-              <!-- Location Pin -->
-              <div class="position-absolute" style="top: 30%; left: 50%; transform: translate(-50%, -100%); z-index: 10;">
-                <div class="pulse-marker">
-                  <i class="bi bi-geo-alt-fill text-danger" style="font-size: 3.5rem; filter: drop-shadow(0 4px 8px rgba(233, 30, 99, 0.5));"></i>
-                </div>
+        <!-- Map Section -->
+        <div class="yae-map-card">
+          <div class="yae-map-container">
+            <!-- Map Image -->
+            <%= image_tag 'inazuma_map.png', 
+                alt: 'Yae Publishing House Location - Inazuma City Map',
+                class: 'yae-map-image' %>
+            
+            <!-- Map Overlay -->
+            <div class="yae-map-overlay"></div>
+            
+            <!-- Location Pin -->
+            <div class="yae-map-pin">
+              <div class="yae-pulse-marker">
+                <i class="bi bi-geo-alt-fill"></i>
               </div>
-              
-              <!-- Location Info Card -->
-              <div class="position-absolute bottom-0 start-0 w-100 p-3" style="z-index: 10;">
-                <div class="card border-0 shadow location-info-card" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
-                  <div class="card-body py-3">
-                    <div class="row align-items-center g-2">
-                      <div class="col-auto">
-                        <i class="bi bi-geo-alt-fill text-danger fs-4"></i>
-                      </div>
-                      <div class="col">
-                        <h6 class="mb-1 fw-bold">Yae Publishing House</h6>
-                        <p class="mb-0 small text-muted">657 Watatsumi Ave E, Inazuma City, Inazuma 74857</p>
-                      </div>
-                      <div class="col-auto">
-                        <button class="btn btn-sm btn-directions" onclick="alert('Opening directions in your map application...')" aria-label="Get directions">
-                          <i class="bi bi-map me-1"></i>Directions
-                        </button>
-                      </div>
-                    </div>
+            </div>
+            
+            <!-- Location Info Card -->
+            <div class="yae-map-info-wrapper">
+              <div class="yae-map-info-card">
+                <div class="row align-items-center g-2">
+                  <div class="col-auto">
+                    <i class="bi bi-geo-alt-fill yae-location-icon"></i>
+                  </div>
+                  <div class="col">
+                    <h6 class="yae-location-title">Yae Publishing House</h6>
+                    <p class="yae-location-address">657 Watatsumi Ave E, Inazuma City, Inazuma 74857</p>
+                  </div>
+                  <div class="col-auto">
+                    <button class="yae-directions-btn" onclick="alert('Opening directions in your map application...')" aria-label="Get directions">
+                      <i class="bi bi-map me-1"></i>Directions
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
+      </div>
     </div>
   </div>
 </div>
 
 <style>
-  /* Page Content Styling */
-  .page-content p {
+  :root {
+    --yae-pink: #E91E8C;
+    --yae-purple: #8B2C7F;
+    --yae-dark: #4A1942;
+    --yae-light-pink: #F8C8DC;
+  }
+
+  .yae-page {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+
+  /* Breadcrumb */
+  .yae-breadcrumb {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+  }
+
+  .yae-breadcrumb a {
+    color: var(--yae-purple);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  .yae-breadcrumb a:hover {
+    color: var(--yae-pink);
+  }
+
+  /* Page Header */
+  .yae-page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .yae-page-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--yae-purple);
+    margin-bottom: 1rem;
+  }
+
+  .yae-title-underline {
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--yae-pink), var(--yae-purple));
+    margin: 0 auto;
+    border-radius: 2px;
+  }
+
+  /* Contact Cards */
+  .yae-contact-card {
+    background: white;
+    border-radius: 25px;
+    padding: 2.5rem;
+    border: 3px solid var(--yae-purple);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    transition: all 0.3s ease;
+  }
+
+  .yae-contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 40px rgba(139, 44, 127, 0.2);
+  }
+
+  .yae-contact-section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--yae-purple);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Contact Content */
+  .yae-contact-content {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-contact-content p {
     margin-bottom: 1.2rem;
   }
 
-  .page-content strong {
+  .yae-contact-content strong {
+    color: var(--yae-purple);
+    font-weight: 600;
+  }
+
+  .yae-divider {
+    border: none;
+    border-top: 2px solid #e9d5ff;
+    margin: 2rem 0;
+  }
+
+  /* Contact Items */
+  .yae-contact-item {
+    display: flex;
+    align-items: start;
+    padding: 1rem;
+    border-radius: 15px;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .yae-contact-item:hover {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    transform: translateX(5px);
+  }
+
+  .yae-contact-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+  }
+
+  .yae-contact-icon-wrapper i {
+    font-size: 1.5rem;
+    color: white;
+  }
+
+  .yae-contact-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 0.5rem;
+  }
+
+  .yae-contact-link {
+    color: var(--yae-purple);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  .yae-contact-link:hover {
+    color: var(--yae-pink);
+  }
+
+  /* Business Hours */
+  .yae-hours-list {
+    margin-bottom: 2rem;
+  }
+
+  .yae-hours-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1rem;
+    border-bottom: 2px solid #e9d5ff;
+    transition: all 0.3s ease;
+  }
+
+  .yae-hours-item:last-child {
+    border-bottom: none;
+  }
+
+  .yae-hours-item:hover {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    border-radius: 10px;
+  }
+
+  .yae-hours-day {
+    font-weight: 600;
+    color: var(--yae-dark);
+    font-size: 1.05rem;
+  }
+
+  .yae-hours-day i {
     color: var(--yae-purple);
   }
 
-  .page-content a {
+  .yae-hours-time {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    padding: 0.5rem 1.25rem;
+    border-radius: 20px;
+    font-weight: 600;
     color: var(--yae-purple);
+    font-size: 0.95rem;
   }
-  
-  /* Pulsing animation for the location marker */
+
+  /* Follow Us Section */
+  .yae-follow-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--yae-purple);
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-social-links {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .yae-social-btn {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid;
+  }
+
+  .yae-social-btn i {
+    font-size: 1.5rem;
+  }
+
+  .yae-social-facebook {
+    border-color: #1877F2;
+    color: #1877F2;
+    background: white;
+  }
+
+  .yae-social-facebook:hover {
+    background: #1877F2;
+    color: white;
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 5px 15px rgba(24, 119, 242, 0.4);
+  }
+
+  .yae-social-twitter {
+    border-color: #1DA1F2;
+    color: #1DA1F2;
+    background: white;
+  }
+
+  .yae-social-twitter:hover {
+    background: #1DA1F2;
+    color: white;
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 5px 15px rgba(29, 161, 242, 0.4);
+  }
+
+  .yae-social-instagram {
+    border-color: #E4405F;
+    color: #E4405F;
+    background: white;
+  }
+
+  .yae-social-instagram:hover {
+    background: linear-gradient(45deg, #F58529, #DD2A7B, #8134AF);
+    color: white;
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 5px 15px rgba(228, 64, 95, 0.4);
+  }
+
+  .yae-social-linkedin {
+    border-color: #0A66C2;
+    color: #0A66C2;
+    background: white;
+  }
+
+  .yae-social-linkedin:hover {
+    background: #0A66C2;
+    color: white;
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 5px 15px rgba(10, 102, 194, 0.4);
+  }
+
+  /* Help Card */
+  .yae-help-card {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    padding: 1.5rem;
+    border-radius: 15px;
+    border: 2px solid var(--yae-purple);
+    transition: all 0.3s ease;
+  }
+
+  .yae-help-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 20px rgba(139, 44, 127, 0.2);
+  }
+
+  .yae-help-card strong {
+    color: var(--yae-dark);
+    font-size: 1.05rem;
+  }
+
+  .yae-help-card i.bi-question-circle-fill {
+    color: var(--yae-purple);
+    font-size: 1.2rem;
+  }
+
+  .yae-help-link {
+    color: var(--yae-purple);
+    text-decoration: none;
+    font-weight: 700;
+    display: inline-block;
+    margin-top: 0.5rem;
+    transition: color 0.3s ease;
+  }
+
+  .yae-help-link:hover {
+    color: var(--yae-pink);
+  }
+
+  /* Map Section */
+  .yae-map-card {
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border: 3px solid var(--yae-purple);
+    margin-bottom: 3rem;
+  }
+
+  .yae-map-container {
+    position: relative;
+    height: 400px;
+    overflow: hidden;
+  }
+
+  .yae-map-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.95);
+    display: block;
+  }
+
+  .yae-map-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.4) 100%);
+    pointer-events: none;
+  }
+
+  .yae-map-pin {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    z-index: 10;
+  }
+
+  .yae-pulse-marker {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .yae-pulse-marker i {
+    font-size: 3.5rem;
+    color: #E91E8C;
+    filter: drop-shadow(0 4px 8px rgba(233, 30, 140, 0.5));
+  }
+
   @keyframes pulse {
     0%, 100% {
       transform: scale(1);
@@ -222,126 +554,108 @@
       transform: scale(1.1);
     }
   }
-  
-  .pulse-marker {
-    animation: pulse 2s ease-in-out infinite;
+
+  /* Map Info Card */
+  .yae-map-info-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1.5rem;
+    z-index: 10;
   }
-  
-  /* Contact item hover effect */
-  .contact-item {
-    padding: 0.75rem;
-    border-radius: 8px;
+
+  .yae-map-info-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease;
   }
 
-  .contact-item:hover {
-    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
-    transform: translateX(5px);
-  }
-
-  /* Contact link styling */
-  .contact-link {
-    color: var(--yae-purple);
-    font-weight: 500;
-    transition: color 0.3s ease;
-  }
-
-  .contact-link:hover {
-    color: var(--yae-pink);
-  }
-  
-  /* Social buttons hover effects */
-  .social-btn {
-    transition: all 0.3s ease;
-  }
-
-  .social-btn:hover {
-    transform: translateY(-5px) scale(1.1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Help card animation */
-  .help-card {
-    transition: all 0.3s ease;
-  }
-
-  .help-card:hover {
-    transform: scale(1.02);
-    box-shadow: 0 5px 15px rgba(139, 44, 127, 0.2);
-  }
-
-  /* Location info card animation */
-  .location-info-card {
-    transition: all 0.3s ease;
-  }
-
-  .location-info-card:hover {
+  .yae-map-info-card:hover {
     transform: translateY(-5px);
   }
 
-  /* Directions button */
-  .btn-directions {
+  .yae-location-icon {
+    font-size: 2rem;
+    color: #E91E8C;
+  }
+
+  .yae-location-title {
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 0.25rem;
+    font-size: 1.1rem;
+  }
+
+  .yae-location-address {
+    color: #6b7280;
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  .yae-directions-btn {
     background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
     color: white;
     border: none;
-    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
+    cursor: pointer;
   }
 
-  .btn-directions:hover {
+  .yae-directions-btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(139, 44, 127, 0.3);
+    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.4);
     color: white;
   }
 
-  /* Card hover effects */
-  .card {
-    transition: all 0.3s ease;
-  }
-
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
-  }
-
-  /* Badge styling */
-  .badge.bg-light {
-    color: var(--yae-purple) !important;
-    font-weight: 600;
-  }
-  
-  /* Ensure proper spacing and no overflow */
-  .card {
-    overflow: hidden;
-  }
-  
-  /* Fix image rendering issues */
-  img {
-    vertical-align: top;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .display-3 {
+  /* Responsive */
+  @media (max-width: 767px) {
+    .yae-page-title {
       font-size: 2.5rem;
     }
-    
-    .card-body {
-      padding: 1.5rem !important;
-    }
-    
-    .position-absolute .card-body {
-      padding: 0.75rem !important;
-    }
-    
-    .btn-sm {
-      font-size: 0.75rem;
-      padding: 0.25rem 0.5rem;
+
+    .yae-contact-card {
+      padding: 2rem 1.5rem;
     }
 
-    .social-btn {
-      width: 45px !important;
-      height: 45px !important;
+    .yae-contact-section-title {
+      font-size: 1.3rem;
+    }
+
+    .yae-social-btn {
+      width: 50px;
+      height: 50px;
+    }
+
+    .yae-social-btn i {
+      font-size: 1.3rem;
+    }
+
+    .yae-map-info-wrapper {
+      padding: 1rem;
+    }
+
+    .yae-map-info-card {
+      padding: 1rem;
+    }
+
+    .yae-directions-btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+    }
+
+    .yae-location-title {
+      font-size: 1rem;
+    }
+
+    .yae-location-address {
+      font-size: 0.85rem;
     }
   }
 </style>

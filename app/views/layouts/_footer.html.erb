@@ -1,38 +1,55 @@
 <!-- app/views/layouts/_footer.html.erb -->
-<footer class="mt-5" style="background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%); color: white;">
+
+<footer class="yae-footer">
   <div class="container py-5">
     <div class="row">
       <!-- About Section -->
       <div class="col-lg-4 col-md-6 mb-4">
         <%= image_tag 'Yae_Publishing_House_logo.png', alt: 'Yae Publishing House', 
-            style: 'height: 80px; filter: brightness(0) invert(1);', class: 'mb-3' %>
-        <p class="text-white-50">
+            class: 'yae-footer-logo mb-3' %>
+        <p class="yae-footer-tagline">
           Inazuma's largest book publishing house since 1984!
         </p>
-        <div class="d-flex gap-3 mt-3">
-          <a href="#" class="text-white fs-4"><i class="bi bi-facebook"></i></a>
-          <a href="#" class="text-white fs-4"><i class="bi bi-twitter"></i></a>
-          <a href="#" class="text-white fs-4"><i class="bi bi-instagram"></i></a>
-          <a href="#" class="text-white fs-4"><i class="bi bi-linkedin"></i></a>
+        <div class="yae-social-icons">
+          <a href="https://facebook.com" target="_blank" class="yae-footer-social" aria-label="Facebook">
+            <i class="bi bi-facebook"></i>
+          </a>
+          <a href="https://twitter.com" target="_blank" class="yae-footer-social" aria-label="Twitter">
+            <i class="bi bi-twitter"></i>
+          </a>
+          <a href="https://instagram.com" target="_blank" class="yae-footer-social" aria-label="Instagram">
+            <i class="bi bi-instagram"></i>
+          </a>
+          <a href="https://linkedin.com" target="_blank" class="yae-footer-social" aria-label="LinkedIn">
+            <i class="bi bi-linkedin"></i>
+          </a>
         </div>
       </div>
 
       <!-- Quick Links -->
       <div class="col-lg-2 col-md-6 mb-4">
-        <h5 class="text-white mb-3">Quick Links</h5>
-        <ul class="list-unstyled">
-          <li class="mb-2">
-            <%= link_to "Home", root_path, class: "text-white-50 text-decoration-none" %>
+        <h5 class="yae-footer-heading">Quick Links</h5>
+        <ul class="yae-footer-list">
+          <li>
+            <%= link_to root_path, class: "yae-footer-link" do %>
+              <i class="bi bi-house-fill me-2"></i>Home
+            <% end %>
           </li>
-          <li class="mb-2">
-            <%= link_to "About Us", about_path, class: "text-white-50 text-decoration-none" %>
+          <li>
+            <%= link_to about_path, class: "yae-footer-link" do %>
+              <i class="bi bi-info-circle-fill me-2"></i>About Us
+            <% end %>
           </li>
-          <li class="mb-2">
-            <%= link_to "Contact", contact_path, class: "text-white-50 text-decoration-none" %>
+          <li>
+            <%= link_to contact_path, class: "yae-footer-link" do %>
+              <i class="bi bi-envelope-fill me-2"></i>Contact
+            <% end %>
           </li>
           <% if customer_signed_in? %>
-            <li class="mb-2">
-              <%= link_to "My Orders", orders_path, class: "text-white-50 text-decoration-none" %>
+            <li>
+              <%= link_to orders_path, class: "yae-footer-link" do %>
+                <i class="bi bi-bag-check-fill me-2"></i>My Orders
+              <% end %>
             </li>
           <% end %>
         </ul>
@@ -40,12 +57,13 @@
 
       <!-- Categories -->
       <div class="col-lg-3 col-md-6 mb-4">
-        <h5 class="text-white mb-3">Categories</h5>
-        <ul class="list-unstyled">
+        <h5 class="yae-footer-heading">Categories</h5>
+        <ul class="yae-footer-list">
           <% Category.order(:category_name).limit(6).each do |category| %>
-            <li class="mb-2">
-              <%= link_to category.category_name, category_path(category), 
-                  class: "text-white-50 text-decoration-none" %>
+            <li>
+              <%= link_to category_path(category), class: "yae-footer-link" do %>
+                <i class="bi bi-bookmark-fill me-2"></i><%= category.category_name %>
+              <% end %>
             </li>
           <% end %>
         </ul>
@@ -53,60 +71,321 @@
 
       <!-- Contact Info -->
       <div class="col-lg-3 col-md-6 mb-4">
-        <h5 class="text-white mb-3">Contact Us</h5>
-        <ul class="list-unstyled text-white-50">
-          <li class="mb-2">
-            <i class="bi bi-geo-alt-fill me-2"></i>
-            657 Watatsumi Ave E<br>
-            <span class="ms-4">Inazuma City, Inazuma 74857</span>
+        <h5 class="yae-footer-heading">Contact Us</h5>
+        <ul class="yae-footer-contact">
+          <li>
+            <i class="bi bi-geo-alt-fill"></i>
+            <div>
+              <strong>657 Watatsumi Ave E</strong><br>
+              Inazuma City, Inazuma 74857
+            </div>
           </li>
-          <li class="mb-2">
-            <i class="bi bi-envelope-fill me-2"></i>
-            info@yaepublishinghouse.co.in
+          <li>
+            <i class="bi bi-envelope-fill"></i>
+            <a href="mailto:info@yaepublishinghouse.co.in" class="yae-footer-contact-link">
+              info@yaepublishinghouse.co.in
+            </a>
           </li>
-          <li class="mb-2">
-            <i class="bi bi-telephone-fill me-2"></i>
-            (756)-748-3985
+          <li>
+            <i class="bi bi-telephone-fill"></i>
+            <a href="tel:+17567483985" class="yae-footer-contact-link">
+              (756)-748-3985
+            </a>
           </li>
         </ul>
       </div>
     </div>
 
-    <hr class="my-4 bg-white opacity-25">
+    <hr class="yae-footer-divider">
 
     <!-- Bottom Bar -->
-    <div class="row">
+    <div class="row align-items-center">
       <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-        <p class="mb-0 text-white-50">
-          &copy; <%= Time.current.year %> Yae Publishing House. All rights reserved.
+        <p class="yae-footer-copyright">
+          <i class="bi bi-c-circle me-1"></i>
+          <%= Time.current.year %> Yae Publishing House. All rights reserved.
         </p>
       </div>
-         <div class="col-md-6 text-center text-md-end">
-          <ul class="list-inline mb-0">
-              <li class="list-inline-item">
-                <%= link_to "Privacy Policy", privacy_path, class: "text-white-50 text-decoration-none" %>
-                </li>
-                <li class="list-inline-item">|</li>
-                <li class="list-inline-item">
-                <%= link_to "Terms of Service", terms_path, class: "text-white-50 text-decoration-none" %>
-              </li>
-            </ul>
-          </div>
+      <div class="col-md-6 text-center text-md-end">
+        <ul class="yae-footer-legal">
+          <li>
+            <%= link_to "Privacy Policy", privacy_path, class: "yae-footer-legal-link" %>
+          </li>
+          <li class="yae-footer-separator">|</li>
+          <li>
+            <%= link_to "Terms of Service", terms_path, class: "yae-footer-legal-link" %>
+          </li>
         </ul>
       </div>
     </div>
   </div>
 </footer>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
 <style>
-  footer a:hover {
-    color: white !important;
-    text-decoration: underline !important;
+  :root {
+    --yae-pink: #E91E8C;
+    --yae-purple: #8B2C7F;
+    --yae-dark: #4A1942;
+    --yae-light-pink: #F8C8DC;
   }
-  
-  footer .bi {
+
+  /* Main Footer */
+  .yae-footer {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    margin-top: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .yae-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--yae-pink), var(--yae-purple), var(--yae-pink));
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  /* Logo */
+  .yae-footer-logo {
+    height: 80px;
+    filter: brightness(0) invert(1);
+    transition: all 0.3s ease;
+  }
+
+  .yae-footer-logo:hover {
+    transform: scale(1.05);
+    filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+  }
+
+  /* Tagline */
+  .yae-footer-tagline {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Social Icons */
+  .yae-social-icons {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .yae-footer-social {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .yae-footer-social i {
+    font-size: 1.3rem;
+  }
+
+  .yae-footer-social:hover {
+    background: white;
+    color: var(--yae-purple);
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+    border-color: white;
+  }
+
+  /* Footer Headings */
+  .yae-footer-heading {
+    color: white;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.75rem;
+  }
+
+  .yae-footer-heading::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--yae-pink), transparent);
+    border-radius: 2px;
+  }
+
+  /* Footer Lists */
+  .yae-footer-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .yae-footer-list li {
+    margin-bottom: 0.75rem;
+  }
+
+  .yae-footer-link {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+  }
+
+  .yae-footer-link:hover {
+    color: white;
+    transform: translateX(5px);
+  }
+
+  .yae-footer-link i {
+    opacity: 0.8;
+    font-size: 0.9rem;
+  }
+
+  /* Contact List */
+  .yae-footer-contact {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .yae-footer-contact li {
+    display: flex;
+    align-items: start;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+  }
+
+  .yae-footer-contact i {
+    font-size: 1.2rem;
+    color: var(--yae-pink);
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+  }
+
+  .yae-footer-contact strong {
+    color: white;
+    font-weight: 600;
+  }
+
+  .yae-footer-contact-link {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .yae-footer-contact-link:hover {
+    color: white;
+    text-decoration: underline;
+  }
+
+  /* Divider */
+  .yae-footer-divider {
+    border: none;
+    border-top: 2px solid rgba(255, 255, 255, 0.1);
+    margin: 3rem 0 2rem;
+  }
+
+  /* Copyright */
+  .yae-footer-copyright {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  .yae-footer-copyright i {
     opacity: 0.8;
   }
+
+  /* Legal Links */
+  .yae-footer-legal {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .yae-footer-legal {
+      justify-content: flex-end;
+    }
+  }
+
+  .yae-footer-legal li {
+    margin: 0;
+  }
+
+  .yae-footer-separator {
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 300;
+  }
+
+  .yae-footer-legal-link {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+  }
+
+  .yae-footer-legal-link:hover {
+    color: white;
+    text-decoration: underline;
+  }
+
+  /* Responsive */
+  @media (max-width: 767px) {
+    .yae-footer {
+      margin-top: 3rem;
+    }
+
+    .yae-footer-logo {
+      height: 60px;
+    }
+
+    .yae-footer-heading {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .yae-social-icons {
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    .yae-footer-social {
+      width: 40px;
+      height: 40px;
+    }
+
+    .yae-footer-social i {
+      font-size: 1.1rem;
+    }
+
+    .yae-footer-legal {
+      flex-wrap: wrap;
+    }
+  }
 </style>
+
+<!-- Ensure Bootstrap Icons are loaded -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

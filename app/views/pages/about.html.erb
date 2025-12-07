@@ -1,127 +1,280 @@
 <!-- app/views/pages/about.html.erb -->
-<!-- Feature 1.4 - About page show view -->
 
-<div class="container my-5">
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><%= link_to 'Home', root_path %></li>
-      <li class="breadcrumb-item active" aria-current="page">About Us</li>
-    </ol>
-  </nav>
+<div class="yae-page">
+  <div class="container my-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb yae-breadcrumb">
+        <li class="breadcrumb-item">
+          <%= link_to root_path do %>
+            <i class="bi bi-house-fill me-1"></i>Home
+          <% end %>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">About Us</li>
+      </ol>
+    </nav>
 
-  <div class="row justify-content-center">
-    <div class="col-lg-10">
-      <!-- Page Header -->
-      <div class="text-center mb-5">
-        <h1 class="display-3 fw-bold mb-3" style="color: var(--yae-purple);">
-          <%= @page.title %>
-        </h1>
-        <div class="mx-auto" style="width: 100px; height: 4px; background: linear-gradient(90deg, var(--yae-pink), var(--yae-purple));"></div>
-      </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <!-- Page Header -->
+        <div class="yae-page-header">
+          <h1 class="yae-page-title">
+            <%= @page.title %>
+          </h1>
+          <div class="yae-title-underline"></div>
+        </div>
 
-      <!-- Page Content -->
-      <div class="card shadow-sm border-0 mb-5">
-        <div class="card-body p-5">
-          <div class="page-content" style="font-size: 1.1rem; line-height: 1.8; color: #2c3e50;">
+        <!-- Page Content -->
+        <div class="yae-content-card">
+          <div class="yae-content-body">
             <%= @page.content.body.to_s.html_safe %>
           </div>
         </div>
-      </div>
 
-      <!-- Decorative Elements -->
-      <div class="row g-4 mb-5">
-        <div class="col-md-4 text-center">
-          <div class="p-4 rounded h-100" style="background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);">
-            <div class="mb-3" style="font-size: 3rem; color: var(--yae-purple);">
-              <i class="bi bi-book-fill"></i>
+        <!-- Feature Cards -->
+        <div class="row g-4 mb-5">
+          <div class="col-md-4">
+            <div class="yae-feature-card">
+              <div class="yae-feature-icon">
+                <i class="bi bi-book-fill"></i>
+              </div>
+              <h4 class="yae-feature-title">Quality Books</h4>
+              <p class="yae-feature-text">From selected books; from anime manga to sci-fi fiction novels!</p>
             </div>
-            <h4 class="fw-bold mb-2" style="color: var(--yae-purple);">Quality Books</h4>
-            <p class="text-muted mb-0">From selected books; from anime manga to sci-fi fiction novels!</p>
+          </div>
+          <div class="col-md-4">
+            <div class="yae-feature-card">
+              <div class="yae-feature-icon">
+                <i class="bi bi-truck"></i>
+              </div>
+              <h4 class="yae-feature-title">Fast Shipping</h4>
+              <p class="yae-feature-text">Quick and reliable delivery service provided by Komaniya Express</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="yae-feature-card">
+              <div class="yae-feature-icon">
+                <i class="bi bi-award-fill"></i>
+              </div>
+              <h4 class="yae-feature-title">Since 1984</h4>
+              <p class="yae-feature-text">Trusted by editors of Inazuma and worldwide</p>
+            </div>
           </div>
         </div>
-        <div class="col-md-4 text-center">
-          <div class="p-4 rounded h-100" style="background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);">
-            <div class="mb-3" style="font-size: 3rem; color: var(--yae-purple);">
-              <i class="bi bi-truck"></i>
-            </div>
-            <h4 class="fw-bold mb-2" style="color: var(--yae-purple);">Fast Shipping</h4>
-            <p class="text-muted mb-0">Quick and reliable delivery service provided by Komaniya Express</p>
-          </div>
-        </div>
-        <div class="col-md-4 text-center">
-          <div class="p-4 rounded h-100" style="background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);">
-            <div class="mb-3" style="font-size: 3rem; color: var(--yae-purple);">
-              <i class="bi bi-award-fill"></i>
-            </div>
-            <h4 class="fw-bold mb-2" style="color: var(--yae-purple);">Since 1984</h4>
-            <p class="text-muted mb-0">Trusted by editors of Inazuma and worldwide</p>
-          </div>
-        </div>
-      </div>
 
-      <!-- CTA -->
-      <div class="text-center">
-        <%= link_to root_path, class: 'btn btn-lg fw-semibold px-5 py-3 btn-yae-cta' do %>
-          <i class="bi bi-collection me-2"></i>Browse Our Collection
-        <% end %>
+        <!-- CTA Button -->
+        <div class="text-center">
+          <%= link_to root_path, class: 'btn yae-cta-button' do %>
+            <i class="bi bi-collection me-2"></i>Browse Our Collection
+          <% end %>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <style>
-  .page-content p {
-    margin-bottom: 1.5rem;
-  }
-  
-  .page-content strong {
-    color: var(--yae-purple);
+  :root {
+    --yae-pink: #E91E8C;
+    --yae-purple: #8B2C7F;
+    --yae-dark: #4A1942;
+    --yae-light-pink: #F8C8DC;
   }
 
-  .page-content h1, .page-content h2, .page-content h3 {
+  .yae-page {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+
+  /* Breadcrumb */
+  .yae-breadcrumb {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+  }
+
+  .yae-breadcrumb a {
     color: var(--yae-purple);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  .yae-breadcrumb a:hover {
+    color: var(--yae-pink);
+  }
+
+  /* Page Header */
+  .yae-page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .yae-page-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--yae-purple);
+    margin-bottom: 1rem;
+  }
+
+  .yae-title-underline {
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--yae-pink), var(--yae-purple));
+    margin: 0 auto;
+    border-radius: 2px;
+  }
+
+  /* Content Card */
+  .yae-content-card {
+    background: white;
+    border-radius: 25px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 3rem;
+    border: 3px solid var(--yae-purple);
+    overflow: hidden;
+  }
+
+  .yae-content-body {
+    padding: 3rem;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #2c3e50;
+  }
+
+  /* Content Styling */
+  .yae-content-body p {
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-content-body h1,
+  .yae-content-body h2,
+  .yae-content-body h3 {
+    color: var(--yae-purple);
+    font-weight: 700;
     margin-top: 2rem;
     margin-bottom: 1rem;
   }
 
-  .page-content ul, .page-content ol {
-    margin-left: 1.5rem;
-    margin-bottom: 1.5rem;
+  .yae-content-body h2 {
+    font-size: 1.75rem;
   }
 
-  .page-content a {
+  .yae-content-body h3 {
+    font-size: 1.5rem;
+  }
+
+  .yae-content-body strong {
+    font-weight: 600;
+    color: var(--yae-dark);
+  }
+
+  .yae-content-body ul,
+  .yae-content-body ol {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+  }
+
+  .yae-content-body li {
+    margin-bottom: 0.75rem;
+  }
+
+  .yae-content-body a {
     color: var(--yae-purple);
     text-decoration: underline;
+    transition: color 0.3s ease;
   }
 
-  .page-content a:hover {
+  .yae-content-body a:hover {
     color: var(--yae-pink);
   }
 
-  .btn-yae-cta {
+  /* Feature Cards */
+  .yae-feature-card {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    padding: 2.5rem 2rem;
+    border-radius: 20px;
+    text-align: center;
+    border: 2px solid var(--yae-purple);
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+
+  .yae-feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 30px rgba(139, 44, 127, 0.3);
+  }
+
+  .yae-feature-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.3);
+  }
+
+  .yae-feature-icon i {
+    font-size: 2rem;
+    color: white;
+  }
+
+  .yae-feature-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 1rem;
+  }
+
+  .yae-feature-text {
+    color: #6b7280;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* CTA Button */
+  .yae-cta-button {
     background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
     color: white;
-    border-radius: 50px;
     border: none;
-    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.3);
+    padding: 1.25rem 3rem;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
     transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(139, 44, 127, 0.3);
   }
 
-  .btn-yae-cta:hover {
+  .yae-cta-button:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(139, 44, 127, 0.4);
-    background: linear-gradient(135deg, var(--yae-dark) 0%, var(--yae-purple) 100%);
+    box-shadow: 0 10px 30px rgba(139, 44, 127, 0.5);
     color: white;
   }
 
-  /* Feature cards hover effect */
-  .row.g-4 > div > div {
-    transition: all 0.3s ease;
-  }
+  /* Responsive */
+  @media (max-width: 767px) {
+    .yae-page-title {
+      font-size: 2.5rem;
+    }
 
-  .row.g-4 > div > div:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 10px 30px rgba(139, 44, 127, 0.2);
+    .yae-content-body {
+      padding: 2rem 1.5rem;
+      font-size: 1rem;
+    }
+
+    .yae-feature-card {
+      padding: 2rem 1.5rem;
+    }
   }
 </style>
 
