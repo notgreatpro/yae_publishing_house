@@ -1,76 +1,473 @@
 <!-- app/views/orders/confirmation.html.erb -->
 
-<div class="container my-5">
-  <!-- Success Message Card -->
-  <div class="row justify-content-center mb-5">
-    <div class="col-lg-8">
-      <div class="card border-0 shadow-sm" style="background-color: #e8f5e9;">
-        <div class="card-body text-center py-5">
-          <div class="mb-4">
-            <div class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center shadow" 
-                 style="width: 100px; height: 100px; font-size: 4rem; color: #27ae60;">
-              ✓
+<div class="yae-confirmation-page">
+  <div class="container my-5">
+    <!-- Success Message Card -->
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-8">
+        <div class="yae-success-card">
+          <div class="yae-success-icon">
+            <div class="yae-checkmark-circle">
+              <i class="bi bi-check-lg"></i>
             </div>
           </div>
-          <h1 class="display-5 fw-bold mb-3" style="color: #27ae60;">Order Placed Successfully!</h1>
-          <p class="text-secondary fs-5 mb-0">Order #<%= @order.id %></p>
+          <h1 class="yae-success-title">Order Placed Successfully!</h1>
+          <p class="yae-success-subtitle">Order #<%= @order.id %></p>
+          <div class="yae-success-message">
+            <i class="bi bi-envelope-check me-2"></i>
+            <span>A confirmation email has been sent to your inbox</span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Order Details -->
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card shadow-sm">
-        <div class="card-body p-4">
-          <h2 class="h4 mb-4">Order Details</h2>
+    <!-- Order Details -->
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="yae-order-details-card">
+          <div class="yae-details-header">
+            <h2 class="yae-details-title">
+              <i class="bi bi-receipt-cutoff me-2"></i>Order Details
+            </h2>
+          </div>
           
-          <!-- Shipping Address -->
-          <div class="mb-4 pb-4 border-bottom">
-            <h3 class="h5 mb-3" style="color: #2c3e50;">Shipping Address</h3>
-            <p class="mb-1"><%= @order.address_line1 %></p>
-            <% if @order.address_line2.present? %>
-              <p class="mb-1"><%= @order.address_line2 %></p>
-            <% end %>
-            <p class="mb-0"><%= @order.city %>, <%= @order.province.name %> <%= @order.postal_code %></p>
-          </div>
-
-          <!-- Order Items -->
-          <div class="mb-4 pb-4 border-bottom">
-            <h3 class="h5 mb-3" style="color: #2c3e50;">Order Items</h3>
-            <% @order.order_items.each do |item| %>
-              <div class="d-flex justify-content-between py-2">
-                <span><%= item.product.title %> (x<%= item.quantity %>)</span>
-                <span><%= number_to_currency(item.price_at_purchase * item.quantity) %></span>
+          <div class="yae-details-body">
+            <!-- Shipping Address -->
+            <div class="yae-details-section">
+              <h3 class="yae-section-heading">
+                <i class="bi bi-truck me-2"></i>Shipping Address
+              </h3>
+              <div class="yae-address-box">
+                <p class="yae-address-line"><%= @order.address_line1 %></p>
+                <% if @order.address_line2.present? %>
+                  <p class="yae-address-line"><%= @order.address_line2 %></p>
+                <% end %>
+                <p class="yae-address-line"><%= @order.city %>, <%= @order.province.name %> <%= @order.postal_code %></p>
               </div>
-            <% end %>
-          </div>
+            </div>
 
-          <!-- Order Summary -->
-          <div class="mb-4">
-            <h3 class="h5 mb-3" style="color: #2c3e50;">Order Summary</h3>
-            <div class="d-flex justify-content-between py-2">
-              <span>Subtotal:</span>
-              <span><%= number_to_currency(@order.subtotal) %></span>
+            <!-- Order Items -->
+            <div class="yae-details-section">
+              <h3 class="yae-section-heading">
+                <i class="bi bi-box-seam me-2"></i>Order Items
+              </h3>
+              <div class="yae-items-list">
+                <% @order.order_items.each do |item| %>
+                  <div class="yae-item-row">
+                    <div class="yae-item-info">
+                      <span class="yae-item-name"><%= item.product.title %></span>
+                      <span class="yae-item-quantity">Qty: <%= item.quantity %></span>
+                    </div>
+                    <div class="yae-item-price">
+                      <%= number_to_currency(item.price_at_purchase * item.quantity) %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
             </div>
-            <div class="d-flex justify-content-between py-2">
-              <span>Tax:</span>
-              <span><%= number_to_currency(@order.tax_amount) %></span>
-            </div>
-            <div class="d-flex justify-content-between py-3 border-top mt-2" style="border-top: 2px solid #2c3e50 !important;">
-              <strong class="fs-5">Total:</strong>
-              <strong class="fs-5"><%= number_to_currency(@order.total_amount) %></strong>
-            </div>
-          </div>
 
-          <!-- Actions -->
-          <div class="d-flex gap-3 mt-4">
-            <%= link_to 'View Order Details', order_path(@order), class: 'btn btn-primary flex-fill py-3 fw-semibold' %>
-            <%= link_to 'Continue Shopping', root_path, class: 'btn btn-outline-secondary flex-fill py-3 fw-semibold' %>
+            <!-- Order Summary -->
+            <div class="yae-details-section">
+              <h3 class="yae-section-heading">
+                <i class="bi bi-calculator me-2"></i>Order Summary
+              </h3>
+              <div class="yae-summary-calculations">
+                <div class="yae-summary-row">
+                  <span>Subtotal:</span>
+                  <span><%= number_to_currency(@order.subtotal) %></span>
+                </div>
+                <div class="yae-summary-row">
+                  <span>Tax (<%= @order.province.name %>):</span>
+                  <span><%= number_to_currency(@order.tax_amount) %></span>
+                </div>
+                <div class="yae-summary-total">
+                  <span>Total Paid:</span>
+                  <span class="yae-total-amount"><%= number_to_currency(@order.total_amount) %></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Info -->
+            <div class="yae-payment-info">
+              <i class="bi bi-credit-card-fill me-2"></i>
+              <span>Payment processed successfully via Stripe</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="yae-action-buttons">
+              <%= link_to order_path(@order), class: 'btn yae-view-order-btn' do %>
+                <i class="bi bi-eye me-2"></i>View Full Order Details
+              <% end %>
+              <%= link_to root_path, class: 'btn yae-continue-shopping-btn' do %>
+                <i class="bi bi-arrow-left me-2"></i>Continue Shopping
+              <% end %>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  :root {
+    --yae-pink: #E91E8C;
+    --yae-purple: #8B2C7F;
+    --yae-dark: #4A1942;
+    --yae-light-pink: #F8C8DC;
+  }
+
+  .yae-confirmation-page {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+
+  /* Success Card */
+  .yae-success-card {
+    background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+    border: 3px solid #10b981;
+    border-radius: 25px;
+    padding: 4rem 3rem;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .yae-success-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+  }
+
+  .yae-success-icon {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 2rem;
+  }
+
+  .yae-checkmark-circle {
+    width: 120px;
+    height: 120px;
+    background: white;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.3);
+    animation: scaleIn 0.5s ease-out;
+  }
+
+  @keyframes scaleIn {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .yae-checkmark-circle i {
+    font-size: 4rem;
+    color: #10b981;
+    font-weight: bold;
+  }
+
+  .yae-success-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #065f46;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .yae-success-subtitle {
+    font-size: 1.5rem;
+    color: #047857;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .yae-success-message {
+    display: inline-flex;
+    align-items: center;
+    background: white;
+    padding: 1rem 2rem;
+    border-radius: 30px;
+    color: #065f46;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Order Details Card */
+  .yae-order-details-card {
+    background: white;
+    border-radius: 25px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    border: 3px solid var(--yae-purple);
+  }
+
+  .yae-details-header {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    padding: 2rem 2.5rem;
+  }
+
+  .yae-details-title {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .yae-details-body {
+    padding: 2.5rem;
+  }
+
+  /* Details Sections */
+  .yae-details-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 2px solid #f3f4f6;
+  }
+
+  .yae-details-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 2rem;
+  }
+
+  .yae-section-heading {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Address Box */
+  .yae-address-box {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    padding: 1.5rem;
+    border-radius: 15px;
+    border: 2px solid var(--yae-purple);
+  }
+
+  .yae-address-line {
+    color: var(--yae-dark);
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+
+  .yae-address-line:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Items List */
+  .yae-items-list {
+    background: #f9fafb;
+    border-radius: 15px;
+    padding: 1.5rem;
+  }
+
+  .yae-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .yae-item-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .yae-item-row:first-child {
+    padding-top: 0;
+  }
+
+  .yae-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .yae-item-name {
+    font-weight: 600;
+    color: var(--yae-dark);
+    font-size: 1.05rem;
+  }
+
+  .yae-item-quantity {
+    color: #6b7280;
+    font-size: 0.9rem;
+  }
+
+  .yae-item-price {
+    font-weight: 700;
+    color: var(--yae-purple);
+    font-size: 1.2rem;
+  }
+
+  /* Summary Calculations */
+  .yae-summary-calculations {
+    background: #f9fafb;
+    border-radius: 15px;
+    padding: 1.5rem;
+  }
+
+  .yae-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    color: var(--yae-dark);
+    font-size: 1.05rem;
+  }
+
+  .yae-summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 0 0.5rem 0;
+    margin-top: 1rem;
+    border-top: 3px solid var(--yae-purple);
+  }
+
+  .yae-summary-total > span:first-child {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+  }
+
+  .yae-total-amount {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Payment Info */
+  .yae-payment-info {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    padding: 1.25rem 1.5rem;
+    border-radius: 12px;
+    color: #1e40af;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    border: 2px solid #3b82f6;
+    margin-bottom: 2rem;
+  }
+
+  .yae-payment-info i {
+    font-size: 1.5rem;
+  }
+
+  /* Action Buttons */
+  .yae-action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .yae-view-order-btn,
+  .yae-continue-shopping-btn {
+    flex: 1;
+    min-width: 250px;
+    padding: 1.25rem 2rem;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+
+  .yae-view-order-btn {
+    background: linear-gradient(135deg, var(--yae-pink) 0%, #d91479 100%);
+    color: white;
+  }
+
+  .yae-view-order-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(233, 30, 140, 0.4);
+    color: white;
+  }
+
+  .yae-continue-shopping-btn {
+    background: white;
+    color: var(--yae-purple);
+    border: 2px solid var(--yae-purple);
+  }
+
+  .yae-continue-shopping-btn:hover {
+    background: var(--yae-purple);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(139, 44, 127, 0.3);
+  }
+
+  /* Responsive */
+  @media (max-width: 767px) {
+    .yae-success-card {
+      padding: 3rem 2rem;
+    }
+
+    .yae-success-title {
+      font-size: 2rem;
+    }
+
+    .yae-success-subtitle {
+      font-size: 1.2rem;
+    }
+
+    .yae-checkmark-circle {
+      width: 100px;
+      height: 100px;
+    }
+
+    .yae-checkmark-circle i {
+      font-size: 3rem;
+    }
+
+    .yae-details-body {
+      padding: 2rem 1.5rem;
+    }
+
+    .yae-action-buttons {
+      flex-direction: column;
+    }
+
+    .yae-view-order-btn,
+    .yae-continue-shopping-btn {
+      width: 100%;
+      min-width: auto;
+    }
+  }
+</style>
+
+<!-- Ensure Bootstrap Icons are loaded -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
