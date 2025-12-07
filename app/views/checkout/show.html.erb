@@ -2,288 +2,373 @@
 <!-- Feature 3.1.3 - Complete a checkout process (8%) -->
 <!-- Feature 3.3.1 - Stripe Payment Integration (6%) -->
 
-<div class="container mt-4 mb-5">
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><%= link_to 'Home', root_path %></li>
-      <li class="breadcrumb-item"><%= link_to 'Cart', cart_path %></li>
-      <li class="breadcrumb-item active" aria-current="page">Checkout</li>
-    </ol>
-  </nav>
+<div class="yae-checkout-page">
+  <div class="container mt-4 mb-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb yae-breadcrumb">
+        <li class="breadcrumb-item"><%= link_to 'Home', root_path %></li>
+        <li class="breadcrumb-item"><%= link_to 'Cart', cart_path %></li>
+        <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+      </ol>
+    </nav>
 
-  <div class="text-center py-4 mb-4 border-bottom">
-    <h1 class="display-4">Checkout</h1>
-  </div>
-
-  <% if flash[:alert] %>
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      <%= flash[:alert] %>
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  <% end %>
-
-  <% if @order && @order.errors.any? %>
-    <div class="alert alert-danger">
-      <h5 class="alert-heading"><%= pluralize(@order.errors.count, "error") %> prevented this order from being saved:</h5>
-      <ul class="mb-0">
-        <% @order.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div class="row">
-    <!-- Main Checkout Form -->
-    <div class="col-lg-8 mb-4">
-      <%= form_with url: checkout_path, method: :post, local: true, id: 'checkout-form' do |f| %>
-        
-        <!-- Customer Information -->
-        <div class="card mb-4">
-          <div class="card-header bg-white">
-            <h3 class="h5 mb-0">Contact Information</h3>
-          </div>
-          <div class="card-body">
-            <div class="alert alert-success mb-0">
-              <strong>Logged in as:</strong> <%= @customer.email %>
-            </div>
-          </div>
-        </div>
-
-        <!-- Shipping Address -->
-        <div class="card mb-4">
-          <div class="card-header bg-white">
-            <h3 class="h5 mb-0">Shipping Address</h3>
-          </div>
-          <div class="card-body">
-            <% if @customer.has_complete_address? %>
-              <div class="mb-3">
-                <div class="form-check border rounded p-3 mb-2">
-                  <%= radio_button_tag :use_saved_address, '1', true, class: 'form-check-input', id: 'use_saved_yes' %>
-                  <label class="form-check-label w-100" for="use_saved_yes">
-                    <strong class="d-block mb-2">Use saved address</strong>
-                    <div class="saved-address-display bg-light p-3 rounded">
-                      <p class="mb-1"><%= @customer.first_name %> <%= @customer.last_name %></p>
-                      <p class="mb-1"><%= @customer.address_line1 %></p>
-                      <% if @customer.address_line2.present? %>
-                        <p class="mb-1"><%= @customer.address_line2 %></p>
-                      <% end %>
-                      <p class="mb-1"><%= @customer.city %>, <%= @customer.province.code %> <%= @customer.postal_code %></p>
-                      <% if @customer.phone.present? %>
-                        <p class="mb-0"><%= @customer.phone %></p>
-                      <% end %>
-                    </div>
-                  </label>
-                </div>
-
-                <div class="form-check border rounded p-3">
-                  <%= radio_button_tag :use_saved_address, '0', false, class: 'form-check-input', id: 'use_saved_no' %>
-                  <label class="form-check-label" for="use_saved_no">
-                    <strong>Use a different address</strong>
-                  </label>
-                </div>
-              </div>
-
-              <div id="new-address-fields" style="display: none;">
-            <% else %>
-              <div id="new-address-fields">
-            <% end %>
-
-                <div class="row g-3 mb-3">
-                  <div class="col-md-6">
-                    <label for="first_name" class="form-label">First Name</label>
-                    <%= text_field_tag :first_name, @customer.first_name, 
-                        required: !@customer.has_complete_address?, 
-                        class: 'form-control' %>
-                  </div>
-                  
-                  <div class="col-md-6">
-                    <label for="last_name" class="form-label">Last Name</label>
-                    <%= text_field_tag :last_name, @customer.last_name, 
-                        required: !@customer.has_complete_address?, 
-                        class: 'form-control' %>
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <label for="address_line1" class="form-label">Address Line 1</label>
-                  <%= text_field_tag :address_line1, '', 
-                      required: !@customer.has_complete_address?, 
-                      class: 'form-control',
-                      placeholder: 'Street address, P.O. box' %>
-                </div>
-
-                <div class="mb-3">
-                  <label for="address_line2" class="form-label">Address Line 2 (Optional)</label>
-                  <%= text_field_tag :address_line2, '', 
-                      class: 'form-control',
-                      placeholder: 'Apartment, suite, unit, building, floor, etc.' %>
-                </div>
-
-                <div class="row g-3 mb-3">
-                  <div class="col-md-6">
-                    <label for="city" class="form-label">City</label>
-                    <%= text_field_tag :city, '', 
-                        required: !@customer.has_complete_address?, 
-                        class: 'form-control' %>
-                  </div>
-
-                  <div class="col-md-6">
-                    <label for="province_id" class="form-label">Province</label>
-                    <%= select_tag :province_id, 
-                        options_from_collection_for_select(Province.order(:name), :id, :name, @customer.province_id),
-                        prompt: 'Select Province',
-                        required: !@customer.has_complete_address?,
-                        class: 'form-select',
-                        id: 'province-select',
-                        data: { 
-                          provinces: Province.all.to_json(only: [:id, :name, :gst_rate, :pst_rate, :hst_rate]),
-                          subtotal: @subtotal
-                        } %>
-                  </div>
-                </div>
-
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <label for="postal_code" class="form-label">Postal Code</label>
-                    <%= text_field_tag :postal_code, '', 
-                        required: !@customer.has_complete_address?, 
-                        class: 'form-control',
-                        placeholder: 'A1A 1A1',
-                        pattern: '[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d' %>
-                  </div>
-
-                  <div class="col-md-6">
-                    <label for="phone" class="form-label">Phone Number (Optional)</label>
-                    <%= telephone_field_tag :phone, '', 
-                        class: 'form-control',
-                        placeholder: '(123) 456-7890' %>
-                  </div>
-                </div>
-              </div>
-          </div>
-        </div>
-
-        <!-- Payment Information -->
-        <div class="card mb-4">
-          <div class="card-header bg-white">
-            <h3 class="h5 mb-0">💳 Payment Information</h3>
-          </div>
-          <div class="card-body">
-            <div class="alert alert-success">
-              <strong>Secure Payment</strong>
-              <p class="mb-0 small">Your payment information is encrypted and secure</p>
-            </div>
-
-            <div class="mb-3">
-              <label for="cardholder_name" class="form-label">Cardholder Name</label>
-              <%= text_field_tag :cardholder_name, '', 
-                  required: true,
-                  class: 'form-control',
-                  placeholder: 'Name on card',
-                  autocomplete: 'cc-name' %>
-            </div>
-
-            <div class="mb-3">
-              <label for="card-number-element" class="form-label">Card Number</label>
-              <div id="card-number-element" class="form-control" style="height: 40px; padding-top: 10px;"></div>
-            </div>
-
-            <div class="row g-3 mb-3">
-              <div class="col-md-6">
-                <label for="card-expiry-element" class="form-label">Expiry Date</label>
-                <div id="card-expiry-element" class="form-control" style="height: 40px; padding-top: 10px;"></div>
-              </div>
-
-              <div class="col-md-6">
-                <label for="card-cvc-element" class="form-label">CVC</label>
-                <div id="card-cvc-element" class="form-control" style="height: 40px; padding-top: 10px;"></div>
-              </div>
-            </div>
-
-            <div id="card-errors" role="alert" class="text-danger small"></div>
-
-            <div class="alert alert-warning">
-              <p class="mb-1"><strong>Test Mode</strong></p>
-              <p class="mb-0 small">Use test card: <code>4242 4242 4242 4242</code></p>
-              <p class="mb-0 small">Any future expiry date and any 3-digit CVC</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Order Notes -->
-        <div class="card mb-4">
-          <div class="card-header bg-white">
-            <h3 class="h5 mb-0">Order Notes (Optional)</h3>
-          </div>
-          <div class="card-body">
-            <label for="order_notes" class="form-label">Special instructions or delivery notes</label>
-            <%= text_area_tag :order_notes, '', 
-                class: 'form-control',
-                rows: 3,
-                placeholder: 'Any special delivery instructions...' %>
-          </div>
-        </div>
-
-        <!-- Form Actions -->
-        <div class="d-grid gap-2 d-md-flex justify-content-md-between">
-          <%= link_to 'Return to Cart', cart_path, class: 'btn btn-outline-primary btn-lg' %>
-          <%= f.submit 'Place Order', class: 'btn btn-success btn-lg px-5', id: 'submit-button', 
-              data: { disable_with: 'Processing Payment...' } %>
-        </div>
-
-        <%= hidden_field_tag :stripe_payment_method_id, '', id: 'stripe-payment-method-id' %>
-      <% end %>
+    <!-- Page Header -->
+    <div class="yae-checkout-header">
+      <h1 class="yae-checkout-title">
+        <i class="bi bi-credit-card me-3"></i>Secure Checkout
+      </h1>
+      <div class="yae-security-badge">
+        <i class="bi bi-shield-fill-check me-2"></i>
+        <span>SSL Encrypted & Secure</span>
+      </div>
     </div>
 
-    <!-- Order Summary Sidebar -->
-    <div class="col-lg-4">
-      <div class="card order-summary-sticky">
-        <div class="card-header bg-white">
-          <h3 class="h5 mb-0">Order Summary</h3>
-        </div>
-        <div class="card-body">
-          <% @cart_items.each do |item| %>
-            <div class="d-flex mb-3 pb-3 border-bottom">
-              <div class="flex-shrink-0 me-3">
-                <% if item[:product].cover_image.attached? %>
-                  <%= image_tag item[:product].cover_image, alt: item[:product].title, 
-                      class: 'rounded', style: 'width: 60px; height: 80px; object-fit: cover;' %>
-                <% else %>
-                  <div class="bg-gradient text-white rounded d-flex align-items-center justify-content-center" 
-                       style="width: 60px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    📚
-                  </div>
-                <% end %>
-              </div>
-              <div class="flex-grow-1">
-                <p class="mb-1 fw-semibold small"><%= item[:product].title %></p>
-                <p class="mb-1 text-muted small">Qty: <%= item[:quantity] %></p>
-                <p class="mb-0 text-muted small"><%= number_to_currency(item[:product].current_price) %> each</p>
-              </div>
-              <div class="text-end">
-                <strong><%= number_to_currency(item[:product].current_price * item[:quantity]) %></strong>
-              </div>
-            </div>
+    <!-- Flash Messages -->
+    <% if flash[:alert] %>
+      <div class="yae-alert yae-alert-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <%= flash[:alert] %>
+        <button type="button" class="yae-alert-close" data-bs-dismiss="alert">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    <% end %>
+
+    <% if @order && @order.errors.any? %>
+      <div class="yae-alert yae-alert-danger">
+        <h5 class="yae-alert-heading">
+          <i class="bi bi-exclamation-circle me-2"></i>
+          <%= pluralize(@order.errors.count, "error") %> prevented this order from being saved:
+        </h5>
+        <ul class="yae-error-list">
+          <% @order.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
           <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-          <div class="d-flex justify-content-between mb-2">
-            <span>Subtotal (<%= pluralize(@cart_items.sum { |i| i[:quantity] }, 'item') %>):</span>
-            <strong><%= number_to_currency(@subtotal) %></strong>
+    <div class="row g-4">
+      <!-- Main Checkout Form -->
+      <div class="col-lg-8">
+        <%= form_with url: checkout_path, method: :post, local: true, id: 'checkout-form' do |f| %>
+          
+          <!-- Customer Information -->
+          <div class="yae-checkout-section">
+            <div class="yae-section-header">
+              <h3 class="yae-section-title">
+                <i class="bi bi-person-circle me-2"></i>Contact Information
+              </h3>
+            </div>
+            <div class="yae-section-body">
+              <div class="yae-info-display">
+                <div class="yae-info-label">Logged in as:</div>
+                <div class="yae-info-value">
+                  <i class="bi bi-envelope-fill me-2"></i>
+                  <%= @customer.email %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shipping Address -->
+          <div class="yae-checkout-section">
+            <div class="yae-section-header">
+              <h3 class="yae-section-title">
+                <i class="bi bi-truck me-2"></i>Shipping Address
+              </h3>
+            </div>
+            <div class="yae-section-body">
+              <% if @customer.has_complete_address? %>
+                <div class="yae-address-options">
+                  <div class="yae-address-option">
+                    <%= radio_button_tag :use_saved_address, '1', true, class: 'yae-radio-input', id: 'use_saved_yes' %>
+                    <label class="yae-address-label" for="use_saved_yes">
+                      <div class="yae-option-header">
+                        <i class="bi bi-bookmark-check-fill me-2"></i>
+                        <strong>Use saved address</strong>
+                      </div>
+                      <div class="yae-saved-address">
+                        <p class="mb-1"><i class="bi bi-person me-2"></i><%= @customer.first_name %> <%= @customer.last_name %></p>
+                        <p class="mb-1"><i class="bi bi-geo-alt me-2"></i><%= @customer.address_line1 %></p>
+                        <% if @customer.address_line2.present? %>
+                          <p class="mb-1 ms-4"><%= @customer.address_line2 %></p>
+                        <% end %>
+                        <p class="mb-1 ms-4"><%= @customer.city %>, <%= @customer.province.code %> <%= @customer.postal_code %></p>
+                        <% if @customer.phone.present? %>
+                          <p class="mb-0"><i class="bi bi-telephone me-2"></i><%= @customer.phone %></p>
+                        <% end %>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div class="yae-address-option">
+                    <%= radio_button_tag :use_saved_address, '0', false, class: 'yae-radio-input', id: 'use_saved_no' %>
+                    <label class="yae-address-label" for="use_saved_no">
+                      <i class="bi bi-plus-circle-fill me-2"></i>
+                      <strong>Use a different address</strong>
+                    </label>
+                  </div>
+                </div>
+
+                <div id="new-address-fields" style="display: none;">
+              <% else %>
+                <div id="new-address-fields">
+              <% end %>
+
+                  <div class="yae-form-section">
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label for="first_name" class="yae-form-label">
+                          <i class="bi bi-person me-1"></i>First Name
+                        </label>
+                        <%= text_field_tag :first_name, @customer.first_name, 
+                            required: !@customer.has_complete_address?, 
+                            class: 'yae-form-input',
+                            placeholder: 'John' %>
+                      </div>
+                      
+                      <div class="col-md-6">
+                        <label for="last_name" class="yae-form-label">
+                          <i class="bi bi-person me-1"></i>Last Name
+                        </label>
+                        <%= text_field_tag :last_name, @customer.last_name, 
+                            required: !@customer.has_complete_address?, 
+                            class: 'yae-form-input',
+                            placeholder: 'Doe' %>
+                      </div>
+                    </div>
+
+                    <div class="mt-3">
+                      <label for="address_line1" class="yae-form-label">
+                        <i class="bi bi-house-door me-1"></i>Address Line 1
+                      </label>
+                      <%= text_field_tag :address_line1, '', 
+                          required: !@customer.has_complete_address?, 
+                          class: 'yae-form-input',
+                          placeholder: 'Street address, P.O. box' %>
+                    </div>
+
+                    <div class="mt-3">
+                      <label for="address_line2" class="yae-form-label">
+                        <i class="bi bi-building me-1"></i>Address Line 2 (Optional)
+                      </label>
+                      <%= text_field_tag :address_line2, '', 
+                          class: 'yae-form-input',
+                          placeholder: 'Apartment, suite, unit, building, floor, etc.' %>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                      <div class="col-md-6">
+                        <label for="city" class="yae-form-label">
+                          <i class="bi bi-pin-map me-1"></i>City
+                        </label>
+                        <%= text_field_tag :city, '', 
+                            required: !@customer.has_complete_address?, 
+                            class: 'yae-form-input',
+                            placeholder: 'Toronto' %>
+                      </div>
+
+                      <div class="col-md-6">
+                        <label for="province_id" class="yae-form-label">
+                          <i class="bi bi-map me-1"></i>Province
+                        </label>
+                        <%= select_tag :province_id, 
+                            options_from_collection_for_select(Province.order(:name), :id, :name, @customer.province_id),
+                            prompt: 'Select Province',
+                            required: !@customer.has_complete_address?,
+                            class: 'yae-form-select',
+                            id: 'province-select',
+                            data: { 
+                              provinces: Province.all.to_json(only: [:id, :name, :gst_rate, :pst_rate, :hst_rate]),
+                              subtotal: @subtotal
+                            } %>
+                      </div>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                      <div class="col-md-6">
+                        <label for="postal_code" class="yae-form-label">
+                          <i class="bi bi-mailbox me-1"></i>Postal Code
+                        </label>
+                        <%= text_field_tag :postal_code, '', 
+                            required: !@customer.has_complete_address?, 
+                            class: 'yae-form-input',
+                            placeholder: 'A1A 1A1',
+                            pattern: '[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d' %>
+                      </div>
+
+                      <div class="col-md-6">
+                        <label for="phone" class="yae-form-label">
+                          <i class="bi bi-telephone me-1"></i>Phone Number (Optional)
+                        </label>
+                        <%= telephone_field_tag :phone, '', 
+                            class: 'yae-form-input',
+                            placeholder: '(123) 456-7890' %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+
+          <!-- Payment Information -->
+          <div class="yae-checkout-section">
+            <div class="yae-section-header">
+              <h3 class="yae-section-title">
+                <i class="bi bi-credit-card-2-front me-2"></i>Payment Information
+              </h3>
+            </div>
+            <div class="yae-section-body">
+              <div class="yae-secure-notice">
+                <i class="bi bi-shield-lock-fill me-2"></i>
+                <div>
+                  <strong>Secure Payment</strong>
+                  <p class="mb-0">Your payment information is encrypted and secure</p>
+                </div>
+              </div>
+
+              <div class="yae-form-section">
+                <div class="mt-3">
+                  <label for="cardholder_name" class="yae-form-label">
+                    <i class="bi bi-person-badge me-1"></i>Cardholder Name
+                  </label>
+                  <%= text_field_tag :cardholder_name, '', 
+                      required: true,
+                      class: 'yae-form-input',
+                      placeholder: 'Name on card',
+                      autocomplete: 'cc-name' %>
+                </div>
+
+                <div class="mt-3">
+                  <label for="card-number-element" class="yae-form-label">
+                    <i class="bi bi-credit-card me-1"></i>Card Number
+                  </label>
+                  <div id="card-number-element" class="yae-stripe-element"></div>
+                </div>
+
+                <div class="row g-3 mt-1">
+                  <div class="col-md-6">
+                    <label for="card-expiry-element" class="yae-form-label">
+                      <i class="bi bi-calendar-event me-1"></i>Expiry Date
+                    </label>
+                    <div id="card-expiry-element" class="yae-stripe-element"></div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="card-cvc-element" class="yae-form-label">
+                      <i class="bi bi-lock me-1"></i>CVC
+                    </label>
+                    <div id="card-cvc-element" class="yae-stripe-element"></div>
+                  </div>
+                </div>
+
+                <div id="card-errors" role="alert" class="yae-card-error"></div>
+
+                <div class="yae-test-mode-notice">
+                  <div class="yae-test-header">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <strong>Test Mode</strong>
+                  </div>
+                  <p class="mb-1">Use test card: <code class="yae-test-code">4242 4242 4242 4242</code></p>
+                  <p class="mb-0">Any future expiry date and any 3-digit CVC</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Notes -->
+          <div class="yae-checkout-section">
+            <div class="yae-section-header">
+              <h3 class="yae-section-title">
+                <i class="bi bi-chat-left-text me-2"></i>Order Notes (Optional)
+              </h3>
+            </div>
+            <div class="yae-section-body">
+              <label for="order_notes" class="yae-form-label">
+                <i class="bi bi-pencil me-1"></i>Special instructions or delivery notes
+              </label>
+              <%= text_area_tag :order_notes, '', 
+                  class: 'yae-form-textarea',
+                  rows: 4,
+                  placeholder: 'Any special delivery instructions...' %>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="yae-checkout-actions">
+            <%= link_to cart_path, class: 'btn yae-back-btn' do %>
+              <i class="bi bi-arrow-left me-2"></i>Return to Cart
+            <% end %>
+            <%= f.submit 'Place Order', class: 'btn yae-place-order-btn', id: 'submit-button', 
+                data: { disable_with: 'Processing Payment...' } %>
+          </div>
+
+          <%= hidden_field_tag :stripe_payment_method_id, '', id: 'stripe-payment-method-id' %>
+        <% end %>
+      </div>
+
+      <!-- Order Summary Sidebar -->
+      <div class="col-lg-4">
+        <div class="yae-order-summary-checkout">
+          <div class="yae-summary-header">
+            <h3 class="yae-summary-title">
+              <i class="bi bi-receipt me-2"></i>Order Summary
+            </h3>
           </div>
           
-          <div class="d-flex justify-content-between mb-2 text-muted">
-            <span>Tax:</span>
-            <span id="tax-display">Select province</span>
-          </div>
+          <div class="yae-summary-body-checkout">
+            <!-- Cart Items -->
+            <div class="yae-summary-items">
+              <% @cart_items.each do |item| %>
+                <div class="yae-summary-item">
+                  <div class="yae-item-image">
+                    <% if item[:product].cover_image.attached? %>
+                      <%= image_tag item[:product].cover_image, alt: item[:product].title %>
+                    <% else %>
+                      <div class="yae-item-placeholder">
+                        <i class="bi bi-book"></i>
+                      </div>
+                    <% end %>
+                  </div>
+                  <div class="yae-item-details">
+                    <p class="yae-item-title"><%= truncate(item[:product].title, length: 40) %></p>
+                    <p class="yae-item-meta">Qty: <%= item[:quantity] %></p>
+                    <p class="yae-item-price"><%= number_to_currency(item[:product].current_price) %> each</p>
+                  </div>
+                  <div class="yae-item-total">
+                    <%= number_to_currency(item[:product].current_price * item[:quantity]) %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
 
-          <hr>
+            <!-- Summary Calculations -->
+            <div class="yae-summary-calculations">
+              <div class="yae-calc-row">
+                <span>Subtotal (<%= pluralize(@cart_items.sum { |i| i[:quantity] }, 'item') %>):</span>
+                <strong><%= number_to_currency(@subtotal) %></strong>
+              </div>
+              
+              <div class="yae-calc-row tax-row">
+                <span>
+                  <i class="bi bi-receipt-cutoff me-1"></i>Tax:
+                </span>
+                <span id="tax-display" class="yae-tax-value">Select province</span>
+              </div>
 
-          <div class="d-flex justify-content-between mb-2 fs-5 fw-bold">
-            <span>Total:</span>
-            <span id="total-display"><%= number_to_currency(@subtotal) %>+</span>
+              <div class="yae-calc-total">
+                <span>Total:</span>
+                <span id="total-display" class="yae-total-value"><%= number_to_currency(@subtotal) %>+</span>
+              </div>
+              
+              <p class="yae-calc-note">
+                <i class="bi bi-info-circle me-1"></i>
+                Final amount calculated after selecting province
+              </p>
+            </div>
           </div>
-          <p class="text-muted small fst-italic mb-0">Final amount calculated after selecting province</p>
         </div>
       </div>
     </div>
@@ -291,38 +376,590 @@
 </div>
 
 <style>
-  /* Sticky sidebar that doesn't overlap header */
-  .order-summary-sticky {
-    position: sticky;
-    top: 80px; /* Adjust this value based on your header height */
-    z-index: 100;
-    max-height: calc(100vh - 100px); /* Prevents sidebar from being taller than viewport */
-    overflow-y: auto; /* Allows scrolling within sidebar if content is long */
+  :root {
+    --yae-pink: #E91E8C;
+    --yae-purple: #8B2C7F;
+    --yae-dark: #4A1942;
+    --yae-light-pink: #F8C8DC;
   }
 
-  /* Optional: Add smooth scrolling within the sidebar */
-  .order-summary-sticky .card-body {
-    max-height: calc(100vh - 200px);
+  .yae-checkout-page {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+
+  /* Breadcrumb */
+  .yae-breadcrumb {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+  }
+
+  .yae-breadcrumb a {
+    color: var(--yae-purple);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  .yae-breadcrumb a:hover {
+    color: var(--yae-pink);
+  }
+
+  /* Checkout Header */
+  .yae-checkout-header {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .yae-checkout-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .yae-security-badge {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 0.75rem 1.5rem;
+    border-radius: 30px;
+    color: white;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  /* Alerts */
+  .yae-alert {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .yae-alert-danger {
+    border-left: 5px solid #dc2626;
+    color: #991b1b;
+  }
+
+  .yae-alert-heading {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .yae-error-list {
+    margin: 0.5rem 0 0 1.5rem;
+  }
+
+  .yae-alert-close {
+    background: none;
+    border: none;
+    color: #991b1b;
+    cursor: pointer;
+    margin-left: auto;
+    font-size: 1.2rem;
+  }
+
+  /* Checkout Sections */
+  .yae-checkout-section {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+
+  .yae-checkout-section:hover {
+    border-color: var(--yae-purple);
+  }
+
+  .yae-section-header {
+    background: linear-gradient(135deg, var(--yae-light-pink) 0%, #e9d5ff 100%);
+    padding: 1.5rem 2rem;
+  }
+
+  .yae-section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .yae-section-body {
+    padding: 2rem;
+  }
+
+  /* Info Display */
+  .yae-info-display {
+    background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+    padding: 1.5rem;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border: 2px solid #10b981;
+  }
+
+  .yae-info-label {
+    font-weight: 600;
+    color: #065f46;
+    font-size: 0.9rem;
+  }
+
+  .yae-info-value {
+    font-size: 1.1rem;
+    color: #047857;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Address Options */
+  .yae-address-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .yae-address-option {
+    border: 3px solid #e5e7eb;
+    border-radius: 15px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .yae-radio-input {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .yae-radio-input:checked + .yae-address-label {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+  }
+
+  .yae-radio-input:checked ~ .yae-address-label,
+  .yae-address-option:has(.yae-radio-input:checked) {
+    border-color: var(--yae-purple);
+    box-shadow: 0 4px 20px rgba(139, 44, 127, 0.2);
+  }
+
+  .yae-address-label {
+    cursor: pointer;
+    margin: 0;
+    display: block;
+    padding: 1rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .yae-option-header {
+    font-size: 1.1rem;
+    color: var(--yae-dark);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .yae-saved-address {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    color: #4b5563;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+  }
+
+  /* Form Elements */
+  .yae-form-section {
+    margin-top: 1.5rem;
+  }
+
+  .yae-form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--yae-purple);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .yae-form-input, .yae-form-select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+  }
+
+  .yae-form-input:focus, .yae-form-select:focus {
+    border-color: var(--yae-purple);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 44, 127, 0.1);
+  }
+
+  .yae-form-textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    resize: vertical;
+    font-family: inherit;
+  }
+
+  .yae-form-textarea:focus {
+    border-color: var(--yae-purple);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 44, 127, 0.1);
+  }
+
+  /* Stripe Elements */
+  .yae-stripe-element {
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: white;
+    transition: all 0.3s ease;
+  }
+
+  .yae-stripe-element:focus-within {
+    border-color: var(--yae-purple);
+    box-shadow: 0 0 0 3px rgba(139, 44, 127, 0.1);
+  }
+
+  .yae-card-error {
+    color: #dc2626;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    font-weight: 600;
+  }
+
+  /* Secure Notice */
+  .yae-secure-notice {
+    background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+    padding: 1.5rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    border: 2px solid #10b981;
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-secure-notice i {
+    font-size: 1.5rem;
+    color: #10b981;
+  }
+
+  .yae-secure-notice strong {
+    color: #065f46;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .yae-secure-notice p {
+    color: #047857;
+    font-size: 0.9rem;
+  }
+
+  /* Test Mode Notice */
+  .yae-test-mode-notice {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-top: 1.5rem;
+    border: 2px solid #f59e0b;
+  }
+
+  .yae-test-header {
+    color: #92400e;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .yae-test-mode-notice p {
+    color: #78350f;
+    font-size: 0.9rem;
+  }
+
+  .yae-test-code {
+    background: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    color: var(--yae-purple);
+    font-weight: 600;
+  }
+
+  /* Checkout Actions */
+  .yae-checkout-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .yae-back-btn, .yae-place-order-btn {
+    padding: 1.25rem 2.5rem;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .yae-back-btn {
+    background: white;
+    color: var(--yae-purple);
+    border: 2px solid var(--yae-purple);
+  }
+
+  .yae-back-btn:hover {
+    background: var(--yae-purple);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(139, 44, 127, 0.3);
+  }
+
+  .yae-place-order-btn {
+    background: linear-gradient(135deg, var(--yae-pink) 0%, #d91479 100%);
+    color: white;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .yae-place-order-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(233, 30, 140, 0.4);
+    color: white;
+  }
+
+  /* Order Summary Sidebar */
+  .yae-order-summary-checkout {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    position: sticky;
+    top: 100px;
+    border: 3px solid var(--yae-purple);
+  }
+
+  .yae-summary-body-checkout {
+    max-height: calc(100vh - 250px);
     overflow-y: auto;
   }
 
-  /* Optional: Style the scrollbar */
-  .order-summary-sticky .card-body::-webkit-scrollbar {
+  /* Summary Items */
+  .yae-summary-items {
+    padding: 2rem;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .yae-summary-item {
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #f3f4f6;
+  }
+
+  .yae-summary-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .yae-item-image {
+    width: 60px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .yae-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .yae-item-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+  }
+
+  .yae-item-details {
+    flex: 1;
+  }
+
+  .yae-item-title {
+    font-weight: 600;
+    color: var(--yae-dark);
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+
+  .yae-item-meta, .yae-item-price {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+  }
+
+  .yae-item-total {
+    font-weight: 700;
+    color: var(--yae-purple);
+    font-size: 1.1rem;
+  }
+
+  /* Summary Calculations */
+  .yae-summary-calculations {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    padding: 2rem;
+  }
+
+  .yae-calc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    font-size: 1rem;
+    color: var(--yae-dark);
+  }
+
+  .yae-calc-row.tax-row {
+    border-top: 1px solid rgba(139, 44, 127, 0.2);
+    border-bottom: 1px solid rgba(139, 44, 127, 0.2);
+  }
+
+  .yae-tax-value {
+    font-weight: 600;
+    color: #6b7280;
+    font-style: italic;
+  }
+
+  .yae-calc-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 0 1rem 0;
+    margin-top: 1rem;
+    border-top: 3px solid var(--yae-purple);
+  }
+
+  .yae-calc-total > span:first-child {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+  }
+
+  .yae-total-value {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .yae-calc-note {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-style: italic;
+    margin: 0.5rem 0 0 0;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Scrollbar Styling */
+  .yae-summary-body-checkout::-webkit-scrollbar,
+  .yae-summary-items::-webkit-scrollbar {
     width: 8px;
   }
 
-  .order-summary-sticky .card-body::-webkit-scrollbar-track {
+  .yae-summary-body-checkout::-webkit-scrollbar-track,
+  .yae-summary-items::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 10px;
   }
 
-  .order-summary-sticky .card-body::-webkit-scrollbar-thumb {
-    background: #888;
+  .yae-summary-body-checkout::-webkit-scrollbar-thumb,
+  .yae-summary-items::-webkit-scrollbar-thumb {
+    background: var(--yae-purple);
     border-radius: 10px;
   }
 
-  .order-summary-sticky .card-body::-webkit-scrollbar-thumb:hover {
-    background: #555;
+  .yae-summary-body-checkout::-webkit-scrollbar-thumb:hover,
+  .yae-summary-items::-webkit-scrollbar-thumb:hover {
+    background: var(--yae-dark);
+  }
+
+  /* Responsive */
+  @media (max-width: 991px) {
+    .yae-order-summary-checkout {
+      position: relative;
+      top: 0;
+      margin-top: 2rem;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .yae-checkout-title {
+      font-size: 1.8rem;
+    }
+
+    .yae-section-body {
+      padding: 1.5rem;
+    }
+
+    .yae-checkout-actions {
+      flex-direction: column;
+    }
+
+    .yae-back-btn, .yae-place-order-btn {
+      width: 100%;
+      justify-content: center;
+    }
   }
 </style>
 
@@ -483,3 +1120,6 @@
     }
   });
 </script>
+
+<!-- Ensure Bootstrap Icons are loaded -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

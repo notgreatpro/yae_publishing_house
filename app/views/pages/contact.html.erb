@@ -24,17 +24,19 @@
         <div class="col-lg-6">
           <div class="card shadow-sm border-0 h-100">
             <div class="card-body p-4">
-              <h3 class="h4 mb-4" style="color: var(--yae-purple);">Get in Touch</h3>
+              <h3 class="h4 mb-4" style="color: var(--yae-purple);">
+                <i class="bi bi-chat-dots-fill me-2"></i>Get in Touch
+              </h3>
               
               <div class="page-content" style="font-size: 1.05rem; line-height: 1.8; color: #2c3e50;">
-                <%= simple_format(@page.content, {}, sanitize: false) %>
+                <%= @page.content.body.to_s.html_safe %>
               </div>
 
               <hr class="my-4">
 
               <!-- Contact Details -->
               <div class="mb-3">
-                <div class="d-flex align-items-start mb-3">
+                <div class="d-flex align-items-start mb-3 contact-item">
                   <div class="me-3" style="color: var(--yae-purple); font-size: 1.5rem;">
                     <i class="bi bi-geo-alt-fill"></i>
                   </div>
@@ -44,28 +46,28 @@
                   </div>
                 </div>
 
-                <div class="d-flex align-items-start mb-3">
+                <div class="d-flex align-items-start mb-3 contact-item">
                   <div class="me-3" style="color: var(--yae-purple); font-size: 1.5rem;">
                     <i class="bi bi-envelope-fill"></i>
                   </div>
                   <div>
                     <h5 class="mb-1">Email Us</h5>
-                    <p class="text-muted mb-0">
-                      <a href="mailto:info@yaepublishinghouse.co.in" class="text-decoration-none" style="color: var(--yae-purple);">
+                    <p class="mb-0">
+                      <a href="mailto:info@yaepublishinghouse.co.in" class="text-decoration-none contact-link">
                         info@yaepublishinghouse.co.in
                       </a>
                     </p>
                   </div>
                 </div>
 
-                <div class="d-flex align-items-start">
+                <div class="d-flex align-items-start contact-item">
                   <div class="me-3" style="color: var(--yae-purple); font-size: 1.5rem;">
                     <i class="bi bi-telephone-fill"></i>
                   </div>
                   <div>
                     <h5 class="mb-1">Call Us</h5>
-                    <p class="text-muted mb-0">
-                      <a href="tel:+17567483985" class="text-decoration-none text-muted">
+                    <p class="mb-0">
+                      <a href="tel:+17567483985" class="text-decoration-none contact-link">
                         (756)-748-3985
                       </a>
                     </p>
@@ -80,48 +82,63 @@
         <div class="col-lg-6">
           <div class="card shadow-sm border-0 h-100">
             <div class="card-body p-4">
-              <h3 class="h4 mb-4" style="color: var(--yae-purple);">Business Hours</h3>
+              <h3 class="h4 mb-4" style="color: var(--yae-purple);">
+                <i class="bi bi-clock-fill me-2"></i>Business Hours
+              </h3>
               
               <div class="list-group list-group-flush">
-                <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
-                  <span class="fw-semibold">Monday - Friday</span>
-                  <span class="text-muted">9:00 AM - 10:30 PM</span>
+                <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-3">
+                  <span class="fw-semibold">
+                    <i class="bi bi-calendar-week me-2" style="color: var(--yae-purple);"></i>Monday - Friday
+                  </span>
+                  <span class="badge bg-light text-dark">9:00 AM - 10:30 PM</span>
                 </div>
-                <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
-                  <span class="fw-semibold">Saturday</span>
-                  <span class="text-muted">10:00 AM - 6:00 PM</span>
+                <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-3">
+                  <span class="fw-semibold">
+                    <i class="bi bi-calendar-event me-2" style="color: var(--yae-purple);"></i>Saturday
+                  </span>
+                  <span class="badge bg-light text-dark">10:00 AM - 6:00 PM</span>
                 </div>
-                <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
-                  <span class="fw-semibold">Sunday</span>
-                  <span class="text-muted">12:00 PM - 5:00 PM</span>
+                <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-3">
+                  <span class="fw-semibold">
+                    <i class="bi bi-calendar-check me-2" style="color: var(--yae-purple);"></i>Sunday
+                  </span>
+                  <span class="badge bg-light text-dark">12:00 PM - 5:00 PM</span>
                 </div>
               </div>
 
               <hr class="my-4">
 
-              <h4 class="h5 mb-3" style="color: var(--yae-purple);">Follow Us</h4>
+              <h4 class="h5 mb-3" style="color: var(--yae-purple);">
+                <i class="bi bi-share-fill me-2"></i>Follow Us
+              </h4>
               <div class="d-flex gap-3">
-                <a href="https://facebook.com" target="_blank" class="btn btn-outline-secondary rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" aria-label="Facebook">
+                <a href="https://facebook.com" target="_blank" class="btn btn-outline-primary rounded-circle social-btn" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" aria-label="Facebook">
                   <i class="bi bi-facebook fs-5"></i>
                 </a>
-                <a href="https://twitter.com" target="_blank" class="btn btn-outline-secondary rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" aria-label="Twitter">
+                <a href="https://twitter.com" target="_blank" class="btn btn-outline-info rounded-circle social-btn" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" aria-label="Twitter">
                   <i class="bi bi-twitter fs-5"></i>
                 </a>
-                <a href="https://instagram.com" target="_blank" class="btn btn-outline-secondary rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" aria-label="Instagram">
+                <a href="https://instagram.com" target="_blank" class="btn btn-outline-danger rounded-circle social-btn" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" aria-label="Instagram">
                   <i class="bi bi-instagram fs-5"></i>
                 </a>
-                <a href="https://linkedin.com" target="_blank" class="btn btn-outline-secondary rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" aria-label="LinkedIn">
+                <a href="https://linkedin.com" target="_blank" class="btn btn-outline-primary rounded-circle social-btn" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;" aria-label="LinkedIn">
                   <i class="bi bi-linkedin fs-5"></i>
                 </a>
               </div>
 
-              <div class="mt-4 p-3 rounded" style="background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);">
+              <div class="mt-4 p-3 rounded help-card" style="background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);">
                 <p class="mb-0 text-center">
+                  <i class="bi bi-question-circle-fill me-2" style="color: var(--yae-purple);"></i>
                   <strong>Need help with an order?</strong><br>
                   <% if customer_signed_in? %>
-                    <%= link_to 'View My Orders', orders_path, class: 'text-decoration-none fw-semibold', style: 'color: var(--yae-purple);' %>
+                    <%= link_to orders_path, class: 'text-decoration-none fw-semibold mt-2 d-inline-block', style: 'color: var(--yae-purple);' do %>
+                      <i class="bi bi-bag-check me-1"></i>View My Orders
+                    <% end %>
                   <% else %>
-                    <%= link_to 'Sign In', new_customer_session_path, class: 'text-decoration-none fw-semibold', style: 'color: var(--yae-purple);' %> to view your orders
+                    <%= link_to new_customer_session_path, class: 'text-decoration-none fw-semibold mt-2 d-inline-block', style: 'color: var(--yae-purple);' do %>
+                      <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+                    <% end %> to view your orders
                   <% end %>
                 </p>
               </div>
@@ -130,7 +147,7 @@
         </div>
       </div>
 
-      <!-- Map Section - FIXED WITH PROPER SPACING -->
+      <!-- Map Section -->
       <div class="row">
         <div class="col-12">
           <div class="card shadow-lg border-0 mb-5" style="border-radius: 15px; overflow: hidden;">
@@ -154,7 +171,7 @@
               
               <!-- Location Info Card -->
               <div class="position-absolute bottom-0 start-0 w-100 p-3" style="z-index: 10;">
-                <div class="card border-0 shadow" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+                <div class="card border-0 shadow location-info-card" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
                   <div class="card-body py-3">
                     <div class="row align-items-center g-2">
                       <div class="col-auto">
@@ -165,7 +182,7 @@
                         <p class="mb-0 small text-muted">657 Watatsumi Ave E, Inazuma City, Inazuma 74857</p>
                       </div>
                       <div class="col-auto">
-                        <button class="btn btn-sm btn-primary" onclick="alert('Opening directions in your map application...')" aria-label="Get directions">
+                        <button class="btn btn-sm btn-directions" onclick="alert('Opening directions in your map application...')" aria-label="Get directions">
                           <i class="bi bi-map me-1"></i>Directions
                         </button>
                       </div>
@@ -187,6 +204,14 @@
   .page-content p {
     margin-bottom: 1.2rem;
   }
+
+  .page-content strong {
+    color: var(--yae-purple);
+  }
+
+  .page-content a {
+    color: var(--yae-purple);
+  }
   
   /* Pulsing animation for the location marker */
   @keyframes pulse {
@@ -202,10 +227,87 @@
     animation: pulse 2s ease-in-out infinite;
   }
   
-  /* Hover effects for social buttons */
-  .btn-outline-secondary:hover {
-    transform: translateY(-3px);
+  /* Contact item hover effect */
+  .contact-item {
+    padding: 0.75rem;
+    border-radius: 8px;
     transition: all 0.3s ease;
+  }
+
+  .contact-item:hover {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    transform: translateX(5px);
+  }
+
+  /* Contact link styling */
+  .contact-link {
+    color: var(--yae-purple);
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  .contact-link:hover {
+    color: var(--yae-pink);
+  }
+  
+  /* Social buttons hover effects */
+  .social-btn {
+    transition: all 0.3s ease;
+  }
+
+  .social-btn:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Help card animation */
+  .help-card {
+    transition: all 0.3s ease;
+  }
+
+  .help-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(139, 44, 127, 0.2);
+  }
+
+  /* Location info card animation */
+  .location-info-card {
+    transition: all 0.3s ease;
+  }
+
+  .location-info-card:hover {
+    transform: translateY(-5px);
+  }
+
+  /* Directions button */
+  .btn-directions {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-directions:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(139, 44, 127, 0.3);
+    color: white;
+  }
+
+  /* Card hover effects */
+  .card {
+    transition: all 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  /* Badge styling */
+  .badge.bg-light {
+    color: var(--yae-purple) !important;
+    font-weight: 600;
   }
   
   /* Ensure proper spacing and no overflow */
@@ -236,5 +338,13 @@
       font-size: 0.75rem;
       padding: 0.25rem 0.5rem;
     }
+
+    .social-btn {
+      width: 45px !important;
+      height: 45px !important;
+    }
   }
 </style>
+
+<!-- Ensure Bootstrap Icons are loaded -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
