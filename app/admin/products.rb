@@ -29,7 +29,11 @@ ActiveAdmin.register Product do
     end
     column :stock_quantity
     column "On Sale" do |product|
-      status_tag product.on_sale ? 'Yes' : 'No', product.on_sale ? :ok : nil
+      if product.on_sale == true
+        status_tag 'Yes', :ok
+      else
+        status_tag 'No'
+      end
     end
     column :created_at
     actions
@@ -119,7 +123,11 @@ ActiveAdmin.register Product do
       end
       row :stock_quantity
       row "On Sale" do |product|
-        status_tag product.on_sale ? 'Yes' : 'No', product.on_sale ? :ok : nil
+         if product.on_sale == true
+          status_tag 'Yes', :ok
+        else
+         status_tag 'No'
+       end
       end
       row :created_at
       row :updated_at
