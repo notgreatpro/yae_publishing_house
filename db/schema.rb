@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_06_030934) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_08_012959) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -249,6 +249,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_06_030934) do
     t.index ["updated_by_id"], name: "index_site_contents_on_updated_by_id"
   end
 
+  create_table "wishlists", force: :cascade do |t|
+    t.bigint "customer_id", null: false
+    t.bigint "product_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["customer_id", "product_id"], name: "index_wishlists_on_customer_id_and_product_id", unique: true
+    t.index ["customer_id"], name: "index_wishlists_on_customer_id"
+    t.index ["product_id"], name: "index_wishlists_on_product_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "customers", "provinces"
@@ -262,4 +272,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_06_030934) do
   add_foreign_key "ratings", "customers"
   add_foreign_key "ratings", "products"
   add_foreign_key "site_contents", "admins", column: "updated_by_id"
+  add_foreign_key "wishlists", "customers"
+  add_foreign_key "wishlists", "products"
 end

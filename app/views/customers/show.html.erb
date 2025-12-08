@@ -1,28 +1,40 @@
 <!-- app/views/customers/show.html.erb -->
 
-<div class="container mt-4">
-  <div class="row">
-    <!-- Sidebar Navigation -->
-    <div class="col-lg-3 col-md-4 mb-4">
-      <div class="card">
-        <div class="card-body">
+<div class="yae-profile-page">
+  <div class="container my-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb yae-breadcrumb">
+        <li class="breadcrumb-item">
+          <%= link_to root_path do %>
+            <i class="bi bi-house-fill me-1"></i>Home
+          <% end %>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">My Account</li>
+      </ol>
+    </nav>
+
+    <div class="row">
+      <!-- Sidebar Navigation -->
+      <div class="col-lg-3 col-md-4 mb-4">
+        <div class="yae-profile-sidebar">
           <div class="text-center mb-3">
             <% if @customer.profile_picture.attached? %>
               <%= image_tag @customer.profile_picture.variant(resize_to_fill: [150, 150]), 
-                  class: 'rounded-circle mb-2', 
-                  style: 'width: 100px; height: 100px; object-fit: cover;' %>
+                  class: 'yae-profile-avatar', 
+                  style: 'width: 120px; height: 120px; object-fit: cover;' %>
             <% else %>
-              <div class="avatar-circle bg-primary text-white mb-2">
+              <div class="yae-avatar-circle">
                 <h1 class="mb-0"><%= @customer.initials %></h1>
               </div>
             <% end %>
-            <h5 class="mb-1"><%= @customer.full_name %></h5>
-            <p class="text-muted small mb-0"><%= @customer.email %></p>
+            <h5 class="yae-profile-name mt-3 mb-1"><%= @customer.full_name %></h5>
+            <p class="yae-profile-email mb-0"><%= @customer.email %></p>
           </div>
           
-          <hr>
+          <hr class="yae-divider">
           
-          <ul class="nav flex-column profile-nav">
+          <ul class="nav flex-column yae-profile-nav">
             <li class="nav-item">
               <a class="nav-link active" href="#account-info" data-bs-toggle="tab">
                 <i class="bi bi-person-circle me-2"></i> Account Info
@@ -44,169 +56,179 @@
               <% end %>
             </li>
             <li class="nav-item">
-              <%= link_to destroy_customer_session_path, method: :delete, class: 'nav-link text-danger' do %>
+              <%= link_to destroy_customer_session_path, method: :delete, class: 'nav-link yae-logout-link' do %>
                 <i class="bi bi-box-arrow-right me-2"></i> Log Out
               <% end %>
             </li>
           </ul>
         </div>
       </div>
-    </div>
 
-    <!-- Main Content -->
-    <div class="col-lg-9 col-md-8">
-      <div class="tab-content">
-        <!-- Account Info Tab -->
-        <div class="tab-pane fade show active" id="account-info">
-          <div class="card">
-            <div class="card-header bg-primary text-white">
-              <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i> Account Information</h5>
-            </div>
-            <div class="card-body">
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <h6 class="text-muted mb-1">First Name</h6>
-                  <p class="fs-5"><%= @customer.first_name %></p>
-                </div>
-                <div class="col-md-6">
-                  <h6 class="text-muted mb-1">Last Name</h6>
-                  <p class="fs-5"><%= @customer.last_name %></p>
-                </div>
+      <!-- Main Content -->
+      <div class="col-lg-9 col-md-8">
+        <div class="tab-content">
+          <!-- Account Info Tab -->
+          <div class="tab-pane fade show active" id="account-info">
+            <div class="yae-content-card">
+              <div class="yae-card-header">
+                <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i> Account Information</h5>
               </div>
-
-              <div class="row mb-3">
-                <div class="col-12">
-                  <h6 class="text-muted mb-1">Email Address</h6>
-                  <p class="fs-5"><%= @customer.email %></p>
+              <div class="yae-card-body">
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <h6 class="yae-field-label">First Name</h6>
+                    <p class="yae-field-value"><%= @customer.first_name %></p>
+                  </div>
+                  <div class="col-md-6">
+                    <h6 class="yae-field-label">Last Name</h6>
+                    <p class="yae-field-value"><%= @customer.last_name %></p>
+                  </div>
                 </div>
-              </div>
 
-              <hr>
-
-              <h5 class="mb-3">Shipping Address</h5>
-              <% if @customer.has_complete_address? %>
-                <div class="alert alert-success" role="alert">
-                  <i class="bi bi-check-circle-fill me-2"></i> Address on file
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <h6 class="yae-field-label">Email Address</h6>
+                    <p class="yae-field-value"><%= @customer.email %></p>
+                  </div>
                 </div>
-                
-                <address class="fs-5">
-                  <%= @customer.address_line1 %><br>
-                  <% if @customer.address_line2.present? %>
-                    <%= @customer.address_line2 %><br>
+
+                <hr class="yae-divider">
+
+                <h5 class="yae-section-title mb-3">
+                  <i class="bi bi-geo-alt-fill me-2"></i>Shipping Address
+                </h5>
+                <% if @customer.has_complete_address? %>
+                  <div class="yae-alert yae-alert-success">
+                    <i class="bi bi-check-circle-fill me-2"></i> Address on file
+                  </div>
+                  
+                  <address class="yae-address">
+                    <%= @customer.address_line1 %><br>
+                    <% if @customer.address_line2.present? %>
+                      <%= @customer.address_line2 %><br>
+                    <% end %>
+                    <%= @customer.city %>, <%= @customer.province.code %> <%= @customer.postal_code %>
+                  </address>
+                <% else %>
+                  <div class="yae-alert yae-alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> No shipping address on file
+                  </div>
+                  <p class="yae-muted-text">Add your shipping address to speed up checkout.</p>
+                <% end %>
+
+                <div class="mt-4">
+                  <%= link_to edit_customer_profile_path, class: 'yae-btn yae-btn-primary' do %>
+                    <i class="bi bi-pencil-square me-2"></i>Edit Profile
                   <% end %>
-                  <%= @customer.city %>, <%= @customer.province.code %> <%= @customer.postal_code %>
-                </address>
-              <% else %>
-                <div class="alert alert-warning" role="alert">
-                  <i class="bi bi-exclamation-triangle-fill me-2"></i> No shipping address on file
                 </div>
-                <p class="text-muted">Add your shipping address to speed up checkout.</p>
-              <% end %>
-
-              <div class="mt-3">
-                <%= link_to 'Edit Profile', edit_customer_profile_path, class: 'btn btn-primary' %>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Order History Tab -->
-        <div class="tab-pane fade" id="order-history">
-          <div class="card">
-            <div class="card-header bg-primary text-white">
-              <h5 class="mb-0"><i class="bi bi-bag-check me-2"></i> Recent Orders</h5>
-            </div>
-            <div class="card-body">
-              <% if @orders.any? %>
-                <div class="table-responsive">
-                  <table class="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>Order #</th>
-                        <th>Date</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <% @orders.each do |order| %>
+          <!-- Order History Tab -->
+          <div class="tab-pane fade" id="order-history">
+            <div class="yae-content-card">
+              <div class="yae-card-header">
+                <h5 class="mb-0"><i class="bi bi-bag-check me-2"></i> Recent Orders</h5>
+              </div>
+              <div class="yae-card-body">
+                <% if @orders.any? %>
+                  <div class="table-responsive">
+                    <table class="table yae-table">
+                      <thead>
                         <tr>
-                          <td><strong>#<%= order.id %></strong></td>
-                          <td><%= order.created_at.strftime('%B %d, %Y') %></td>
-                          <td><%= number_to_currency(order.total_amount) %></td>
-                          <td>
-                            <span class="badge bg-<%= order_status_color(order.status) %>">
-                              <%= order.status.titleize %>
-                            </span>
-                          </td>
-                          <td>
-                            <%= link_to 'View', order_path(order), class: 'btn btn-sm btn-outline-primary' %>
-                          </td>
+                          <th>Order #</th>
+                          <th>Date</th>
+                          <th>Total</th>
+                          <th>Status</th>
+                          <th>Actions</th>
                         </tr>
-                      <% end %>
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        <% @orders.each do |order| %>
+                          <tr>
+                            <td><strong>#<%= order.id %></strong></td>
+                            <td><%= order.created_at.strftime('%B %d, %Y') %></td>
+                            <td><%= number_to_currency(order.total_amount) %></td>
+                            <td>
+                              <span class="yae-badge yae-badge-<%= order_status_color(order.status) %>">
+                                <%= order.status.titleize %>
+                              </span>
+                            </td>
+                            <td>
+                              <%= link_to 'View', order_path(order), class: 'yae-btn yae-btn-small yae-btn-outline' %>
+                            </td>
+                          </tr>
+                        <% end %>
+                      </tbody>
+                    </table>
+                  </div>
 
-                <div class="mt-3">
-                  <%= link_to 'View All Orders', orders_path, class: 'btn btn-primary' %>
-                </div>
-              <% else %>
-                <div class="text-center py-5">
-                  <i class="bi bi-bag-x display-1 text-muted"></i>
-                  <h5 class="mt-3">No Orders Yet</h5>
-                  <p class="text-muted">Start shopping to see your order history here.</p>
-                  <%= link_to 'Browse Products', products_path, class: 'btn btn-primary' %>
-                </div>
-              <% end %>
+                  <div class="mt-3">
+                    <%= link_to orders_path, class: 'yae-btn yae-btn-primary' do %>
+                      <i class="bi bi-list-ul me-2"></i>View All Orders
+                    <% end %>
+                  </div>
+                <% else %>
+                  <div class="yae-empty-state">
+                    <i class="bi bi-bag-x yae-empty-icon"></i>
+                    <h5 class="yae-empty-title">No Orders Yet</h5>
+                    <p class="yae-empty-text">Start shopping to see your order history here.</p>
+                    <%= link_to products_path, class: 'yae-btn yae-btn-primary' do %>
+                      <i class="bi bi-book me-2"></i>Browse Products
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- My Reviews Tab -->
-        <div class="tab-pane fade" id="my-reviews">
-          <div class="card">
-            <div class="card-header bg-primary text-white">
-              <h5 class="mb-0"><i class="bi bi-star me-2"></i> My Reviews</h5>
-            </div>
-            <div class="card-body">
-              <% if @ratings.any? %>
-                <% @ratings.each do |rating| %>
-                  <div class="card mb-3">
-                    <div class="card-body">
+          <!-- My Reviews Tab -->
+          <div class="tab-pane fade" id="my-reviews">
+            <div class="yae-content-card">
+              <div class="yae-card-header">
+                <h5 class="mb-0"><i class="bi bi-star me-2"></i> My Reviews</h5>
+              </div>
+              <div class="yae-card-body">
+                <% if @ratings.any? %>
+                  <% @ratings.each do |rating| %>
+                    <div class="yae-review-card">
                       <div class="d-flex justify-content-between align-items-start mb-2">
                         <div class="flex-grow-1">
-                          <h6 class="mb-1">
-                            <%= link_to rating.product.title, product_path(rating.product), class: 'text-decoration-none' %>
+                          <h6 class="yae-review-title">
+                            <%= link_to rating.product.title, product_path(rating.product), class: 'yae-review-link' %>
                           </h6>
-                          <div class="rating-stars-small mb-2">
+                          <div class="yae-rating-stars mb-2">
                             <%= render 'shared/star_rating', rating: rating.score %>
                           </div>
                         </div>
-                        <small class="text-muted">
+                        <small class="yae-review-date">
                           <%= rating.created_at.utc.strftime('%b %d, %Y at %I:%M %p UTC') %>
                         </small>
                       </div>
                       
                       <% if rating.review.present? %>
-                        <p class="mb-2"><%= rating.review %></p>
+                        <p class="yae-review-text"><%= rating.review %></p>
                       <% end %>
 
                       <div class="mt-2">
-                        <%= link_to 'View Product', product_path(rating.product), class: 'btn btn-sm btn-outline-primary' %>
+                        <%= link_to product_path(rating.product), class: 'yae-btn yae-btn-small yae-btn-outline' do %>
+                          <i class="bi bi-book me-1"></i>View Product
+                        <% end %>
                       </div>
                     </div>
+                  <% end %>
+                <% else %>
+                  <div class="yae-empty-state">
+                    <i class="bi bi-star yae-empty-icon"></i>
+                    <h5 class="yae-empty-title">No Reviews Yet</h5>
+                    <p class="yae-empty-text">Share your thoughts on products you've purchased.</p>
+                    <%= link_to products_path, class: 'yae-btn yae-btn-primary' do %>
+                      <i class="bi bi-book me-2"></i>Browse Products
+                    <% end %>
                   </div>
                 <% end %>
-              <% else %>
-                <div class="text-center py-5">
-                  <i class="bi bi-star display-1 text-muted"></i>
-                  <h5 class="mt-3">No Reviews Yet</h5>
-                  <p class="text-muted">Share your thoughts on products you've purchased.</p>
-                  <%= link_to 'Browse Products', products_path, class: 'btn btn-primary' %>
-                </div>
-              <% end %>
+              </div>
             </div>
           </div>
         </div>
@@ -216,39 +238,388 @@
 </div>
 
 <style>
-  .avatar-circle {
-    width: 100px;
-    height: 100px;
+  :root {
+    --yae-pink: #E91E8C;
+    --yae-purple: #8B2C7F;
+    --yae-dark: #4A1942;
+    --yae-light-pink: #F8C8DC;
+  }
+
+  .yae-profile-page {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+
+  /* Breadcrumb */
+  .yae-breadcrumb {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+  }
+
+  .yae-breadcrumb a {
+    color: var(--yae-purple);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  .yae-breadcrumb a:hover {
+    color: var(--yae-pink);
+  }
+
+  /* Sidebar */
+  .yae-profile-sidebar {
+    background: white;
+    border-radius: 25px;
+    padding: 2rem;
+    border: 3px solid var(--yae-purple);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .yae-profile-sidebar:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 40px rgba(139, 44, 127, 0.2);
+  }
+
+  .yae-profile-avatar {
     border-radius: 50%;
+    border: 4px solid var(--yae-purple);
+    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.3);
+  }
+
+  .yae-avatar-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto;
-  }
-
-  .profile-nav .nav-link {
-    color: #333;
-    padding: 12px 15px;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    transition: all 0.2s;
-  }
-
-  .profile-nav .nav-link:hover {
-    background-color: #f8f9fa;
-    color: #0d6efd;
-  }
-
-  .profile-nav .nav-link.active {
-    background-color: #0d6efd;
     color: white;
+    border: 4px solid white;
+    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.3);
   }
 
-  .rating-stars-small {
+  .yae-profile-name {
+    font-weight: 700;
+    color: var(--yae-dark);
+    font-size: 1.3rem;
+  }
+
+  .yae-profile-email {
+    color: #6b7280;
+    font-size: 0.95rem;
+  }
+
+  .yae-divider {
+    border: none;
+    border-top: 2px solid #e9d5ff;
+    margin: 1.5rem 0;
+  }
+
+  /* Navigation */
+  .yae-profile-nav .nav-link {
+    color: var(--yae-dark);
+    padding: 0.9rem 1rem;
+    border-radius: 15px;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+    font-weight: 600;
+  }
+
+  .yae-profile-nav .nav-link:hover {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    color: var(--yae-purple);
+    transform: translateX(5px);
+  }
+
+  .yae-profile-nav .nav-link.active {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.3);
+  }
+
+  .yae-logout-link {
+    color: #dc2626 !important;
+  }
+
+  .yae-logout-link:hover {
+    background: #fef2f2 !important;
+    color: #991b1b !important;
+  }
+
+  /* Content Cards */
+  .yae-content-card {
+    background: white;
+    border-radius: 25px;
+    border: 3px solid var(--yae-purple);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .yae-content-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 40px rgba(139, 44, 127, 0.2);
+  }
+
+  .yae-card-header {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+    font-weight: 700;
+  }
+
+  .yae-card-body {
+    padding: 2rem;
+  }
+
+  /* Fields */
+  .yae-field-label {
+    color: var(--yae-purple);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .yae-field-value {
+    font-size: 1.2rem;
+    color: var(--yae-dark);
+    font-weight: 600;
+  }
+
+  .yae-section-title {
+    color: var(--yae-purple);
+    font-weight: 700;
+    font-size: 1.3rem;
+  }
+
+  .yae-address {
+    font-size: 1.1rem;
+    color: var(--yae-dark);
+    line-height: 1.8;
+    font-weight: 500;
+  }
+
+  .yae-muted-text {
+    color: #6b7280;
     font-size: 1rem;
   }
 
-  .rating-stars-small i {
+  /* Alerts */
+  .yae-alert {
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+
+  .yae-alert-success {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+    border: 2px solid #10b981;
+  }
+
+  .yae-alert-warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border: 2px solid #f59e0b;
+  }
+
+  /* Buttons */
+  .yae-btn {
+    padding: 0.75rem 1.75rem;
+    border-radius: 25px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+    border: none;
+    cursor: pointer;
+  }
+
+  .yae-btn-primary {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+  }
+
+  .yae-btn-primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(139, 44, 127, 0.4);
+    color: white;
+  }
+
+  .yae-btn-outline {
+    background: white;
+    color: var(--yae-purple);
+    border: 2px solid var(--yae-purple);
+  }
+
+  .yae-btn-outline:hover {
+    background: var(--yae-purple);
+    color: white;
+  }
+
+  .yae-btn-small {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  /* Table */
+  .yae-table {
+    margin-bottom: 0;
+  }
+
+  .yae-table thead {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+  }
+
+  .yae-table thead th {
+    color: var(--yae-purple);
+    font-weight: 700;
+    border: none;
+    padding: 1rem;
+  }
+
+  .yae-table tbody tr {
+    transition: all 0.2s ease;
+  }
+
+  .yae-table tbody tr:hover {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    transform: scale(1.01);
+  }
+
+  .yae-table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-color: #e9d5ff;
+  }
+
+  /* Badges */
+  .yae-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  .yae-badge-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+  }
+
+  .yae-badge-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+  }
+
+  .yae-badge-info {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+  }
+
+  /* Empty State */
+  .yae-empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+
+  .yae-empty-icon {
+    font-size: 5rem;
+    color: #d1d5db;
+    display: block;
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-empty-title {
+    color: var(--yae-dark);
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .yae-empty-text {
+    color: #6b7280;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Review Cards */
+  .yae-review-card {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 2px solid var(--yae-purple);
+    transition: all 0.3s ease;
+  }
+
+  .yae-review-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(139, 44, 127, 0.2);
+  }
+
+  .yae-review-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .yae-review-link {
+    color: var(--yae-purple);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .yae-review-link:hover {
+    color: var(--yae-pink);
+  }
+
+  .yae-review-date {
+    color: #6b7280;
+    font-size: 0.85rem;
+  }
+
+  .yae-review-text {
+    color: var(--yae-dark);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  .yae-rating-stars i {
     color: #ffc107;
+    font-size: 1.1rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 767px) {
+    .yae-profile-sidebar {
+      margin-bottom: 2rem;
+    }
+
+    .yae-card-body {
+      padding: 1.5rem;
+    }
+
+    .yae-table {
+      font-size: 0.9rem;
+    }
+
+    .yae-btn {
+      padding: 0.6rem 1.25rem;
+      font-size: 0.9rem;
+    }
   }
 </style>
+
+<!-- Ensure Bootstrap Icons are loaded -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

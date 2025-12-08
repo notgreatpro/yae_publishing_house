@@ -17,7 +17,7 @@ ActiveAdmin.register Page do
     redirect_to collection_path, notice: "Pages have been unpublished!"
   end
 
-  # Load Trix editor assets
+  # Load CKEditor assets
   controller do
     def edit
       @page_title = "Edit #{resource.title}"
@@ -41,6 +41,37 @@ ActiveAdmin.register Page do
         redirect_to admin_pages_path, alert: "Failed to duplicate page."
       end
     end
+  end
+
+  # Add upload route BEFORE the member_action
+  collection_action :upload_image, method: :post do
+    respond_to do |format|
+      format.json do
+        if params[:upload].present?
+          uploaded_file = params[:upload]
+          
+          blob = ActiveStorage::Blob.create_and_upload!(
+            io: uploaded_file.tempfile,
+            filename: uploaded_file.original_filename,
+            content_type: uploaded_file.content_type
+          )
+          
+          render json: {
+            url: rails_blob_url(blob, only_path: false)
+          }, status: :ok
+        else
+          render json: { 
+            error: { message: 'No file uploaded' } 
+          }, status: :bad_request
+        end
+      end
+    end
+  rescue => e
+    Rails.logger.error "Image upload failed: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+    render json: { 
+      error: { message: "Upload failed: #{e.message}" } 
+    }, status: :unprocessable_entity
   end
 
   # Add duplicate action route
@@ -98,228 +129,51 @@ ActiveAdmin.register Page do
   filter :created_at
   filter :updated_at
 
-  # Form with enhanced Trix Editor and live preview
+  # FORM - Using CKEditor 5
   form html: { multipart: true } do |f|
-    # Add Trix CSS and JS to the form
+    # Add CKEditor 5 assets
     text_node <<-HTML.html_safe
-      <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.0/dist/trix.css">
-      <script type="text/javascript" src="https://unpkg.com/trix@2.0.0/dist/trix.umd.min.js"></script>
+      <script src="https://cdn.ckeditor.com/ckeditor5/40.1.0/classic/ckeditor.js"></script>
+      
       <style>
-        /* Trix Editor Styling */
-        trix-toolbar .trix-button-group { margin-bottom: 10px; }
-        trix-editor { 
-          min-height: 500px; 
-          border: 1px solid #c9d0d6; 
-          border-radius: 4px; 
-          padding: 20px;
-          background: white;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-          font-size: 15px;
-          line-height: 1.6;
-          transition: all 0.2s ease;
-        }
-        trix-editor:focus {
-          border-color: #5e6469;
-          outline: none;
-          box-shadow: 0 0 0 3px rgba(94, 100, 105, 0.1);
+        .ck-editor__editable {
+          min-height: 400px;
         }
         
-        /* Form Layout Enhancements */
-        .rich_text.input { margin-bottom: 20px; }
-        .rich_text.input label { 
-          display: block; 
-          margin-bottom: 8px;
-          font-weight: 600;
-          color: #3c3c3c;
-          font-size: 14px;
+        .ck-content img {
+          max-width: 100%;
+          height: auto;
         }
-        .inline-hints { 
-          color: #666; 
-          font-size: 13px; 
+        
+        .ckeditor-container {
+          margin-bottom: 20px;
+        }
+        
+        .ckeditor-label {
+          display: block;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          font-size: 14px;
+          color: #3c3c3c;
+        }
+        
+        .ckeditor-hint {
+          color: #666;
+          font-size: 13px;
           margin: 5px 0 12px 0;
           font-style: italic;
         }
-        
-        /* Stats Box */
-        .stats-box {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          padding: 20px;
-          border-radius: 8px;
-          margin: 20px 0;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .stats-box h3 {
-          margin: 0 0 15px 0;
-          font-size: 16px;
-          font-weight: 600;
-        }
-        .stat-item {
-          display: inline-block;
-          margin-right: 25px;
-          font-size: 14px;
-        }
-        .stat-item strong {
-          font-size: 20px;
-          display: block;
-          margin-bottom: 3px;
-        }
-        
-        /* Preview Toggle */
-        .preview-toggle {
-          background: #5e6469;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 14px;
-          margin-bottom: 15px;
-          transition: background 0.2s;
-        }
-        .preview-toggle:hover {
-          background: #4a5056;
-        }
-        .preview-panel {
-          display: none;
-          background: #f9f9f9;
-          border: 2px solid #e0e0e0;
-          border-radius: 6px;
-          padding: 25px;
-          margin-bottom: 20px;
-        }
-        .preview-panel.active {
-          display: block;
-          animation: fadeIn 0.3s;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Character counter */
-        .char-counter {
-          text-align: right;
-          color: #666;
-          font-size: 13px;
-          margin-top: 5px;
-        }
-        
-        /* Input enhancements */
-        #page_title, #page_slug {
-          font-size: 15px;
-          padding: 10px;
-          border-radius: 4px;
-          border: 1px solid #c9d0d6;
-          transition: border-color 0.2s;
-        }
-        #page_title:focus, #page_slug:focus {
-          border-color: #5e6469;
-          outline: none;
-          box-shadow: 0 0 0 2px rgba(94, 100, 105, 0.1);
-        }
       </style>
-      
-      <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          // Auto-generate slug from title
-          const titleInput = document.getElementById('page_title');
-          const slugInput = document.getElementById('page_slug');
-          
-          if (titleInput && slugInput && !slugInput.value) {
-            titleInput.addEventListener('input', function() {
-              const slug = this.value
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-|-$/g, '');
-              slugInput.value = slug;
-            });
-          }
-          
-          // Character counter
-          const editor = document.querySelector('trix-editor');
-          if (editor) {
-            const counterDiv = document.createElement('div');
-            counterDiv.className = 'char-counter';
-            editor.parentNode.appendChild(counterDiv);
-            
-            function updateCounter() {
-              const text = editor.editor.getDocument().toString();
-              const words = text.trim().split(/\\s+/).length;
-              const chars = text.length;
-              counterDiv.innerHTML = `<strong>${words}</strong> words | <strong>${chars}</strong> characters`;
-            }
-            
-            editor.addEventListener('trix-change', updateCounter);
-            updateCounter();
-          }
-          
-          // Live preview toggle
-          setTimeout(function() {
-            const previewBtn = document.getElementById('preview-toggle');
-            const previewPanel = document.getElementById('preview-panel');
-            const editor = document.querySelector('trix-editor');
-            
-            if (previewBtn && previewPanel && editor) {
-              previewBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                if (previewPanel.classList.contains('active')) {
-                  previewPanel.classList.remove('active');
-                  previewBtn.textContent = 'Toggle Live Preview';
-                } else {
-                  previewPanel.classList.add('active');
-                  previewBtn.textContent = 'Hide Preview';
-                  const content = editor.innerHTML;
-                  previewPanel.innerHTML = '<h3 style="margin-top:0; color: #667eea;">Live Preview</h3><hr style="margin: 15px 0; border: none; border-top: 2px solid #667eea;">' + content;
-                }
-              });
-              
-              // Also update preview on content change when visible
-              editor.addEventListener('trix-change', function() {
-                if (previewPanel.classList.contains('active')) {
-                  const content = editor.innerHTML;
-                  previewPanel.innerHTML = '<h3 style="margin-top:0; color: #667eea;">Live Preview</h3><hr style="margin: 15px 0; border: none; border-top: 2px solid #667eea;">' + content;
-                }
-              });
-            }
-          }, 500);
-        }
-        });
-      </script>
     HTML
-    
-    # Stats box for existing pages
-    if f.object.persisted? && f.object.content.present?
-      text_node <<-HTML.html_safe
-        <div class="stats-box">
-          <h3>Page Statistics</h3>
-          <div class="stat-item">
-            <strong>#{f.object.content.body.to_plain_text.split.size}</strong>
-            <span>Words</span>
-          </div>
-          <div class="stat-item">
-            <strong>#{f.object.content.body.to_plain_text.length}</strong>
-            <span>Characters</span>
-          </div>
-          <div class="stat-item">
-            <strong>#{time_ago_in_words(f.object.updated_at)} ago</strong>
-            <span>Last Updated</span>
-          </div>
-        </div>
-      HTML
-    end
     
     f.inputs 'Page Details' do
       f.input :title, 
               label: 'Page Title',
-              hint: 'e.g., "About Us" or "Privacy Policy"',
-              input_html: { style: 'width: 100%; max-width: 600px;' }
+              hint: 'e.g., "About Us" or "Privacy Policy"'
       
       f.input :slug, 
               label: 'Page Slug',
-              hint: 'URL-friendly identifier (auto-generated from title if left blank)',
-              input_html: { style: 'width: 100%; max-width: 600px;' }
+              hint: 'URL-friendly identifier (leave blank to auto-generate from title)'
       
       if f.object.class.column_names.include?('published')
         f.input :published,
@@ -328,17 +182,10 @@ ActiveAdmin.register Page do
       end
     end
     
-    # Render Trix editor with preview
     f.inputs 'Page Content' do
-      li class: 'rich_text input optional' do
-        label 'Content', class: 'label'
-        para 'Use the toolbar to format text: bold, italic, headings, lists, links', class: 'inline-hints'
-        
-        # Preview toggle button
-        text_node <<-HTML.html_safe
-          <button type="button" id="preview-toggle" class="preview-toggle">Toggle Live Preview</button>
-          <div id="preview-panel" class="preview-panel"></div>
-        HTML
+      li class: 'input ckeditor-container' do
+        label 'Content', class: 'ckeditor-label'
+        para 'Use the toolbar to format text and upload images', class: 'ckeditor-hint'
         
         # Get existing content
         existing_content = ''
@@ -346,19 +193,84 @@ ActiveAdmin.register Page do
           existing_content = f.object.content.body.to_s
         end
         
-        # Render Trix editor
+        # Render textarea and CKEditor
         text_node <<-HTML.html_safe
-          <input 
-            id="page_content_trix_input" 
-            type="hidden" 
-            name="page[content]" 
-            value="#{CGI.escapeHTML(existing_content)}"
-          >
-          <trix-editor 
-            input="page_content_trix_input"
-            class="trix-content"
-            placeholder="Start typing your content here..."
-          ></trix-editor>
+          <textarea id="page_content_editor" name="page[content]" style="display:none;">#{CGI.escapeHTML(existing_content)}</textarea>
+          
+          <script>
+            ClassicEditor
+              .create(document.querySelector('#page_content_editor'), {
+                toolbar: {
+                  items: [
+                    'heading', '|',
+                    'bold', 'italic', 'link', '|',
+                    'bulletedList', 'numberedList', '|',
+                    'uploadImage', 'blockQuote', '|',
+                    'undo', 'redo'
+                  ]
+                },
+                image: {
+                  toolbar: [
+                    'imageTextAlternative', '|',
+                    'imageStyle:inline',
+                    'imageStyle:block',
+                    'imageStyle:side', '|',
+                    'toggleImageCaption', '|',
+                    'linkImage'
+                  ],
+                  styles: [
+                    'full',
+                    'side',
+                    'alignLeft',
+                    'alignCenter',
+                    'alignRight'
+                  ]
+                },
+                heading: {
+                  options: [
+                    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                    { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                    { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' }
+                  ]
+                }
+              })
+              .then(editor => {
+                // Custom upload adapter
+                editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                  return {
+                    upload: () => {
+                      return loader.file.then(file => new Promise((resolve, reject) => {
+                        const formData = new FormData();
+                        formData.append('upload', file);
+
+                        fetch('/admin/pages/upload_image', {
+                          method: 'POST',
+                          headers: {
+                            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                          },
+                          body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                          if (data.url) {
+                            resolve({ default: data.url });
+                          } else {
+                            reject(data.error.message);
+                          }
+                        })
+                        .catch(error => {
+                          reject('Upload failed: ' + error);
+                        });
+                      }));
+                    }
+                  };
+                };
+              })
+              .catch(error => {
+                console.error('CKEditor initialization error:', error);
+              });
+          </script>
         HTML
       end
     end
@@ -391,6 +303,10 @@ ActiveAdmin.register Page do
       column span: 1 do
         panel "Statistics" do
           if resource.content.present? && resource.content.body.present?
+            # Count images in HTML
+            html_content = resource.content.body.to_s
+            image_count = html_content.scan(/<img/).length
+            
             div style: 'padding: 15px;' do
               div style: 'margin-bottom: 15px;' do
                 strong "Word Count: "
@@ -399,6 +315,10 @@ ActiveAdmin.register Page do
               div style: 'margin-bottom: 15px;' do
                 strong "Characters: "
                 span resource.content.body.to_plain_text.length, style: 'font-size: 24px; color: #764ba2;'
+              end
+              div style: 'margin-bottom: 15px;' do
+                strong "Images: "
+                span image_count, style: 'font-size: 24px; color: #f59e0b;'
               end
               div do
                 strong "Last Updated: "
@@ -431,7 +351,22 @@ ActiveAdmin.register Page do
       div style: 'padding: 30px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);' do
         h1 resource.title, style: 'margin-top: 0; color: #2c3e50; border-bottom: 3px solid #667eea; padding-bottom: 15px;'
         if resource.content.present? && resource.content.body.present?
-          div resource.content.body.to_s.html_safe, style: 'line-height: 1.8; color: #34495e;'
+          div class: 'content-preview' do
+            # Add style to ensure images display properly
+            text_node <<-HTML.html_safe
+              <style>
+                .content-preview img {
+                  max-width: 100%;
+                  height: auto;
+                  display: block;
+                  margin: 20px 0;
+                  border-radius: 8px;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                }
+              </style>
+            HTML
+            div resource.content.body.to_s.html_safe, style: 'line-height: 1.8; color: #34495e;'
+          end
         else
           para 'No content to preview', style: 'color: #999; font-style: italic;'
         end

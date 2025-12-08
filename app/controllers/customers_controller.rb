@@ -15,21 +15,19 @@ class CustomersController < ApplicationController
   def update
     @customer = current_customer
     
-    # Check if password is being updated
-    if customer_params[:password].present?
-      # Password update requires current password
-      if @customer.update_with_password(customer_params)
+    # Check if we need to validate password (email change or password change)
+    if customer_params[:password].present? || email_changed?
+      # Use update_with_password for password changes or email changes
+      if @customer.update_with_password(customer_params_with_password)
         bypass_sign_in(@customer) # Sign in the customer bypassing validation in case their password changed
-        redirect_to customer_profile_path, notice: 'Profile and password updated successfully!'
+        redirect_to customer_profile_path, notice: 'Profile updated successfully!'
       else
         render :edit, status: :unprocessable_entity
       end
     else
-      # Regular update without password
-      # Remove password params if blank
-      params_without_password = customer_params.except(:password, :password_confirmation, :current_password)
-      
-      if @customer.update(params_without_password)
+      # Regular update without password validation (for name, address, phone, profile picture)
+      # Use update_without_password to skip current_password validation
+      if @customer.update_without_password(customer_params_without_password)
         redirect_to customer_profile_path, notice: 'Profile updated successfully!'
       else
         render :edit, status: :unprocessable_entity
@@ -61,5 +59,17 @@ class CustomersController < ApplicationController
       :province_id,
       :profile_picture
     )
+  end
+
+  def customer_params_with_password
+    customer_params
+  end
+
+  def customer_params_without_password
+    customer_params.except(:password, :password_confirmation, :current_password)
+  end
+
+  def email_changed?
+    customer_params[:email].present? && customer_params[:email] != @customer.email
   end
 end

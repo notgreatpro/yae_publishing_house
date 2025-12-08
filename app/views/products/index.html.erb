@@ -151,7 +151,9 @@
 
       <!-- Pagination -->
       <div class="mt-5 d-flex justify-content-center">
-        <%= paginate @products, theme: 'bootstrap-5' %>
+        <nav aria-label="Page navigation">
+          <%= paginate @products, theme: 'bootstrap-5' %>
+        </nav>
       </div>
 
     <% else %>
@@ -488,8 +490,16 @@
   }
 
   /* Pagination Styling */
+  nav[aria-label="Page navigation"] {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.5rem 0;
+  }
+
   .pagination {
     gap: 0.5rem;
+    flex-wrap: nowrap;
+    margin-bottom: 0;
   }
 
   .pagination .page-link {
@@ -498,6 +508,10 @@
     border-radius: 10px;
     font-weight: 600;
     transition: all 0.3s ease;
+    padding: 0.5rem 0.75rem;
+    min-width: 42px;
+    text-align: center;
+    white-space: nowrap;
   }
 
   .pagination .page-link:hover {
@@ -508,6 +522,11 @@
   .pagination .page-item.active .page-link {
     background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
     border-color: var(--yae-pink);
+    color: white;
+  }
+
+  .pagination .page-item.disabled .page-link {
+    opacity: 0.5;
   }
 
   /* Responsive */
@@ -523,6 +542,40 @@
 
     .btn-group-yae {
       gap: 0.5rem;
+    }
+
+    /* Mobile Pagination - Enable Horizontal Scroll */
+    nav[aria-label="Page navigation"] {
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    .pagination {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      gap: 0.3rem;
+      padding: 0.5rem;
+      min-width: min-content;
+    }
+
+    .pagination .page-link {
+      padding: 0.4rem 0.6rem;
+      min-width: 38px;
+      font-size: 0.85rem;
+    }
+
+    .pagination .page-item {
+      flex-shrink: 0;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .pagination .page-link {
+      padding: 0.35rem 0.5rem;
+      min-width: 35px;
+      font-size: 0.8rem;
+      border-width: 1.5px;
     }
   }
 </style>
