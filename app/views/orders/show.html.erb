@@ -114,11 +114,20 @@
               </h3>
             </div>
             <div class="yae-summary-card-body">
-              <div class="yae-summary-calculations-show">
+             <div class="yae-summary-calculations-show">
                 <div class="yae-summary-row-show">
                   <span>Subtotal:</span>
                   <strong><%= number_to_currency(@order.subtotal) %></strong>
                 </div>
+                
+                <% if @order.discount_amount.present? && @order.discount_amount > 0 %>
+                  <div class="yae-summary-row-show yae-discount-row">
+                    <span>
+                      <i class="bi bi-tag-fill me-1"></i>Discount (<%= @order.coupon_code %>):
+                    </span>
+                    <span class="yae-discount-amount">-<%= number_to_currency(@order.discount_amount) %></span>
+                  </div>
+                <% end %>
                 
                 <% if @order.gst_amount && @order.gst_amount > 0 %>
                   <div class="yae-summary-row-show yae-summary-tax">
@@ -468,6 +477,20 @@
   .yae-summary-row-show.yae-summary-tax:last-of-type {
     margin-bottom: 0.5rem;
   }
+  .yae-summary-row-show.yae-discount-row {
+  color: #10b981;
+  font-weight: 600;
+  background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+  padding: 1rem;
+  border-radius: 10px;
+  margin: 0.5rem 0;
+  border: 2px solid #10b981;
+}
+
+.yae-discount-amount {
+  color: #10b981;
+  font-weight: 700;
+}
 
   .yae-summary-total-show {
     display: flex;

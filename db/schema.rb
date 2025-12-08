@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_08_012959) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_08_065559) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -111,6 +111,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_08_012959) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "coupons", force: :cascade do |t|
+    t.string "code"
+    t.string "discount_type"
+    t.decimal "discount_value"
+    t.boolean "active"
+    t.datetime "expires_at"
+    t.integer "usage_limit"
+    t.integer "times_used"
+    t.decimal "minimum_purchase"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "customers", force: :cascade do |t|
     t.string "email"
     t.string "password_digest"
@@ -174,6 +187,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_08_012959) do
     t.bigint "province_id"
     t.string "stripe_payment_id"
     t.string "stripe_customer_id"
+    t.decimal "discount_amount"
+    t.string "coupon_code"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
     t.index ["province_id"], name: "index_orders_on_province_id"
     t.index ["stripe_customer_id"], name: "index_orders_on_stripe_customer_id"

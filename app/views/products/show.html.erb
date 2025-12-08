@@ -88,9 +88,10 @@
 
         <!-- Add to Cart Form -->
         <div class="yae-cart-section">
-          <%= form_with url: cart_add_path, method: :post, local: true, class: 'yae-cart-form' do |f| %>
+          <%= render_wishlist_button(@product, show_text: true) %>
+          
+          <%= form_with url: cart_add_path, method: :post do |f| %>
             <%= f.hidden_field :product_id, value: @product.id %>
-            <%= render_wishlist_button(@product, show_text: true) %>
             
             <div class="yae-quantity-section">
               <label for="quantity" class="yae-quantity-label">

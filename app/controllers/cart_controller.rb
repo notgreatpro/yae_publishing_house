@@ -1,12 +1,11 @@
 # app/controllers/cart_controller.rb
-# Feature 3.1.1 & 3.1.2 - Shopping Cart (8% total)
 class CartController < ApplicationController
   before_action :initialize_cart
   
   # GET /cart
   def show
     @cart_items = []
-    @total = 0
+    @subtotal = 0
     
     # Load product details for items in cart
     @cart.each do |product_id, quantity|
@@ -18,13 +17,38 @@ class CartController < ApplicationController
           quantity: quantity,
           item_total: item_total
         }
-        @total += item_total
+        @subtotal += item_total
       end
     end
+    
+    # Handle coupon
+    @coupon = nil
+    @discount = 0
+    
+    if session[:coupon_code].present?
+      @coupon = Coupon.find_by(code: session[:coupon_code])
+      
+      if @coupon
+        validation = @coupon.valid_for_use?(@subtotal)
+        
+        if validation == true
+          @discount = @coupon.calculate_discount(@subtotal)
+        else
+          # Coupon is no longer valid, remove it
+          session.delete(:coupon_code)
+          flash.now[:alert] = "Coupon removed: #{validation.join(', ')}"
+          @coupon = nil
+        end
+      else
+        # Coupon doesn't exist, remove from session
+        session.delete(:coupon_code)
+      end
+    end
+    
+    @total = @subtotal - @discount
   end
   
   # POST /cart/add
-  # Feature 3.1.1 - Add products to cart (4%)
   def add
     product = Product.find(params[:product_id])
     quantity = params[:quantity].to_i
@@ -44,8 +68,43 @@ class CartController < ApplicationController
     redirect_to products_path, alert: "Product not found"
   end
   
+  # POST /cart/apply_coupon
+  def apply_coupon
+    coupon_code = params[:coupon_code].to_s.strip.upcase
+    
+    if coupon_code.blank?
+      redirect_to cart_path, alert: "Please enter a coupon code"
+      return
+    end
+    
+    coupon = Coupon.find_by(code: coupon_code)
+    
+    if coupon.nil?
+      redirect_to cart_path, alert: "Invalid coupon code"
+      return
+    end
+    
+    # Calculate current cart total
+    cart_total = calculate_cart_subtotal
+    
+    validation = coupon.valid_for_use?(cart_total)
+    
+    if validation == true
+      session[:coupon_code] = coupon.code
+      discount = coupon.calculate_discount(cart_total)
+      redirect_to cart_path, notice: "Coupon applied! You saved #{helpers.number_to_currency(discount)}"
+    else
+      redirect_to cart_path, alert: validation.join(', ')
+    end
+  end
+  
+  # DELETE /cart/remove_coupon
+  def remove_coupon
+    session.delete(:coupon_code)
+    redirect_to cart_path, notice: "Coupon removed"
+  end
+  
   # PATCH /cart/update/:product_id
-  # Feature 3.1.2 - Edit quantity (4%)
   def update
     product_id = params[:product_id]
     quantity = params[:quantity].to_i
@@ -64,7 +123,6 @@ class CartController < ApplicationController
   end
   
   # DELETE /cart/remove/:product_id
-  # Feature 3.1.2 - Remove items (4%)
   def remove
     product_id = params[:product_id]
     product = Product.find_by(id: product_id)
@@ -78,6 +136,7 @@ class CartController < ApplicationController
   # DELETE /cart/clear
   def clear
     session[:cart] = {}
+    session.delete(:coupon_code)
     redirect_to cart_path, notice: "Cart cleared"
   end
   
@@ -85,5 +144,14 @@ class CartController < ApplicationController
   
   def initialize_cart
     @cart = session[:cart] ||= {}
+  end
+  
+  def calculate_cart_subtotal
+    subtotal = 0
+    @cart.each do |product_id, quantity|
+      product = Product.find_by(id: product_id)
+      subtotal += product.current_price * quantity if product
+    end
+    subtotal
   end
 end

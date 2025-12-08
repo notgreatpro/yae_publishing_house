@@ -76,6 +76,21 @@
                   <span>Subtotal:</span>
                   <span><%= number_to_currency(@order.subtotal) %></span>
                 </div>
+                
+                <% if @order.discount_amount.present? && @order.discount_amount > 0 %>
+                  <div class="yae-summary-row yae-discount-row-confirmation">
+                    <span>
+                      <i class="bi bi-tag-fill me-1"></i>Discount (<%= @order.coupon_code %>):
+                    </span>
+                    <span class="yae-discount-value">-<%= number_to_currency(@order.discount_amount) %></span>
+                  </div>
+                  
+                  <div class="yae-summary-row">
+                    <span>Subtotal after discount:</span>
+                    <span><%= number_to_currency(@order.subtotal - @order.discount_amount) %></span>
+                  </div>
+                <% end %>
+                
                 <div class="yae-summary-row">
                   <span>Tax (<%= @order.province.name %>):</span>
                   <span><%= number_to_currency(@order.tax_amount) %></span>
@@ -365,6 +380,22 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+/* Discount row in confirmation */
+.yae-discount-row-confirmation {
+  color: #10b981 !important;
+  font-weight: 600 !important;
+  background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+  padding: 0.75rem 1rem !important;
+  border-radius: 10px;
+  margin: 0.5rem 0 !important;
+  border: 2px solid #10b981;
+}
+
+.yae-discount-value {
+  color: #10b981;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
 
   /* Payment Info */
   .yae-payment-info {

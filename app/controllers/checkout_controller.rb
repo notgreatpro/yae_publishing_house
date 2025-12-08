@@ -10,10 +10,55 @@ class CheckoutController < ApplicationController
 
     @subtotal = @cart_items.sum { |item| item[:product].current_price * item[:quantity] }
     @customer = current_customer
+    
+    # Handle coupon from session
+    @coupon = nil
+    @discount = 0
+    
+    if session[:coupon_code].present?
+      @coupon = Coupon.find_by(code: session[:coupon_code])
+      
+      if @coupon
+        validation = @coupon.valid_for_use?(@subtotal)
+        
+        if validation == true
+          @discount = @coupon.calculate_discount(@subtotal)
+        else
+          session.delete(:coupon_code)
+          flash.now[:alert] = "Coupon removed: #{validation.join(', ')}"
+          @coupon = nil
+        end
+      else
+        session.delete(:coupon_code)
+      end
+    end
+    
+    @subtotal_after_discount = @subtotal - @discount
   end
 
   def create
     @cart = session[:cart] || {}
+    
+    # Calculate subtotal and apply coupon
+    subtotal = 0
+    @cart.each do |product_id, quantity|
+      product = Product.find(product_id)
+      subtotal += product.current_price * quantity
+    end
+    
+    # Apply coupon discount
+    discount = 0
+    coupon = nil
+    
+    if session[:coupon_code].present?
+      coupon = Coupon.find_by(code: session[:coupon_code])
+      
+      if coupon && coupon.valid_for_use?(subtotal) == true
+        discount = coupon.calculate_discount(subtotal)
+      else
+        session.delete(:coupon_code)
+      end
+    end
     
     # Get address from params or use customer's saved address
     address_params = if params[:use_saved_address] == '1' && current_customer.has_complete_address?
@@ -34,9 +79,11 @@ class CheckoutController < ApplicationController
       }
     end
 
-    # Create order
+    # Create order with discount information
     @order = current_customer.orders.build(
       status: 'pending',
+      discount_amount: discount,
+      coupon_code: coupon&.code,
       **address_params
     )
 
@@ -50,7 +97,7 @@ class CheckoutController < ApplicationController
       )
     end
 
-    # Calculate totals
+    # Calculate totals (this will include the discount)
     @order.calculate_totals
 
     if @order.save
@@ -68,17 +115,22 @@ class CheckoutController < ApplicationController
           },
           metadata: {
             order_id: @order.id,
-            customer_email: current_customer.email
+            customer_email: current_customer.email,
+            coupon_code: coupon&.code
           }
         })
 
         # Mark order as paid
         @order.mark_as_paid!(payment_intent.id, payment_intent.customer)
         
-        # Clear the cart
-        session[:cart] = {}
+        # Increment coupon usage if coupon was used
+        coupon&.increment_usage!
         
-       redirect_to confirmation_order_path(@order), notice: 'Order placed successfully! Payment confirmed.'
+        # Clear the cart and coupon from session
+        session[:cart] = {}
+        session.delete(:coupon_code)
+        
+        redirect_to confirmation_order_path(@order), notice: 'Order placed successfully! Payment confirmed.'
       rescue Stripe::CardError => e
         # Card was declined
         @order.destroy

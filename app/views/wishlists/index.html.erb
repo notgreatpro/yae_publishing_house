@@ -90,7 +90,7 @@
                     <i class="bi bi-eye-fill me-2"></i>View Details
                   <% end %>
                   
-                  <%= button_to add_to_cart_path(product_id: product.id), 
+                  <%= button_to cart_add_path(product_id: product.id),
                       method: :post,
                       class: 'yae-btn yae-btn-cart',
                       form: { data: { turbo: false } } do %>

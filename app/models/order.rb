@@ -20,28 +20,38 @@ class Order < ApplicationRecord
   def calculate_totals
     self.subtotal = order_items.sum { |item| item.price_at_purchase * item.quantity }
     
+    # Apply discount if present
+    discount = discount_amount || 0
+    subtotal_after_discount = subtotal - discount
+    
     # Get tax rates from province
     province_record = Province.find(province_id)
     self.gst_rate = province_record.gst_rate
     self.pst_rate = province_record.pst_rate
     self.hst_rate = province_record.hst_rate
     
-    # Calculate tax
+    # Calculate tax on subtotal AFTER discount
     total_tax_rate = (gst_rate + pst_rate + hst_rate) / 100.0
-    self.tax_amount = (subtotal * total_tax_rate).round(2)
-    self.total_amount = subtotal + tax_amount
+    self.tax_amount = (subtotal_after_discount * total_tax_rate).round(2)
+    self.total_amount = subtotal_after_discount + tax_amount
   end
 
   def gst_amount
-    ((subtotal * gst_rate) / 100.0).round(2) if gst_rate > 0
+    return 0 if gst_rate.nil? || gst_rate == 0
+    subtotal_after_discount = subtotal - (discount_amount || 0)
+    ((subtotal_after_discount * gst_rate) / 100.0).round(2)
   end
 
   def pst_amount
-    ((subtotal * pst_rate) / 100.0).round(2) if pst_rate > 0
+    return 0 if pst_rate.nil? || pst_rate == 0
+    subtotal_after_discount = subtotal - (discount_amount || 0)
+    ((subtotal_after_discount * pst_rate) / 100.0).round(2)
   end
 
   def hst_amount
-    ((subtotal * hst_rate) / 100.0).round(2) if hst_rate > 0
+    return 0 if hst_rate.nil? || hst_rate == 0
+    subtotal_after_discount = subtotal - (discount_amount || 0)
+    ((subtotal_after_discount * hst_rate) / 100.0).round(2)
   end
 
   # After successful Stripe payment (Feature 3.3.1)
@@ -63,6 +73,7 @@ class Order < ApplicationRecord
      "payment_method", "shipping_address", "city", "country", "postal_code", 
      "shipped_date", "delivered_date", "created_at", "updated_at", "status", 
      "address_line1", "address_line2", "subtotal", "tax_amount", "gst_rate", 
-     "pst_rate", "hst_rate", "province_id", "stripe_payment_id", "stripe_customer_id"]
+     "pst_rate", "hst_rate", "province_id", "stripe_payment_id", "stripe_customer_id",
+     "discount_amount", "coupon_code"]
   end
 end

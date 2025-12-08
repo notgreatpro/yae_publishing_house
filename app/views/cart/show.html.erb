@@ -1,190 +1,187 @@
 <!-- app/views/cart/show.html.erb -->
-<!-- Features 3.1.1 & 3.1.2 - Shopping Cart -->
 
 <div class="yae-cart-page">
   <div class="container my-5">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb yae-breadcrumb">
-        <li class="breadcrumb-item"><%= link_to "Home", root_path %></li>
-        <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
+        <li class="breadcrumb-item">
+          <%= link_to root_path do %>
+            <i class="bi bi-house-fill me-1"></i>Home
+          <% end %>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          <i class="bi bi-cart3 me-1"></i>Shopping Cart
+        </li>
       </ol>
     </nav>
 
-    <div class="yae-cart-header">
-      <h1 class="yae-cart-title">
-        <i class="bi bi-cart3 me-3"></i>Your Shopping Cart
+    <!-- Page Header -->
+    <div class="yae-page-header text-center mb-5">
+      <h1 class="yae-page-title">
+        <i class="bi bi-cart3 me-3"></i>Shopping Cart
       </h1>
+      <div class="yae-title-underline"></div>
+      <p class="yae-page-subtitle mt-3">
+        <%= pluralize(@cart_items.count, 'item') %> in your cart
+      </p>
     </div>
 
     <% if @cart_items.any? %>
       <div class="row g-4">
         <!-- Cart Items -->
         <div class="col-lg-8">
-          <% @cart_items.each do |item| %>
-            <div class="yae-cart-item">
-              <div class="row align-items-center g-3">
+          <div class="yae-cart-items">
+            <% @cart_items.each do |item| %>
+              <div class="yae-cart-item">
                 <!-- Product Image -->
-                <div class="col-12 col-md-2">
-                  <div class="yae-cart-image-wrapper">
+                <%= link_to product_path(item[:product]) do %>
+                  <div class="yae-cart-item-image">
                     <% if item[:product].cover_image.attached? %>
-                      <%= link_to product_path(item[:product]) do %>
-                        <%= image_tag item[:product].thumbnail, 
-                            class: "yae-cart-image" %>
-                      <% end %>
+                      <%= image_tag item[:product].medium_image, alt: item[:product].title %>
                     <% else %>
-                      <%= link_to product_path(item[:product]) do %>
-                        <div class="yae-cart-placeholder">
-                          <i class="bi bi-book"></i>
-                        </div>
-                      <% end %>
+                      <div class="yae-cart-placeholder">
+                        <i class="bi bi-book"></i>
+                      </div>
                     <% end %>
+                  </div>
+                <% end %>
+
+                <!-- Product Info -->
+                <div class="yae-cart-item-info">
+                  <%= link_to product_path(item[:product]), class: 'yae-cart-item-title' do %>
+                    <%= item[:product].title %>
+                  <% end %>
+                  
+                  <% if item[:product].authors.any? %>
+                    <p class="yae-cart-item-author">
+                      <i class="bi bi-person-fill me-1"></i>
+                      <%= item[:product].authors.first.author_name %>
+                    </p>
+                  <% end %>
+
+                  <div class="yae-cart-item-price">
+                    <%= number_to_currency(item[:product].current_price) %>
                   </div>
                 </div>
 
-                <!-- Product Info -->
-                <div class="col-12 col-md-4">
-                  <h5 class="yae-cart-product-title">
-                    <%= link_to item[:product].title, product_path(item[:product]) %>
-                  </h5>
-                  <% if item[:product].authors.any? %>
-                    <p class="yae-cart-author">
-                      by <%= item[:product].authors.map(&:author_name).join(', ') %>
-                    </p>
-                  <% end %>
-                  <p class="yae-cart-price-each">
-                    <%= number_to_currency(item[:product].current_price) %> each
-                  </p>
-                  <% if item[:product].stock_quantity && item[:product].stock_quantity < 10 %>
-                    <div class="yae-cart-stock-warning">
-                      <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                      Only <%= item[:product].stock_quantity %> left in stock
-                    </div>
-                  <% end %>
-                </div>
-
                 <!-- Quantity Controls -->
-                <div class="col-6 col-md-3">
-                  <label class="yae-cart-quantity-label">
-                    <i class="bi bi-hash me-1"></i>Quantity:
-                  </label>
-                  <%= form_with url: cart_update_path(item[:product].id), method: :patch, 
-                      class: "yae-cart-quantity-form" do |f| %>
-                    <%= f.number_field :quantity, 
-                        value: item[:quantity], 
-                        min: 1, 
-                        max: item[:product].stock_quantity || 99,
-                        class: "yae-quantity-input" %>
-                    <%= f.submit "Update", class: "btn yae-update-btn" %>
+                <div class="yae-cart-item-quantity">
+                  <%= form_with url: cart_update_path(item[:product].id), method: :patch do |f| %>
+                    <div class="yae-quantity-control">
+                      <button type="button" class="yae-qty-btn" onclick="decrementQty(this)">
+                        <i class="bi bi-dash"></i>
+                      </button>
+                      <%= f.number_field :quantity, 
+                          value: item[:quantity], 
+                          min: 1, 
+                          max: item[:product].stock_quantity || 99,
+                          class: 'yae-qty-input' %>
+                      <button type="button" class="yae-qty-btn" onclick="incrementQty(this)">
+                        <i class="bi bi-plus"></i>
+                      </button>
+                    </div>
+                    <%= f.submit 'Update', class: 'yae-btn-update' %>
                   <% end %>
                 </div>
 
-                <!-- Price & Remove -->
-                <div class="col-6 col-md-3 text-end">
-                  <p class="yae-cart-item-total">
+                <!-- Item Total & Remove -->
+                <div class="yae-cart-item-total">
+                  <div class="yae-item-total-price">
                     <%= number_to_currency(item[:item_total]) %>
-                  </p>
+                  </div>
                   <%= button_to cart_remove_path(item[:product].id), 
-                      method: :delete, 
-                      class: "btn yae-remove-btn",
-                      data: { 
-                        turbo_confirm: "Remove this item from cart?",
-                        confirm: "Remove this item from cart?" 
-                      } do %>
-                    <i class="bi bi-trash me-1"></i> Remove
+                      method: :delete,
+                      class: 'yae-btn-remove',
+                      data: { turbo_confirm: 'Remove this item?' } do %>
+                    <i class="bi bi-trash-fill me-1"></i>Remove
                   <% end %>
                 </div>
               </div>
-            </div>
-          <% end %>
-
-          <!-- Clear Cart Button -->
-          <div class="text-end mt-4">
-            <%= button_to cart_clear_path, 
-                method: :delete, 
-                class: "btn yae-clear-cart-btn",
-                data: { 
-                  turbo_confirm: "Are you sure you want to clear your cart?",
-                  confirm: "Are you sure you want to clear your cart?" 
-                } do %>
-              <i class="bi bi-x-circle me-2"></i>Clear Cart
             <% end %>
           </div>
         </div>
 
-        <!-- Order Summary Sidebar -->
+        <!-- Order Summary -->
         <div class="col-lg-4">
           <div class="yae-order-summary">
-            <div class="yae-summary-header">
-              <h5 class="yae-summary-title">
-                <i class="bi bi-receipt me-2"></i>Order Summary
-              </h5>
+            <h3 class="yae-summary-title">
+              <i class="bi bi-receipt me-2"></i>Order Summary
+            </h3>
+
+            <div class="yae-summary-row">
+              <span>Subtotal:</span>
+              <span><%= number_to_currency(@subtotal) %></span>
             </div>
-            
-            <div class="yae-summary-body">
-              <div class="yae-summary-row subtotal">
-                <span>Subtotal (<%= pluralize(@cart_items.sum { |i| i[:quantity] }, 'item') %>):</span>
-                <span class="yae-summary-amount"><%= number_to_currency(@total) %></span>
-              </div>
-              
-              <div class="yae-summary-row">
-                <span class="yae-summary-label">
-                  <i class="bi bi-truck me-1"></i>Shipping:
-                </span>
-                <span class="yae-summary-value">Calculated at checkout</span>
-              </div>
-              
-              <div class="yae-summary-row">
-                <span class="yae-summary-label">
-                  <i class="bi bi-receipt-cutoff me-1"></i>Taxes:
-                </span>
-                <span class="yae-summary-value">Calculated at checkout</span>
-              </div>
 
-              <div class="yae-summary-total">
-                <span>Estimated Total:</span>
-                <span class="yae-total-amount"><%= number_to_currency(@total) %></span>
-              </div>
-
-              <div class="yae-summary-actions">
-                <% if customer_signed_in? %>
-                  <%= link_to checkout_path, class: "btn yae-checkout-btn" do %>
-                    <i class="bi bi-credit-card me-2"></i>Proceed to Checkout
-                  <% end %>
-                <% else %>
-                  <div class="yae-login-prompt">
-                    <div class="yae-login-message">
-                      <i class="bi bi-info-circle me-2"></i>
-                      <span>Please log in to checkout</span>
+            <!-- Coupon Section -->
+            <div class="yae-coupon-section">
+              <% if @coupon %>
+                <!-- Applied Coupon -->
+                <div class="yae-coupon-applied">
+                  <div class="yae-coupon-badge">
+                    <i class="bi bi-tag-fill me-2"></i>
+                    <div>
+                      <strong><%= @coupon.code %></strong>
+                      <small><%= @coupon.display_discount %></small>
                     </div>
-                    <%= link_to new_customer_session_path, class: "btn yae-login-btn" do %>
-                      <i class="bi bi-box-arrow-in-right me-2"></i>Log In
-                    <% end %>
-                    <%= link_to new_customer_registration_path, class: "btn yae-signup-btn" do %>
-                      <i class="bi bi-person-plus me-2"></i>Create Account
-                    <% end %>
+                  </div>
+                  <%= button_to cart_remove_coupon_path, 
+                      method: :delete, 
+                      class: 'yae-coupon-remove' do %>
+                    <i class="bi bi-x-circle-fill"></i>
+                  <% end %>
+                </div>
+
+                <div class="yae-summary-row yae-discount-row">
+                  <span><i class="bi bi-tag-fill me-1"></i>Discount:</span>
+                  <span class="yae-discount-amount">
+                    -<%= number_to_currency(@discount) %>
+                  </span>
+                </div>
+              <% else %>
+                <!-- Coupon Input -->
+                <%= form_with url: cart_apply_coupon_path, method: :post, class: 'yae-coupon-form' do |f| %>
+                  <div class="yae-coupon-input-group">
+                    <%= f.text_field :coupon_code, 
+                        placeholder: 'Enter coupon code',
+                        class: 'yae-coupon-input' %>
+                    <%= f.submit 'Apply', class: 'yae-coupon-apply-btn' %>
                   </div>
                 <% end %>
-
-                <%= link_to products_path, class: "btn yae-continue-shopping-btn" do %>
-                  <i class="bi bi-arrow-left me-2"></i>Continue Shopping
-                <% end %>
-              </div>
+              <% end %>
             </div>
+
+            <div class="yae-summary-divider"></div>
+
+            <div class="yae-summary-row yae-summary-total">
+              <span>Total:</span>
+              <span><%= number_to_currency(@total) %></span>
+            </div>
+
+            <%= link_to checkout_path, class: 'yae-checkout-btn' do %>
+              <i class="bi bi-credit-card me-2"></i>Proceed to Checkout
+            <% end %>
+
+            <%= link_to products_path, class: 'yae-continue-shopping' do %>
+              <i class="bi bi-arrow-left me-2"></i>Continue Shopping
+            <% end %>
           </div>
         </div>
       </div>
 
     <% else %>
-      <!-- Empty Cart Message -->
+      <!-- Empty Cart -->
       <div class="yae-empty-cart">
         <div class="yae-empty-icon">
           <i class="bi bi-cart-x"></i>
         </div>
-        <h2 class="yae-empty-title">Your cart is empty</h2>
-        <p class="yae-empty-message">It seems your cart doesn't have books...</p>
-        <%= link_to products_path, class: "btn yae-browse-btn" do %>
-          <i class="bi bi-book me-2"></i>Browse Books Here
+        <h3 class="yae-empty-title">Your Cart is Empty</h3>
+        <p class="yae-empty-text">
+          Looks like you haven't added any books yet. Start shopping!
+        </p>
+        <%= link_to products_path, class: 'yae-btn yae-btn-primary yae-btn-large' do %>
+          <i class="bi bi-book me-2"></i>Browse Products
         <% end %>
       </div>
     <% end %>
@@ -225,62 +222,61 @@
     color: var(--yae-pink);
   }
 
-  /* Cart Header */
-  .yae-cart-header {
-    background: white;
-    padding: 2rem;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-  }
-
-  .yae-cart-title {
-    font-size: 2.5rem;
+  /* Page Header */
+  .yae-page-title {
+    font-size: 3rem;
     font-weight: 700;
-    color: var(--yae-dark);
-    margin: 0;
-    display: flex;
-    align-items: center;
+    color: var(--yae-purple);
+    margin-bottom: 1rem;
   }
 
-  .yae-cart-title i {
-    color: var(--yae-purple);
+  .yae-title-underline {
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--yae-pink), var(--yae-purple));
+    margin: 0 auto;
+    border-radius: 2px;
+  }
+
+  .yae-page-subtitle {
+    color: #6b7280;
+    font-size: 1.2rem;
+    font-weight: 500;
   }
 
   /* Cart Items */
-  .yae-cart-item {
+  .yae-cart-items {
     background: white;
-    padding: 2rem;
     border-radius: 20px;
+    padding: 1.5rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1.5rem;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
   }
 
-  .yae-cart-item:hover {
-    border-color: var(--yae-purple);
-    box-shadow: 0 6px 30px rgba(139, 44, 127, 0.2);
+  .yae-cart-item {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border-bottom: 2px solid #f3f4f6;
+    align-items: center;
   }
 
-  /* Product Image */
-  .yae-cart-image-wrapper {
-    width: 100%;
+  .yae-cart-item:last-child {
+    border-bottom: none;
+  }
+
+  .yae-cart-item-image {
+    flex-shrink: 0;
+    width: 100px;
     aspect-ratio: 2/3;
-    border-radius: 12px;
+    border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   }
 
-  .yae-cart-image {
+  .yae-cart-item-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-
-  .yae-cart-image:hover {
-    transform: scale(1.05);
   }
 
   .yae-cart-placeholder {
@@ -291,248 +287,285 @@
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 3rem;
+    font-size: 2rem;
   }
 
-  /* Product Info */
-  .yae-cart-product-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
+  .yae-cart-item-info {
+    flex-grow: 1;
   }
 
-  .yae-cart-product-title a {
+  .yae-cart-item-title {
+    font-size: 1.1rem;
+    font-weight: 600;
     color: var(--yae-dark);
     text-decoration: none;
+    display: block;
+    margin-bottom: 0.5rem;
     transition: color 0.3s ease;
   }
 
-  .yae-cart-product-title a:hover {
-    color: var(--yae-purple);
+  .yae-cart-item-title:hover {
+    color: var(--yae-pink);
   }
 
-  .yae-cart-author {
-    font-size: 0.95rem;
+  .yae-cart-item-author {
+    font-size: 0.9rem;
     color: #6b7280;
     font-style: italic;
     margin-bottom: 0.5rem;
   }
 
-  .yae-cart-price-each {
-    font-size: 1.1rem;
-    font-weight: 600;
-    background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-  }
-
-  .yae-cart-stock-warning {
-    display: inline-flex;
-    align-items: center;
-    background: #fee2e2;
-    color: #dc2626;
-    padding: 0.4rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-  }
-
-  /* Quantity Section */
-  .yae-cart-quantity-label {
-    display: block;
-    font-weight: 600;
+  .yae-cart-item-price {
+    font-size: 1.2rem;
+    font-weight: 700;
     color: var(--yae-purple);
-    font-size: 0.9rem;
+  }
+
+  /* Quantity Controls */
+  .yae-cart-item-quantity {
+    flex-shrink: 0;
+  }
+
+  .yae-quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     margin-bottom: 0.5rem;
   }
 
-  .yae-cart-quantity-form {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .yae-quantity-input {
-    width: 70px;
-    padding: 0.6rem;
+  .yae-qty-btn {
+    width: 32px;
+    height: 32px;
     border: 2px solid var(--yae-purple);
-    border-radius: 10px;
-    text-align: center;
-    font-weight: 600;
+    background: white;
+    color: var(--yae-purple);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
     font-size: 1rem;
   }
 
-  .yae-update-btn {
-    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+  .yae-qty-btn:hover {
+    background: var(--yae-purple);
+    color: white;
+  }
+
+  .yae-qty-input {
+    width: 60px;
+    height: 32px;
+    text-align: center;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-weight: 600;
+    color: var(--yae-dark);
+  }
+
+  .yae-btn-update {
+    width: 100%;
+    padding: 0.5rem;
+    background: var(--yae-purple);
     color: white;
     border: none;
-    padding: 0.6rem 1rem;
-    border-radius: 10px;
+    border-radius: 8px;
     font-weight: 600;
-    font-size: 0.9rem;
+    cursor: pointer;
     transition: all 0.3s ease;
+    font-size: 0.9rem;
   }
 
-  .yae-update-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.3);
-    color: white;
+  .yae-btn-update:hover {
+    background: var(--yae-dark);
   }
 
-  /* Item Total & Remove */
+  /* Item Total */
   .yae-cart-item-total {
-    font-size: 1.8rem;
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .yae-item-total-price {
+    font-size: 1.3rem;
     font-weight: 700;
-    color: var(--yae-dark);
-    margin-bottom: 1rem;
+    color: var(--yae-purple);
+    margin-bottom: 0.5rem;
   }
 
-  .yae-remove-btn {
-    background: white;
+  .yae-btn-remove {
+    background: none;
+    border: none;
     color: #dc2626;
-    border: 2px solid #dc2626;
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
     font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
     font-size: 0.9rem;
-    transition: all 0.3s ease;
+    padding: 0;
   }
 
-  .yae-remove-btn:hover {
-    background: #dc2626;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
-  }
-
-  /* Clear Cart Button */
-  .yae-clear-cart-btn {
-    background: white;
-    color: #dc2626;
-    border: 2px solid #dc2626;
-    padding: 0.75rem 2rem;
-    border-radius: 15px;
-    font-weight: 600;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-  }
-
-  .yae-clear-cart-btn:hover {
-    background: #dc2626;
-    color: white;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+  .yae-btn-remove:hover {
+    color: #991b1b;
+    text-decoration: underline;
   }
 
   /* Order Summary */
   .yae-order-summary {
     background: white;
     border-radius: 20px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     position: sticky;
-    top: 100px;
-    border: 3px solid var(--yae-purple);
-  }
-
-  .yae-summary-header {
-    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
-    padding: 1.5rem 2rem;
+    top: 2rem;
   }
 
   .yae-summary-title {
-    color: white;
-    font-weight: 700;
     font-size: 1.5rem;
-    margin: 0;
+    font-weight: 700;
+    color: var(--yae-purple);
+    margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
-  }
-
-  .yae-summary-body {
-    padding: 2rem;
   }
 
   .yae-summary-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 0;
-    border-bottom: 1px solid #e5e7eb;
+    padding: 0.75rem 0;
+    font-size: 1rem;
+    color: #4b5563;
   }
 
-  .yae-summary-row.subtotal {
-    font-size: 1.1rem;
+  .yae-discount-row {
+    color: #10b981;
     font-weight: 600;
-    color: var(--yae-dark);
   }
 
-  .yae-summary-amount {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--yae-purple);
+  .yae-discount-amount {
+    color: #10b981;
   }
 
-  .yae-summary-label {
-    color: #6b7280;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-  }
-
-  .yae-summary-value {
-    color: #9ca3af;
-    font-size: 0.9rem;
-    font-style: italic;
+  .yae-summary-divider {
+    height: 2px;
+    background: linear-gradient(90deg, var(--yae-pink), var(--yae-purple));
+    margin: 1rem 0;
   }
 
   .yae-summary-total {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 0;
-    margin-top: 1rem;
-    border-top: 3px solid var(--yae-purple);
-  }
-
-  .yae-summary-total > span:first-child {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--yae-dark);
+    padding: 1rem 0;
   }
 
-  .yae-total-amount {
-    font-size: 2rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  /* Coupon Section */
+  .yae-coupon-section {
+    margin: 1.5rem 0;
   }
 
-  /* Summary Actions */
-  .yae-summary-actions {
+  .yae-coupon-form {
+    margin-bottom: 1rem;
+  }
+
+  .yae-coupon-input-group {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-top: 1.5rem;
+    gap: 0.5rem;
   }
 
-  .yae-checkout-btn {
-    background: linear-gradient(135deg, var(--yae-pink) 0%, #d91479 100%);
+  .yae-coupon-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 1rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--yae-dark);
+    transition: all 0.3s ease;
+  }
+
+  .yae-coupon-input:focus {
+    border-color: var(--yae-purple);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 44, 127, 0.1);
+  }
+
+  .yae-coupon-apply-btn {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
     color: white;
     border: none;
-    padding: 1.25rem;
-    border-radius: 15px;
-    font-weight: 700;
-    font-size: 1.2rem;
-    text-align: center;
-    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
     transition: all 0.3s ease;
+  }
+
+  .yae-coupon-apply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.4);
+  }
+
+  /* Applied Coupon */
+  .yae-coupon-applied {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    border: 2px solid #10b981;
+  }
+
+  .yae-coupon-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #065f46;
+  }
+
+  .yae-coupon-badge strong {
+    font-size: 1.1rem;
+  }
+
+  .yae-coupon-badge small {
+    display: block;
+    font-size: 0.85rem;
+  }
+
+  .yae-coupon-remove {
+    background: none;
+    border: none;
+    color: #dc2626;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+  }
+
+  .yae-coupon-remove:hover {
+    color: #991b1b;
+    transform: scale(1.1);
+  }
+
+  /* Buttons */
+  .yae-checkout-btn {
+    width: 100%;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, var(--yae-pink) 0%, #d91479 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 15px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
   }
 
   .yae-checkout-btn:hover {
@@ -541,132 +574,103 @@
     color: white;
   }
 
-  /* Login Prompt */
-  .yae-login-prompt {
-    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
-    padding: 1.5rem;
+  .yae-continue-shopping {
+    width: 100%;
+    padding: 1rem;
+    background: white;
+    color: var(--yae-purple);
+    text-decoration: none;
+    border: 2px solid var(--yae-purple);
     border-radius: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .yae-login-message {
-    color: var(--yae-dark);
     font-weight: 600;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .yae-login-btn, .yae-signup-btn {
-    padding: 1rem;
-    border-radius: 12px;
-    font-weight: 600;
-    text-align: center;
-    text-decoration: none;
     transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 
-  .yae-login-btn {
-    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
-    color: white;
-    border: none;
-  }
-
-  .yae-login-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(139, 44, 127, 0.3);
-    color: white;
-  }
-
-  .yae-signup-btn {
-    background: white;
-    color: var(--yae-purple);
-    border: 2px solid var(--yae-purple);
-  }
-
-  .yae-signup-btn:hover {
+  .yae-continue-shopping:hover {
     background: var(--yae-purple);
     color: white;
-    transform: translateY(-2px);
-  }
-
-  .yae-continue-shopping-btn {
-    background: white;
-    color: var(--yae-purple);
-    border: 2px solid var(--yae-purple);
-    padding: 1rem;
-    border-radius: 12px;
-    font-weight: 600;
-    text-align: center;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .yae-continue-shopping-btn:hover {
-    background: var(--yae-purple);
-    color: white;
-    transform: translateY(-2px);
   }
 
   /* Empty Cart */
   .yae-empty-cart {
     background: white;
+    border-radius: 25px;
     padding: 5rem 3rem;
-    border-radius: 20px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
     text-align: center;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    border: 3px solid var(--yae-purple);
   }
 
   .yae-empty-icon {
     font-size: 8rem;
-    color: #d1d5db;
+    color: #e5e7eb;
     margin-bottom: 2rem;
   }
 
   .yae-empty-title {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
     color: var(--yae-dark);
     margin-bottom: 1rem;
   }
 
-  .yae-empty-message {
-    font-size: 1.3rem;
+  .yae-empty-text {
+    font-size: 1.2rem;
     color: #6b7280;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
   }
 
-  .yae-browse-btn {
-    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
-    color: white;
-    border: none;
-    padding: 1.25rem 3rem;
-    border-radius: 30px;
-    font-weight: 700;
-    font-size: 1.2rem;
+  .yae-btn {
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    font-weight: 600;
     text-decoration: none;
+    transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
-    transition: all 0.3s ease;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
   }
 
-  .yae-browse-btn:hover {
+  .yae-btn-primary {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+  }
+
+  .yae-btn-primary:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(139, 44, 127, 0.4);
     color: white;
   }
 
+  .yae-btn-large {
+    padding: 1.25rem 3rem;
+    font-size: 1.2rem;
+  }
+
   /* Responsive */
   @media (max-width: 991px) {
+    .yae-cart-item {
+      flex-wrap: wrap;
+    }
+
+    .yae-cart-item-quantity,
+    .yae-cart-item-total {
+      width: 100%;
+      margin-top: 1rem;
+    }
+
+    .yae-cart-item-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
     .yae-order-summary {
       position: relative;
       top: 0;
@@ -675,31 +679,39 @@
   }
 
   @media (max-width: 767px) {
-    .yae-cart-title {
+    .yae-page-title {
       font-size: 2rem;
     }
 
     .yae-cart-item {
-      padding: 1.5rem;
+      padding: 1rem;
     }
 
-    .yae-cart-item-total {
-      font-size: 1.4rem;
-    }
-
-    .yae-empty-cart {
-      padding: 3rem 1.5rem;
-    }
-
-    .yae-empty-icon {
-      font-size: 5rem;
-    }
-
-    .yae-empty-title {
-      font-size: 1.8rem;
+    .yae-cart-item-image {
+      width: 80px;
     }
   }
 </style>
+
+<script>
+  function incrementQty(btn) {
+    const input = btn.previousElementSibling;
+    const max = parseInt(input.getAttribute('max'));
+    const current = parseInt(input.value);
+    if (current < max) {
+      input.value = current + 1;
+    }
+  }
+
+  function decrementQty(btn) {
+    const input = btn.nextElementSibling;
+    const min = parseInt(input.getAttribute('min'));
+    const current = parseInt(input.value);
+    if (current > min) {
+      input.value = current - 1;
+    }
+  }
+</script>
 
 <!-- Ensure Bootstrap Icons are loaded -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

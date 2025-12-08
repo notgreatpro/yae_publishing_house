@@ -39,6 +39,11 @@ class Customer < ApplicationRecord
   def has_complete_address?
     address_line1.present? && city.present? && postal_code.present? && province_id.present?
   end
+  
+  # Check if product is in wishlist
+  def has_in_wishlist?(product)
+    wishlist_products.include?(product)
+  end
 
   # Ransack methods for Active Admin search
   def self.ransackable_associations(auth_object = nil)
@@ -55,8 +60,4 @@ class Customer < ApplicationRecord
   def address_present?
     address_line1.present? || city.present? || postal_code.present? || province_id.present?
   end
-  
-  def has_in_wishlist?(product)
-  wishlist_products.include?(product)
-end
 end
