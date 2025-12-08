@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_08_065559) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_08_201459) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -122,6 +122,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_08_065559) do
     t.decimal "minimum_purchase"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "discount_category"
+    t.integer "applies_to_quantity"
+    t.boolean "first_time_buyer_only"
+    t.datetime "flash_sale_ends_at"
   end
 
   create_table "customers", force: :cascade do |t|

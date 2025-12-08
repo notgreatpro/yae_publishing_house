@@ -159,12 +159,23 @@
               <span><%= number_to_currency(@total) %></span>
             </div>
 
-            <%= link_to checkout_path, class: 'yae-checkout-btn' do %>
-              <i class="bi bi-credit-card me-2"></i>Proceed to Checkout
+            <% if customer_signed_in? %>
+              <%= link_to checkout_path, class: 'yae-checkout-btn' do %>
+                <i class="bi bi-credit-card me-2"></i>Proceed to Checkout
+              <% end %>
+            <% else %>
+              <%= link_to new_customer_session_path, class: 'yae-signin-btn' do %>
+                <i class="bi bi-person-circle me-2"></i>Sign In to Checkout
+              <% end %>
             <% end %>
 
             <%= link_to products_path, class: 'yae-continue-shopping' do %>
               <i class="bi bi-arrow-left me-2"></i>Continue Shopping
+            <% end %>
+
+            <%= button_to cart_clear_path, method: :delete, class: 'yae-clear-cart-btn', 
+                data: { turbo_confirm: 'Are you sure you want to clear your cart?' } do %>
+              <i class="bi bi-trash me-2"></i>Clear Cart
             <% end %>
           </div>
         </div>
@@ -636,11 +647,59 @@
     border: none;
     cursor: pointer;
   }
+    .yae-signin-btn {
+  width: 100%;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 15px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+  border: 2px solid white;
+}
+
+.yae-signin-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(139, 44, 127, 0.4);
+  color: white;
+  background: linear-gradient(135deg, var(--yae-dark) 0%, var(--yae-purple) 100%);
+}
 
   .yae-btn-primary {
     background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
     color: white;
   }
+    .yae-clear-cart-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: white;
+  color: #dc2626;
+  text-decoration: none;
+  border: 2px solid #dc2626;
+  border-radius: 15px;
+  font-weight: 600;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  cursor: pointer;
+}
+
+.yae-clear-cart-btn:hover {
+  background: #dc2626;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+}
 
   .yae-btn-primary:hover {
     transform: translateY(-3px);

@@ -84,10 +84,11 @@ class CartController < ApplicationController
       return
     end
     
-    # Calculate current cart total
+    # Calculate current cart total and items
     cart_total = calculate_cart_subtotal
+    cart_items = get_cart_items
     
-    validation = coupon.valid_for_use?(cart_total)
+    validation = coupon.valid_for_use?(cart_total, current_customer, cart_items)
     
     if validation == true
       session[:coupon_code] = coupon.code
@@ -153,5 +154,20 @@ class CartController < ApplicationController
       subtotal += product.current_price * quantity if product
     end
     subtotal
+  end
+  
+  def get_cart_items
+    items = []
+    @cart.each do |product_id, quantity|
+      product = Product.find_by(id: product_id)
+      if product
+        items << {
+          product: product,
+          quantity: quantity,
+          item_total: product.current_price * quantity
+        }
+      end
+    end
+    items
   end
 end
