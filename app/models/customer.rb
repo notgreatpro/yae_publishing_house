@@ -9,7 +9,9 @@ class Customer < ApplicationRecord
   has_many :orders, dependent: :destroy
   has_many :ratings, dependent: :destroy
   belongs_to :province, optional: true
-  
+  has_many :wishlists, dependent: :destroy
+  has_many :wishlist_products, through: :wishlists, source: :product  
+
   # Validations
   # Basic info required for signup
   validates :first_name, presence: true, length: { maximum: 50 }
@@ -53,4 +55,8 @@ class Customer < ApplicationRecord
   def address_present?
     address_line1.present? || city.present? || postal_code.present? || province_id.present?
   end
+  
+  def has_in_wishlist?(product)
+  wishlist_products.include?(product)
+end
 end

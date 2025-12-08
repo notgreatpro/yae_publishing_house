@@ -1,0 +1,110 @@
+<% if customer_signed_in? %>
+  <% if current_customer.has_in_wishlist?(product) %>
+    <!-- Remove from Wishlist Button -->
+    <%= button_to remove_from_wishlist_path(product_id: product.id), 
+        method: :delete,
+        class: "yae-wishlist-btn yae-wishlist-btn-active #{button_class}",
+        form: { data: { turbo: false } },
+        title: "Remove from Wishlist" do %>
+      <i class="bi bi-heart-fill"></i>
+      <span class="yae-wishlist-text"><%= show_text ? 'In Wishlist' : '' %></span>
+    <% end %>
+  <% else %>
+    <!-- Add to Wishlist Button -->
+    <%= button_to wishlists_path(product_id: product.id), 
+        method: :post,
+        class: "yae-wishlist-btn #{button_class}",
+        form: { data: { turbo: false } },
+        title: "Add to Wishlist" do %>
+      <i class="bi bi-heart"></i>
+      <span class="yae-wishlist-text"><%= show_text ? 'Add to Wishlist' : '' %></span>
+    <% end %>
+  <% end %>
+<% else %>
+  <!-- Login Required Button -->
+  <%= link_to new_customer_session_path, 
+      class: "yae-wishlist-btn #{button_class}",
+      title: "Login to add to wishlist" do %>
+    <i class="bi bi-heart"></i>
+    <span class="yae-wishlist-text"><%= show_text ? 'Add to Wishlist' : '' %></span>
+  <% end %>
+<% end %>
+
+<style>
+  .yae-wishlist-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: white;
+    color: var(--yae-purple, #8B2C7F);
+    border: 2px solid var(--yae-purple, #8B2C7F);
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  .yae-wishlist-btn i {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+
+  .yae-wishlist-btn:hover {
+    background: linear-gradient(135deg, var(--yae-purple, #8B2C7F) 0%, var(--yae-dark, #4A1942) 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.3);
+  }
+
+  .yae-wishlist-btn:hover i {
+    transform: scale(1.2);
+  }
+
+  .yae-wishlist-btn-active {
+    background: linear-gradient(135deg, var(--yae-pink, #E91E8C) 0%, var(--yae-purple, #8B2C7F) 100%);
+    color: white;
+    border-color: var(--yae-pink, #E91E8C);
+  }
+
+  .yae-wishlist-btn-active:hover {
+    background: white;
+    color: var(--yae-pink, #E91E8C);
+    border-color: var(--yae-pink, #E91E8C);
+  }
+
+  /* Icon only variant */
+  .yae-wishlist-btn-icon {
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .yae-wishlist-btn-icon .yae-wishlist-text {
+    display: none;
+  }
+
+  /* Small variant */
+  .yae-wishlist-btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .yae-wishlist-btn-small i {
+    font-size: 1rem;
+  }
+
+  /* Large variant */
+  .yae-wishlist-btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+
+  .yae-wishlist-btn-large i {
+    font-size: 1.4rem;
+  }
+</style>

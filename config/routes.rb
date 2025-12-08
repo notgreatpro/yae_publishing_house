@@ -18,6 +18,9 @@ Rails.application.routes.draw do
       get 'recently_updated' 
     end
   end
+
+  resources :wishlists, only: [:index, :create, :destroy]
+  delete 'wishlists/product/:product_id', to: 'wishlists#destroy_by_product', as: 'remove_from_wishlist'
   
   
   resources :categories, only: [:index, :show]
