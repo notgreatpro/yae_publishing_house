@@ -1,0 +1,770 @@
+<!-- app/views/events/index.html.erb -->
+<div class="yae-events-page">
+  
+  <!-- Hero Header -->
+  <div class="yae-events-hero">
+    <div class="container-fluid px-lg-5">
+      <div class="text-center py-5">
+        <h1 class="display-3 fw-bold text-white mb-3 animate-fade-in">
+          <i class="bi bi-calendar-event me-3"></i>Literary Events
+        </h1>
+        <p class="lead text-white-50 fst-italic mb-0">
+          Join us for exclusive book launches, author signings, and literary experiences
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Events -->
+  <% if @featured_events.any? %>
+    <div class="yae-featured-section">
+      <div class="container-fluid px-lg-5">
+        <h2 class="yae-section-title text-center mb-4">
+          <i class="bi bi-star-fill me-2"></i>Featured Events
+        </h2>
+        
+        <div class="row g-4 mb-5">
+          <% @featured_events.each do |event| %>
+            <div class="col-lg-4 col-md-6">
+              <%= link_to event_path(event), class: 'text-decoration-none' do %>
+                <div class="yae-featured-card">
+                  <div class="yae-featured-badge">
+                    <i class="bi bi-star-fill me-1"></i>FEATURED
+                  </div>
+                  
+                  <div class="yae-featured-image">
+                    <% if event.cover_image.attached? %>
+                      <%= image_tag event.medium_image, alt: event.title %>
+                    <% else %>
+                      <div class="yae-featured-placeholder">
+                        <i class="bi bi-<%= event.event_type_icon %>"></i>
+                      </div>
+                    <% end %>
+                    <div class="yae-featured-overlay">
+                      <span class="yae-featured-type">
+                        <i class="bi bi-<%= event.event_type_icon %> me-2"></i>
+                        <%= event.event_type.titleize %>
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="yae-featured-content">
+                    <h3 class="yae-featured-title"><%= event.title %></h3>
+                    <div class="yae-featured-info">
+                      <div class="yae-info-item">
+                        <i class="bi bi-calendar3"></i>
+                        <%= event.formatted_date %>
+                      </div>
+                      <div class="yae-info-item">
+                        <i class="bi bi-clock"></i>
+                        <%= event.formatted_time %>
+                      </div>
+                      <div class="yae-info-item">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <%= event.location %>
+                      </div>
+                    </div>
+                    
+                    <% if event.max_attendees.present? %>
+                      <div class="yae-spots-indicator">
+                        <div class="yae-spots-bar">
+                          <div class="yae-spots-fill" style="width: <%= (event.current_attendees.to_f / event.max_attendees * 100).round %>%"></div>
+                        </div>
+                        <span class="yae-spots-text">
+                          <%= event.spots_available %> spots remaining
+                        </span>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="container-fluid px-lg-5 py-5">
+    
+    <!-- Filter Section -->
+    <div class="yae-filter-section mb-5">
+      <div class="text-center mb-4">
+        <h3 class="yae-filter-title">Browse Events</h3>
+      </div>
+      
+      <!-- Time Filters -->
+      <div class="d-flex justify-content-center mb-4">
+        <div class="btn-group-yae" role="group">
+          <%= link_to events_path, 
+              class: "btn btn-filter #{params[:filter].blank? ? 'active' : ''}" do %>
+            <i class="bi bi-grid-3x3-gap-fill me-2"></i>All Events
+          <% end %>
+          <%= link_to events_path(filter: 'upcoming'), 
+              class: "btn btn-filter #{params[:filter] == 'upcoming' ? 'active' : ''}" do %>
+            <i class="bi bi-calendar-plus me-2"></i>Upcoming
+          <% end %>
+          <%= link_to events_path(filter: 'ongoing'), 
+              class: "btn btn-filter #{params[:filter] == 'ongoing' ? 'active' : ''}" do %>
+            <i class="bi bi-broadcast me-2"></i>Happening Now
+          <% end %>
+          <%= link_to events_path(filter: 'past'), 
+              class: "btn btn-filter #{params[:filter] == 'past' ? 'active' : ''}" do %>
+            <i class="bi bi-clock-history me-2"></i>Past Events
+          <% end %>
+        </div>
+      </div>
+      
+      <!-- Event Type Filters -->
+      <div class="d-flex flex-wrap justify-content-center gap-3">
+        <%= link_to events_path(filter: params[:filter]), 
+            class: "btn btn-event-type #{params[:event_type].blank? ? 'active' : ''}" do %>
+          All Types
+        <% end %>
+        
+        <% Event.event_types.keys.each do |type| %>
+          <%= link_to events_path(filter: params[:filter], event_type: type), 
+              class: "btn btn-event-type #{params[:event_type] == type ? 'active' : ''}" do %>
+            <%= type.titleize %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Events Grid -->
+    <% if @events.any? %>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+        <% @events.each do |event| %>
+          <div class="col">
+            <%= link_to event_path(event), class: 'text-decoration-none yae-event-link' do %>
+              <div class="yae-event-card h-100">
+                
+                <!-- Status Badge -->
+                <span class="yae-status-badge <%= event.status_badge_class %>">
+                  <% if event.is_ongoing? %>
+                    <span class="yae-live-dot"></span>LIVE NOW
+                  <% else %>
+                    <%= event.status.upcase %>
+                  <% end %>
+                </span>
+                
+                <!-- Event Image -->
+                <div class="yae-event-image">
+                  <% if event.cover_image.attached? %>
+                    <%= image_tag event.medium_image, alt: event.title %>
+                  <% else %>
+                    <div class="yae-event-placeholder">
+                      <i class="bi bi-<%= event.event_type_icon %>"></i>
+                    </div>
+                  <% end %>
+                  <div class="yae-event-overlay">
+                    <span class="yae-event-type-badge">
+                      <i class="bi bi-<%= event.event_type_icon %> me-2"></i>
+                      <%= event.event_type.titleize %>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Event Info -->
+                <div class="yae-event-info">
+                  <h5 class="yae-event-title">
+                    <%= truncate(event.title, length: 60) %>
+                  </h5>
+                  
+                  <div class="yae-event-details">
+                    <div class="yae-detail-row">
+                      <i class="bi bi-calendar3"></i>
+                      <span><%= event.formatted_date %></span>
+                    </div>
+                    <div class="yae-detail-row">
+                      <i class="bi bi-clock"></i>
+                      <span><%= event.formatted_time %></span>
+                    </div>
+                    <div class="yae-detail-row">
+                      <i class="bi bi-geo-alt-fill"></i>
+                      <span><%= truncate(event.location, length: 40) %></span>
+                    </div>
+                  </div>
+                  
+                  <% if event.ticket_price.present? && event.ticket_price > 0 %>
+                    <div class="yae-event-price">
+                      <%= number_to_currency(event.ticket_price) %>
+                    </div>
+                  <% else %>
+                    <div class="yae-event-price yae-free">
+                      FREE
+                    </div>
+                  <% end %>
+                  
+                  <!-- Registration Status -->
+                  <div class="yae-registration-status">
+                    <% if event.can_register? %>
+                      <span class="yae-status-open">
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                        <%= event.registration_status_text %>
+                      </span>
+                    <% else %>
+                      <span class="yae-status-closed">
+                        <i class="bi bi-x-circle-fill me-1"></i>
+                        <%= event.registration_status_text %>
+                      </span>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Pagination -->
+      <div class="mt-5 d-flex justify-content-center">
+        <nav aria-label="Page navigation">
+          <%= paginate @events, theme: 'bootstrap-5' %>
+        </nav>
+      </div>
+
+    <% else %>
+      <div class="yae-no-results">
+        <div class="text-center py-5">
+          <i class="bi bi-calendar-x display-1 text-muted mb-4"></i>
+          <h4 class="mb-3">No events found</h4>
+          <p class="text-muted mb-4">Check back soon for upcoming literary events!</p>
+          <%= link_to "View All Events", events_path, class: "btn btn-yae-primary btn-lg" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  :root {
+    --yae-pink: #E91E8C;
+    --yae-purple: #8B2C7F;
+    --yae-dark: #4A1942;
+    --yae-light-pink: #F8C8DC;
+  }
+
+  .yae-events-page {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    min-height: 100vh;
+  }
+
+  /* Hero Section */
+  .yae-events-hero {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    border-bottom: 4px solid var(--yae-pink);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Featured Section */
+  .yae-featured-section {
+    background: white;
+    padding: 3rem 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .yae-section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--yae-purple);
+    margin-bottom: 2rem;
+  }
+
+  .yae-featured-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(139, 44, 127, 0.2);
+    transition: all 0.4s ease;
+    position: relative;
+    border: 3px solid var(--yae-pink);
+  }
+
+  .yae-featured-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(139, 44, 127, 0.4);
+  }
+
+  .yae-featured-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.5);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  .yae-featured-image {
+    width: 100%;
+    height: 300px;
+    position: relative;
+    overflow: hidden;
+    background: #f8f9fa;
+  }
+
+  .yae-featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .yae-featured-card:hover .yae-featured-image img {
+    transform: scale(1.1);
+  }
+
+  .yae-featured-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 5rem;
+  }
+
+  .yae-featured-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+    padding: 1.5rem;
+  }
+
+  .yae-featured-type {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--yae-purple);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .yae-featured-content {
+    padding: 1.5rem;
+  }
+
+  .yae-featured-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 1rem;
+    line-height: 1.4;
+  }
+
+  .yae-featured-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .yae-info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #6b7280;
+    font-size: 0.9rem;
+  }
+
+  .yae-info-item i {
+    color: var(--yae-purple);
+    font-size: 1.1rem;
+  }
+
+  .yae-spots-indicator {
+    margin-top: 1rem;
+  }
+
+  .yae-spots-bar {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+
+  .yae-spots-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    transition: width 0.3s ease;
+  }
+
+  .yae-spots-text {
+    font-size: 0.85rem;
+    color: #059669;
+    font-weight: 600;
+  }
+
+  /* Filter Section */
+  .yae-filter-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .yae-filter-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--yae-purple);
+  }
+
+  .btn-group-yae {
+    display: inline-flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn-filter, .btn-event-type {
+    background: white;
+    color: var(--yae-purple);
+    border: 2px solid var(--yae-purple);
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-filter:hover, .btn-event-type:hover {
+    background: linear-gradient(135deg, var(--yae-light-pink) 0%, #e9d5ff 100%);
+    color: var(--yae-purple);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.2);
+  }
+
+  .btn-filter.active, .btn-event-type.active {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    border-color: var(--yae-pink);
+  }
+
+  .btn-event-type {
+    font-size: 0.8rem;
+    padding: 0.6rem 1.2rem;
+  }
+
+  /* Event Card */
+  .yae-event-link {
+    display: block;
+    height: 100%;
+  }
+
+  .yae-event-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    border: 2px solid #e5e7eb;
+  }
+
+  .yae-event-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(139, 44, 127, 0.3);
+    border-color: var(--yae-purple);
+  }
+
+  /* Status Badge */
+  .yae-status-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .badge-upcoming {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+  }
+
+  .badge-ongoing {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    animation: pulse 2s infinite;
+  }
+
+  .badge-completed {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+  }
+
+  .badge-cancelled {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+  }
+
+  .yae-live-dot {
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    display: inline-block;
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Event Image */
+  .yae-event-image {
+    width: 100%;
+    height: 250px;
+    position: relative;
+    overflow: hidden;
+    background: #f8f9fa;
+  }
+
+  .yae-event-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .yae-event-card:hover .yae-event-image img {
+    transform: scale(1.08);
+  }
+
+  .yae-event-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 4rem;
+  }
+
+  .yae-event-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+    padding: 1rem;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .yae-event-type-badge {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--yae-purple);
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Event Info */
+  .yae-event-info {
+    padding: 1.25rem;
+  }
+
+  .yae-event-title {
+    font-size: 1.1rem;
+    line-height: 1.4;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 1rem;
+    min-height: 3rem;
+  }
+
+  .yae-event-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .yae-detail-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #6b7280;
+    font-size: 0.85rem;
+  }
+
+  .yae-detail-row i {
+    color: var(--yae-purple);
+    font-size: 1rem;
+    width: 20px;
+  }
+
+  .yae-event-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.75rem;
+  }
+
+  .yae-event-price.yae-free {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .yae-registration-status {
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .yae-status-open {
+    color: #059669;
+    display: flex;
+    align-items: center;
+  }
+
+  .yae-status-closed {
+    color: #dc2626;
+    display: flex;
+    align-items: center;
+  }
+
+  /* No Results */
+  .yae-no-results {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-yae-primary {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    border: none;
+    padding: 1rem 3rem;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-yae-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(139, 44, 127, 0.4);
+    color: white;
+  }
+
+  /* Pagination */
+  nav[aria-label="Page navigation"] {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.5rem 0;
+  }
+
+  .pagination {
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    margin-bottom: 0;
+  }
+
+  .pagination .page-link {
+    border: 2px solid var(--yae-purple);
+    color: var(--yae-purple);
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    padding: 0.5rem 0.75rem;
+    min-width: 42px;
+    text-align: center;
+  }
+
+  .pagination .page-link:hover {
+    background: var(--yae-purple);
+    color: white;
+  }
+
+  .pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    border-color: var(--yae-pink);
+    color: white;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .yae-events-hero h1 {
+      font-size: 2rem;
+    }
+
+    .yae-section-title {
+      font-size: 1.8rem;
+    }
+
+    .yae-featured-image {
+      height: 200px;
+    }
+
+    .btn-filter, .btn-event-type {
+      font-size: 0.75rem;
+      padding: 0.6rem 1rem;
+    }
+
+    .btn-group-yae {
+      gap: 0.5rem;
+    }
+  }
+</style>
+
+<!-- Ensure Bootstrap Icons are loaded -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

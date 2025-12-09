@@ -37,6 +37,9 @@ Rails.application.routes.draw do
   
   # Checkout
   resource :checkout, only: [:show, :create], controller: 'checkout'
+
+  # Events routes
+  resources :events, only: [:index, :show]
   
   # Orders
   resources :orders, only: [:index, :show] do

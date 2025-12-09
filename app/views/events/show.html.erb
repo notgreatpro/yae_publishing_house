@@ -1,0 +1,693 @@
+<!-- app/views/events/show.html.erb -->
+<div class="yae-event-show-page">
+  <div class="container-fluid px-lg-5 py-5">
+    
+    <!-- Back Button -->
+    <div class="mb-4">
+      <%= link_to events_path, class: "btn btn-yae-back" do %>
+        <i class="bi bi-arrow-left me-2"></i>Back to Events
+      <% end %>
+    </div>
+
+    <div class="row g-4">
+      <!-- Main Content -->
+      <div class="col-lg-8">
+        <div class="yae-event-main-card">
+          
+          <!-- Event Header -->
+          <div class="yae-event-header">
+            <div class="d-flex align-items-start justify-content-between mb-3">
+              <span class="yae-event-type-pill">
+                <i class="bi bi-<%= @event.event_type_icon %> me-2"></i>
+                <%= @event.event_type.titleize %>
+              </span>
+              
+              <span class="yae-status-pill <%= @event.status_badge_class %>">
+                <% if @event.is_ongoing? %>
+                  <span class="yae-live-dot"></span>LIVE NOW
+                <% else %>
+                  <%= @event.status.upcase %>
+                <% end %>
+              </span>
+            </div>
+            
+            <h1 class="yae-event-main-title"><%= @event.title %></h1>
+          </div>
+
+          <!-- Event Image -->
+          <div class="yae-event-main-image">
+            <% if @event.cover_image.attached? %>
+              <%= image_tag @event.large_image, alt: @event.title %>
+            <% else %>
+              <div class="yae-event-main-placeholder">
+                <i class="bi bi-<%= @event.event_type_icon %>"></i>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Event Description -->
+          <div class="yae-event-description">
+            <h3 class="yae-section-heading">
+              <i class="bi bi-info-circle me-2"></i>About This Event
+            </h3>
+            <div class="yae-description-text">
+              <%= simple_format(@event.description) %>
+            </div>
+          </div>
+
+          <!-- Organizer Info -->
+          <% if @event.organizer_info.present? %>
+            <div class="yae-organizer-section">
+              <h3 class="yae-section-heading">
+                <i class="bi bi-person-badge me-2"></i>Organized By
+              </h3>
+              <div class="yae-organizer-text">
+                <%= simple_format(@event.organizer_info) %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Contact Information -->
+          <% if @event.contact_email.present? || @event.contact_phone.present? %>
+            <div class="yae-contact-section">
+              <h3 class="yae-section-heading">
+                <i class="bi bi-telephone me-2"></i>Contact Information
+              </h3>
+              <div class="yae-contact-grid">
+                <% if @event.contact_email.present? %>
+                  <div class="yae-contact-item">
+                    <i class="bi bi-envelope-fill"></i>
+                    <a href="mailto:<%= @event.contact_email %>"><%= @event.contact_email %></a>
+                  </div>
+                <% end %>
+                <% if @event.contact_phone.present? %>
+                  <div class="yae-contact-item">
+                    <i class="bi bi-telephone-fill"></i>
+                    <a href="tel:<%= @event.contact_phone %>"><%= @event.contact_phone %></a>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-4">
+        <div class="yae-event-sidebar">
+          
+          <!-- Event Details Card -->
+          <div class="yae-sidebar-card">
+            <h4 class="yae-sidebar-title">Event Details</h4>
+            
+            <div class="yae-sidebar-details">
+              <div class="yae-sidebar-item">
+                <i class="bi bi-calendar3"></i>
+                <div>
+                  <div class="yae-sidebar-label">Date</div>
+                  <div class="yae-sidebar-value"><%= @event.formatted_date %></div>
+                </div>
+              </div>
+
+              <div class="yae-sidebar-item">
+                <i class="bi bi-clock"></i>
+                <div>
+                  <div class="yae-sidebar-label">Time</div>
+                  <div class="yae-sidebar-value"><%= @event.formatted_time %></div>
+                </div>
+              </div>
+
+              <div class="yae-sidebar-item">
+                <i class="bi bi-hourglass"></i>
+                <div>
+                  <div class="yae-sidebar-label">Duration</div>
+                  <div class="yae-sidebar-value"><%= @event.duration_in_hours %> hours</div>
+                </div>
+              </div>
+
+              <div class="yae-sidebar-item">
+                <i class="bi bi-geo-alt-fill"></i>
+                <div>
+                  <div class="yae-sidebar-label">Location</div>
+                  <div class="yae-sidebar-value"><%= @event.location %></div>
+                  <% if @event.venue_name.present? %>
+                    <div class="yae-venue-name"><%= @event.venue_name %></div>
+                  <% end %>
+                </div>
+              </div>
+
+              <% if @event.ticket_price.present? %>
+                <div class="yae-sidebar-item">
+                  <i class="bi bi-ticket-perforated"></i>
+                  <div>
+                    <div class="yae-sidebar-label">Ticket Price</div>
+                    <div class="yae-sidebar-value yae-price-value">
+                      <% if @event.ticket_price > 0 %>
+                        <%= number_to_currency(@event.ticket_price) %>
+                      <% else %>
+                        <span class="yae-free-badge">FREE</span>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+
+              <% if @event.max_attendees.present? %>
+                <div class="yae-sidebar-item">
+                  <i class="bi bi-people-fill"></i>
+                  <div>
+                    <div class="yae-sidebar-label">Capacity</div>
+                    <div class="yae-sidebar-value">
+                      <%= @event.current_attendees %> / <%= @event.max_attendees %> registered
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="yae-capacity-progress">
+                  <div class="yae-capacity-bar">
+                    <div class="yae-capacity-fill" style="width: <%= (@event.current_attendees.to_f / @event.max_attendees * 100).round %>%"></div>
+                  </div>
+                  <% if @event.spots_available && @event.spots_available > 0 %>
+                    <span class="yae-spots-text">
+                      <%= @event.spots_available %> spots remaining
+                    </span>
+                  <% else %>
+                    <span class="yae-spots-text yae-full">
+                      Event is full
+                    </span>
+                  <% end %>
+                </div>
+              <% end %>
+
+              <% if @event.registration_deadline.present? %>
+                <div class="yae-sidebar-item">
+                  <i class="bi bi-alarm"></i>
+                  <div>
+                    <div class="yae-sidebar-label">Registration Deadline</div>
+                    <div class="yae-sidebar-value">
+                      <%= @event.registration_deadline.strftime('%B %d, %Y at %I:%M %p') %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Registration Button -->
+            <div class="yae-registration-box">
+              <% if @event.can_register? %>
+                <button class="btn btn-yae-register">
+                  <i class="bi bi-check-circle me-2"></i>Register for Event
+                </button>
+                <p class="yae-register-note">
+                  Click to secure your spot at this event
+                </p>
+              <% else %>
+                <button class="btn btn-yae-register-disabled" disabled>
+                  <i class="bi bi-x-circle me-2"></i><%= @event.registration_status_text %>
+                </button>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Share Card -->
+          <div class="yae-sidebar-card yae-share-card">
+            <h4 class="yae-sidebar-title">Share This Event</h4>
+            <div class="yae-share-buttons">
+              <button class="btn btn-yae-share btn-share-facebook">
+                <i class="bi bi-facebook"></i>
+              </button>
+              <button class="btn btn-yae-share btn-share-twitter">
+                <i class="bi bi-twitter"></i>
+              </button>
+              <button class="btn btn-yae-share btn-share-linkedin">
+                <i class="bi bi-linkedin"></i>
+              </button>
+              <button class="btn btn-yae-share btn-share-email">
+                <i class="bi bi-envelope-fill"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  :root {
+    --yae-pink: #E91E8C;
+    --yae-purple: #8B2C7F;
+    --yae-dark: #4A1942;
+    --yae-light-pink: #F8C8DC;
+  }
+
+  .yae-event-show-page {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    min-height: 100vh;
+  }
+
+  /* Back Button */
+  .btn-yae-back {
+    background: white;
+    color: var(--yae-purple);
+    border: 2px solid var(--yae-purple);
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .btn-yae-back:hover {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    transform: translateX(-5px);
+  }
+
+  /* Main Card */
+  .yae-event-main-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
+
+  /* Event Header */
+  .yae-event-type-pill {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    padding: 0.5rem 1.25rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .yae-status-pill {
+    padding: 0.5rem 1.25rem;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .yae-status-pill.badge-upcoming {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+  }
+
+  .yae-status-pill.badge-ongoing {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    animation: pulse 2s infinite;
+  }
+
+  .yae-status-pill.badge-completed {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+  }
+
+  .yae-status-pill.badge-cancelled {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+  }
+
+  .yae-live-dot {
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-radius: 50%;
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  .yae-event-main-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    line-height: 1.3;
+    margin-top: 1rem;
+  }
+
+  /* Event Image */
+  .yae-event-main-image {
+    width: 100%;
+    height: 450px;
+    border-radius: 15px;
+    overflow: hidden;
+    margin: 2rem 0;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .yae-event-main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .yae-event-main-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 8rem;
+  }
+
+  /* Section Headings */
+  .yae-section-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--yae-purple);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Description */
+  .yae-event-description {
+    padding: 2rem 0;
+    border-bottom: 2px solid #f3f4f6;
+  }
+
+  .yae-description-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #374151;
+  }
+
+  /* Organizer Section */
+  .yae-organizer-section {
+    padding: 2rem 0;
+    border-bottom: 2px solid #f3f4f6;
+  }
+
+  .yae-organizer-text {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #4b5563;
+  }
+
+  /* Contact Section */
+  .yae-contact-section {
+    padding: 2rem 0;
+  }
+
+  .yae-contact-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .yae-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 12px;
+    font-size: 1rem;
+  }
+
+  .yae-contact-item i {
+    font-size: 1.5rem;
+    color: var(--yae-purple);
+  }
+
+  .yae-contact-item a {
+    color: var(--yae-purple);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .yae-contact-item a:hover {
+    text-decoration: underline;
+  }
+
+  /* Sidebar */
+  .yae-event-sidebar {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .yae-sidebar-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-sidebar-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--yae-pink);
+  }
+
+  .yae-sidebar-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .yae-sidebar-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .yae-sidebar-item > i {
+    font-size: 1.5rem;
+    color: var(--yae-purple);
+    width: 25px;
+    flex-shrink: 0;
+  }
+
+  .yae-sidebar-label {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+  }
+
+  .yae-sidebar-value {
+    font-size: 1rem;
+    color: var(--yae-dark);
+    font-weight: 600;
+  }
+
+  .yae-venue-name {
+    font-size: 0.9rem;
+    color: #6b7280;
+    font-style: italic;
+    margin-top: 0.25rem;
+  }
+
+  .yae-price-value {
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .yae-free-badge {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: inline-block;
+  }
+
+  /* Capacity Progress */
+  .yae-capacity-progress {
+    margin-top: 1rem;
+    padding-left: 2.5rem;
+  }
+
+  .yae-capacity-bar {
+    width: 100%;
+    height: 10px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+
+  .yae-capacity-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    transition: width 0.3s ease;
+  }
+
+  .yae-spots-text {
+    font-size: 0.9rem;
+    color: #059669;
+    font-weight: 600;
+  }
+
+  .yae-spots-text.yae-full {
+    color: #dc2626;
+  }
+
+  /* Registration Box */
+  .yae-registration-box {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #f3f4f6;
+  }
+
+  .btn-yae-register {
+    width: 100%;
+    background: linear-gradient(135deg, var(--yae-pink) 0%, #d91479 100%);
+    color: white;
+    border: none;
+    padding: 1.25rem 2rem;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-yae-register:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(233, 30, 140, 0.4);
+    background: linear-gradient(135deg, #d91479 0%, var(--yae-pink) 100%);
+  }
+
+  .btn-yae-register-disabled {
+    width: 100%;
+    background: #e5e7eb;
+    color: #9ca3af;
+    border: none;
+    padding: 1.25rem 2rem;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: not-allowed;
+  }
+
+  .yae-register-note {
+    font-size: 0.85rem;
+    color: #6b7280;
+    text-align: center;
+    margin-top: 0.75rem;
+    margin-bottom: 0;
+  }
+
+  /* Share Card */
+  .yae-share-card {
+    background: linear-gradient(135deg, #fef3c7 0%, white 100%);
+  }
+
+  .yae-share-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+  }
+
+  .btn-yae-share {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.5rem;
+    color: white;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-yae-share:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-share-facebook {
+    background: #1877f2;
+  }
+
+  .btn-share-twitter {
+    background: #1da1f2;
+  }
+
+  .btn-share-linkedin {
+    background: #0a66c2;
+  }
+
+  .btn-share-email {
+    background: var(--yae-purple);
+  }
+
+  /* Responsive */
+  @media (max-width: 991px) {
+    .yae-event-sidebar {
+      position: relative;
+      top: 0;
+    }
+
+    .yae-event-main-title {
+      font-size: 2rem;
+    }
+
+    .yae-event-main-image {
+      height: 350px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .yae-event-main-card {
+      padding: 1.5rem;
+    }
+
+    .yae-event-main-title {
+      font-size: 1.5rem;
+    }
+
+    .yae-event-main-image {
+      height: 250px;
+    }
+
+    .yae-sidebar-card {
+      padding: 1.5rem;
+    }
+  }
+</style>
+
+<!-- Ensure Bootstrap Icons are loaded -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_09_051623) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_09_202741) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -154,6 +154,33 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_09_051623) do
     t.index ["province_id"], name: "index_customers_on_province_id"
     t.index ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true
     t.index ["stripe_customer_id"], name: "index_customers_on_stripe_customer_id"
+  end
+
+  create_table "events", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description", null: false
+    t.integer "event_type", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "starts_at", null: false
+    t.datetime "ends_at", null: false
+    t.string "location", null: false
+    t.string "venue_name"
+    t.integer "max_attendees"
+    t.integer "current_attendees", default: 0
+    t.datetime "registration_deadline"
+    t.boolean "active", default: true
+    t.boolean "featured", default: false
+    t.text "organizer_info"
+    t.decimal "ticket_price", precision: 10, scale: 2
+    t.string "contact_email"
+    t.string "contact_phone"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_events_on_active"
+    t.index ["event_type"], name: "index_events_on_event_type"
+    t.index ["featured"], name: "index_events_on_featured"
+    t.index ["starts_at"], name: "index_events_on_starts_at"
+    t.index ["status"], name: "index_events_on_status"
   end
 
   create_table "order_items", force: :cascade do |t|
