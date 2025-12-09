@@ -26,13 +26,13 @@
             <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i> Edit Profile</h4>
           </div>
           <div class="yae-card-body">
-            <%= form_with model: @customer, url: customer_profile_path, method: :patch, local: true, data: { turbo: false } do |f| %>
+            <!-- Pure HTML Form -->
+            <form action="/profile" method="POST" enctype="multipart/form-data">
+              <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+              <input type="hidden" name="_method" value="PATCH">
               
               <% if @customer.errors.any? %>
                 <div class="yae-alert yae-alert-danger">
-                  <button type="button" class="yae-alert-close" data-bs-dismiss="alert" aria-label="Close">
-                    <i class="bi bi-x-lg"></i>
-                  </button>
                   <h5 class="yae-alert-heading">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
                     <%= pluralize(@customer.errors.count, "error") %> prohibited this profile from being saved:
@@ -52,66 +52,41 @@
                 </h5>
 
                 <!-- Profile Picture Section -->
-                <div class="yae-profile-picture-section">
-                  <label class="yae-label">Profile Picture</label>
-                  
-                  <div class="d-flex align-items-center gap-3 flex-wrap">
-                    <% if @customer.profile_picture.attached? %>
+                <% if @customer.profile_picture.attached? %>
+                  <div class="yae-profile-picture-section">
+                    <div style="font-weight: 700; margin-bottom: 0.5rem;">Profile Picture</div>
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
                       <%= image_tag @customer.profile_picture.variant(resize_to_fill: [100, 100]), 
                           class: 'yae-current-avatar' %>
-                    <% else %>
-                      <div class="yae-avatar-circle-small">
-                        <h3 class="mb-0"><%= @customer.initials %></h3>
+                      <div class="flex-grow-1">
+                        <input type="file" name="customer[profile_picture]" id="customer_profile_picture"
+                               accept="image/png,image/jpeg,image/jpg,image/gif" class="yae-file-input">
+                        <small class="yae-help-text">
+                          <i class="bi bi-info-circle me-1"></i>JPG, PNG, or GIF. Max size 5MB.
+                        </small>
                       </div>
-                    <% end %>
-                    
-                    <div class="flex-grow-1">
-                      <%= f.file_field :profile_picture, 
-                          accept: 'image/png,image/jpeg,image/jpg,image/gif',
-                          class: 'yae-file-input',
-                          onchange: 'previewProfilePicture(event)' %>
-                      <small class="yae-help-text">
-                        <i class="bi bi-info-circle me-1"></i>JPG, PNG, or GIF. Max size 5MB.
-                      </small>
-                      
-                      <% if @customer.profile_picture.attached? %>
-                        <div class="mt-2">
-                          <%= button_to remove_profile_picture_path, 
-                              method: :delete, 
-                              class: 'yae-btn yae-btn-danger-outline yae-btn-small',
-                              data: { confirm: 'Are you sure you want to remove your profile picture?' } do %>
-                            <i class="bi bi-trash me-1"></i>Remove Current Picture
-                          <% end %>
-                        </div>
-                      <% end %>
                     </div>
                   </div>
-
-                  <!-- Preview Container -->
-                  <div id="profile-picture-preview" class="yae-preview-container" style="display: none;">
-                    <p class="yae-preview-label">
-                      <i class="bi bi-eye me-1"></i>New picture preview:
-                    </p>
-                    <img id="preview-image" class="yae-preview-image" />
-                  </div>
-                </div>
-
-                <hr class="yae-divider">
+                  <hr class="yae-divider">
+                <% end %>
                 
                 <div class="row mb-3">
                   <div class="col-md-6">
-                    <%= f.label :first_name, class: 'yae-label' %>
-                    <%= f.text_field :first_name, class: 'yae-input', placeholder: 'First Name' %>
+                    <label for="customer_first_name" class="yae-label">First name</label>
+                    <input type="text" name="customer[first_name]" id="customer_first_name" 
+                           value="<%= @customer.first_name %>" class="yae-input" placeholder="First Name" required>
                   </div>
                   <div class="col-md-6">
-                    <%= f.label :last_name, class: 'yae-label' %>
-                    <%= f.text_field :last_name, class: 'yae-input', placeholder: 'Last Name' %>
+                    <label for="customer_last_name" class="yae-label">Last name</label>
+                    <input type="text" name="customer[last_name]" id="customer_last_name" 
+                           value="<%= @customer.last_name %>" class="yae-input" placeholder="Last Name" required>
                   </div>
                 </div>
 
                 <div class="mb-3">
-                  <%= f.label :email, class: 'yae-label' %>
-                  <%= f.email_field :email, class: 'yae-input', placeholder: 'your.email@example.com' %>
+                  <label for="customer_email" class="yae-label">Email</label>
+                  <input type="email" name="customer[email]" id="customer_email" 
+                         value="<%= @customer.email %>" class="yae-input" placeholder="your.email@example.com" required>
                   <small class="yae-help-text">
                     <i class="bi bi-shield-check me-1"></i>We'll never share your email with anyone else.
                   </small>
@@ -127,39 +102,50 @@
                 </h5>
                 
                 <div class="mb-3">
-                  <%= f.label :address_line1, 'Address Line 1', class: 'yae-label' %>
-                  <%= f.text_field :address_line1, class: 'yae-input', placeholder: '123 Main Street' %>
+                  <label for="customer_address_line1" class="yae-label">Address Line 1</label>
+                  <input type="text" name="customer[address_line1]" id="customer_address_line1" 
+                         value="<%= @customer.address_line1 %>" class="yae-input" placeholder="123 Main Street">
                 </div>
 
                 <div class="mb-3">
-                  <%= f.label :address_line2, 'Address Line 2 (Optional)', class: 'yae-label' %>
-                  <%= f.text_field :address_line2, class: 'yae-input', placeholder: 'Apt 4B, Unit 2, etc.' %>
+                  <label for="customer_address_line2" class="yae-label">Address Line 2 (Optional)</label>
+                  <input type="text" name="customer[address_line2]" id="customer_address_line2" 
+                         value="<%= @customer.address_line2 %>" class="yae-input" placeholder="Apt 4B, Unit 2, etc.">
                 </div>
 
                 <div class="row mb-3">
                   <div class="col-md-6">
-                    <%= f.label :city, class: 'yae-label' %>
-                    <%= f.text_field :city, class: 'yae-input', placeholder: 'City' %>
+                    <label for="customer_city" class="yae-label">City</label>
+                    <input type="text" name="customer[city]" id="customer_city" 
+                           value="<%= @customer.city %>" class="yae-input" placeholder="City">
                   </div>
                   <div class="col-md-6">
-                    <%= f.label :province_id, 'Province', class: 'yae-label' %>
-                    <%= f.collection_select :province_id, Province.all, :id, :name, 
-                        { prompt: 'Select Province' }, { class: 'yae-select' } %>
+                    <label for="customer_province_id" class="yae-label">Province</label>
+                    <select name="customer[province_id]" id="customer_province_id" class="yae-select">
+                      <option value="">Select Province</option>
+                      <% Province.all.each do |province| %>
+                        <option value="<%= province.id %>" <%= 'selected' if @customer.province_id == province.id %>>
+                          <%= province.name %>
+                        </option>
+                      <% end %>
+                    </select>
                   </div>
                 </div>
 
                 <div class="mb-3">
-                  <%= f.label :postal_code, class: 'yae-label' %>
-                  <%= f.text_field :postal_code, class: 'yae-input yae-input-postal', placeholder: 'A1A 1A1', 
-                      maxlength: 7 %>
+                  <label for="customer_postal_code" class="yae-label">Postal code</label>
+                  <input type="text" name="customer[postal_code]" id="customer_postal_code" 
+                         value="<%= @customer.postal_code %>" class="yae-input yae-input-postal" 
+                         placeholder="A1A 1A1" maxlength="7">
                   <small class="yae-help-text">
                     <i class="bi bi-mailbox me-1"></i>Format: A1A 1A1
                   </small>
                 </div>
 
                 <div class="mb-3">
-                  <%= f.label :phone, 'Phone Number (Optional)', class: 'yae-label' %>
-                  <%= f.telephone_field :phone, class: 'yae-input', placeholder: '(204) 555-1234' %>
+                  <label for="customer_phone" class="yae-label">Phone Number (Optional)</label>
+                  <input type="tel" name="customer[phone]" id="customer_phone" 
+                         value="<%= @customer.phone %>" class="yae-input" placeholder="(204) 555-1234">
                   <small class="yae-help-text">
                     <i class="bi bi-telephone me-1"></i>Optional - for order updates
                   </small>
@@ -178,10 +164,9 @@
                 </p>
                 
                 <div class="mb-3">
-                  <%= f.label :current_password, 'Current Password', class: 'yae-label' %>
-                  <%= f.password_field :current_password, class: 'yae-input', 
-                      placeholder: 'Enter your current password',
-                      autocomplete: 'current-password' %>
+                  <label for="customer_current_password" class="yae-label">Current Password</label>
+                  <input type="password" name="customer[current_password]" id="customer_current_password" 
+                         class="yae-input" placeholder="Enter your current password" autocomplete="off">
                   <small class="yae-help-text yae-help-text-important">
                     <i class="bi bi-key me-1"></i>Required only when changing password or email
                   </small>
@@ -189,19 +174,17 @@
 
                 <div class="row mb-3">
                   <div class="col-md-6">
-                    <%= f.label :password, 'New Password (optional)', class: 'yae-label' %>
-                    <%= f.password_field :password, class: 'yae-input', 
-                        placeholder: 'Enter new password',
-                        autocomplete: 'new-password' %>
+                    <label for="customer_password" class="yae-label">New Password (optional)</label>
+                    <input type="password" name="customer[password]" id="customer_password" 
+                           class="yae-input" placeholder="Enter new password" autocomplete="off">
                     <small class="yae-help-text">
                       <i class="bi bi-lock me-1"></i>Min. 6 characters
                     </small>
                   </div>
                   <div class="col-md-6">
-                    <%= f.label :password_confirmation, 'Confirm New Password', class: 'yae-label' %>
-                    <%= f.password_field :password_confirmation, class: 'yae-input', 
-                        placeholder: 'Confirm new password',
-                        autocomplete: 'new-password' %>
+                    <label for="customer_password_confirmation" class="yae-label">Confirm New Password</label>
+                    <input type="password" name="customer[password_confirmation]" id="customer_password_confirmation" 
+                           class="yae-input" placeholder="Confirm new password" autocomplete="off">
                   </div>
                 </div>
 
@@ -218,10 +201,11 @@
                 <%= link_to customer_profile_path, class: 'yae-btn yae-btn-secondary' do %>
                   <i class="bi bi-x-circle me-2"></i>Cancel
                 <% end %>
-                <%= f.submit 'Save Changes', class: 'yae-btn yae-btn-primary', data: { disable_with: "Saving..." } %>
+                <button type="submit" class="yae-btn yae-btn-primary">
+                  <i class="bi bi-check-circle me-2"></i>Save Changes
+                </button>
               </div>
-
-            <% end %>
+            </form>
           </div>
         </div>
       </div>
@@ -230,65 +214,22 @@
 </div>
 
 <script>
-  // Auto-format postal code
-  document.addEventListener('DOMContentLoaded', function() {
-    const postalInput = document.querySelector('input[name="customer[postal_code]"]');
-    
-    if (postalInput) {
-      postalInput.addEventListener('input', function(e) {
-        let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-        
-        if (value.length > 3) {
-          value = value.slice(0, 3) + ' ' + value.slice(3, 6);
-        }
-        
-        e.target.value = value;
-      });
-    }
-
-    // Debug form submission
-    const form = document.querySelector('form');
-    if (form) {
-      form.addEventListener('submit', function(e) {
-        console.log('Form is submitting...');
-        // Only check password if email or password fields are filled
-        const email = document.querySelector('input[name="customer[email]"]');
-        const password = document.querySelector('input[name="customer[password]"]');
-        const currentPassword = document.querySelector('input[name="customer[current_password]"]');
-        
-        const originalEmail = email ? email.defaultValue : '';
-        const newEmail = email ? email.value : '';
-        const isPasswordChange = password && password.value;
-        const isEmailChange = originalEmail !== newEmail;
-        
-        if ((isPasswordChange || isEmailChange) && (!currentPassword || !currentPassword.value)) {
-          alert('Please enter your current password when changing email or password');
-          e.preventDefault();
-          return false;
-        }
-      });
-    }
-  });
-
-  // Preview profile picture before upload
-  function previewProfilePicture(event) {
-    const file = event.target.files[0];
-    const preview = document.getElementById('profile-picture-preview');
-    const previewImage = document.getElementById('preview-image');
-    
-    if (file) {
-      const reader = new FileReader();
+// Auto-format postal code
+document.addEventListener('DOMContentLoaded', function() {
+  const postalInput = document.querySelector('input[name="customer[postal_code]"]');
+  
+  if (postalInput) {
+    postalInput.addEventListener('input', function(e) {
+      let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
       
-      reader.onload = function(e) {
-        previewImage.src = e.target.result;
-        preview.style.display = 'block';
-      };
+      if (value.length > 3) {
+        value = value.slice(0, 3) + ' ' + value.slice(3, 6);
+      }
       
-      reader.readAsDataURL(file);
-    } else {
-      preview.style.display = 'none';
-    }
+      e.target.value = value;
+    });
   }
+});
 </script>
 
 <style>
@@ -305,7 +246,6 @@
     padding: 2rem 0;
   }
 
-  /* Breadcrumb */
   .yae-breadcrumb {
     background: white;
     padding: 1rem 1.5rem;
@@ -325,18 +265,12 @@
     color: var(--yae-pink);
   }
 
-  /* Edit Card */
   .yae-edit-card {
     background: white;
     border-radius: 25px;
     border: 3px solid var(--yae-purple);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    transition: all 0.3s ease;
-  }
-
-  .yae-edit-card:hover {
-    box-shadow: 0 10px 40px rgba(139, 44, 127, 0.2);
   }
 
   .yae-card-header {
@@ -350,7 +284,6 @@
     padding: 2.5rem;
   }
 
-  /* Form Sections */
   .yae-form-section {
     margin-bottom: 2rem;
   }
@@ -386,18 +319,12 @@
     margin: 1.5rem 0;
   }
 
-  /* Form Controls */
   .yae-label {
     color: var(--yae-dark);
     font-weight: 700;
     font-size: 0.95rem;
     margin-bottom: 0.5rem;
     display: block;
-  }
-
-  .yae-label-required::after {
-    content: ' *';
-    color: #dc2626;
   }
 
   .yae-input, .yae-select {
@@ -432,7 +359,6 @@
     font-weight: 600;
   }
 
-  /* File Input */
   .yae-file-input {
     padding: 0.75rem;
     border: 2px dashed #e9d5ff;
@@ -440,6 +366,7 @@
     background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
     transition: all 0.3s ease;
     cursor: pointer;
+    width: 100%;
   }
 
   .yae-file-input:hover {
@@ -447,7 +374,6 @@
     background: white;
   }
 
-  /* Profile Picture Section */
   .yae-profile-picture-section {
     background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
     padding: 2rem;
@@ -464,44 +390,6 @@
     object-fit: cover;
   }
 
-  .yae-avatar-circle-small {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: white;
-    border: 3px solid white;
-    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.3);
-  }
-
-  .yae-preview-container {
-    margin-top: 1.5rem;
-    padding: 1.5rem;
-    background: white;
-    border-radius: 15px;
-    border: 2px solid var(--yae-purple);
-  }
-
-  .yae-preview-label {
-    color: var(--yae-purple);
-    font-weight: 600;
-    margin-bottom: 1rem;
-  }
-
-  .yae-preview-image {
-    border-radius: 50%;
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border: 3px solid var(--yae-purple);
-    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.2);
-  }
-
-  /* Info Box */
   .yae-info-box {
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
     border: 2px solid #f59e0b;
@@ -515,12 +403,10 @@
     font-weight: 700;
   }
 
-  /* Alerts */
   .yae-alert {
     padding: 1.5rem;
     border-radius: 15px;
     margin-bottom: 2rem;
-    position: relative;
   }
 
   .yae-alert-danger {
@@ -545,42 +431,20 @@
     margin-bottom: 0.5rem;
   }
 
-  .yae-alert-close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: none;
-    border: none;
-    color: #991b1b;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    transition: all 0.2s ease;
-  }
-
-  .yae-alert-close:hover {
-    transform: scale(1.1);
-  }
-
-  /* Buttons */
   .yae-btn {
     padding: 0.85rem 2rem;
     border-radius: 25px;
     font-weight: 700;
     text-decoration: none;
     transition: all 0.3s ease;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border: none;
     cursor: pointer;
     font-size: 1rem;
     font-family: inherit;
     line-height: 1.5;
-  }
-
-  button.yae-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
   }
 
   .yae-btn-primary {
@@ -591,7 +455,6 @@
   .yae-btn-primary:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 20px rgba(139, 44, 127, 0.4);
-    color: white;
   }
 
   .yae-btn-secondary {
@@ -603,26 +466,8 @@
   .yae-btn-secondary:hover {
     background: #f3f4f6;
     border-color: #d1d5db;
-    color: var(--yae-dark);
   }
 
-  .yae-btn-danger-outline {
-    background: white;
-    color: #dc2626;
-    border: 2px solid #dc2626;
-  }
-
-  .yae-btn-danger-outline:hover {
-    background: #dc2626;
-    color: white;
-  }
-
-  .yae-btn-small {
-    padding: 0.5rem 1.25rem;
-    font-size: 0.9rem;
-  }
-
-  /* Form Actions */
   .yae-form-actions {
     display: flex;
     justify-content: space-between;
@@ -631,7 +476,6 @@
     padding-top: 1rem;
   }
 
-  /* Responsive */
   @media (max-width: 767px) {
     .yae-card-body {
       padding: 1.5rem;
@@ -652,13 +496,8 @@
     .yae-form-actions .yae-btn {
       width: 100%;
     }
-
-    .yae-btn {
-      padding: 0.75rem 1.5rem;
-      font-size: 0.95rem;
-    }
   }
 </style>
 
-<!-- Ensure Bootstrap Icons are loaded -->
+<!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

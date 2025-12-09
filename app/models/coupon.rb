@@ -3,7 +3,11 @@ class Coupon < ApplicationRecord
   # Discount categories
   DISCOUNT_CATEGORIES = %w[general bulk_discount flash_sale first_time_buyer].freeze
   
+  # Serialize tags as JSON array
+  serialize :tags, coder: JSON
+  
   # Validations
+  validates :name, presence: true, length: { maximum: 100 }
   validates :code, presence: true, uniqueness: { case_sensitive: false }
   validates :discount_type, presence: true, inclusion: { in: %w[percentage fixed] }
   validates :discount_value, presence: true, numericality: { greater_than_or_equal_to: 0.01 }
@@ -12,9 +16,11 @@ class Coupon < ApplicationRecord
   validates :minimum_purchase, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :discount_category, inclusion: { in: DISCOUNT_CATEGORIES }, allow_nil: true
   validates :applies_to_quantity, numericality: { greater_than: 0 }, allow_nil: true
+  validate :tags_must_be_array
   
   # Callbacks
   before_validation :normalize_code
+  before_validation :normalize_tags
   after_initialize :set_defaults, if: :new_record?
   
   # Scopes
@@ -76,7 +82,7 @@ class Coupon < ApplicationRecord
     when 'percentage'
       (cart_total * discount_value / 100.0).round(2)
     when 'fixed'
-      [discount_value, cart_total].min # Don't discount more than cart total
+      [discount_value, cart_total].min
     else
       0
     end
@@ -87,27 +93,35 @@ class Coupon < ApplicationRecord
     increment!(:times_used)
   end
   
-  # Display format
+  # Display name for coupon card
+  def display_name
+    name.presence || code
+  end
+  
+  # Display format for discount amount
   def display_discount
-    prefix = case discount_category
-    when 'bulk_discount'
-      applies_to_quantity.present? ? "Buy #{applies_to_quantity}+ get " : ""
-    when 'flash_sale'
-      "FLASH SALE: "
-    when 'first_time_buyer'
-      "NEW CUSTOMER: "
-    else
-      ""
-    end
-    
-    discount_text = case discount_type
+    case discount_type
     when 'percentage'
       "#{discount_value}% off"
     when 'fixed'
       "#{ActionController::Base.helpers.number_to_currency(discount_value)} off"
     end
+  end
+  
+  # Display title with category prefix
+  def display_title
+    prefix = case discount_category
+    when 'flash_sale'
+      "FLASH SALE: "
+    when 'first_time_buyer'
+      "NEW CUSTOMER: "
+    when 'bulk_discount'
+      applies_to_quantity.present? ? "Buy #{applies_to_quantity}+ get " : ""
+    else
+      ""
+    end
     
-    "#{prefix}#{discount_text}"
+    "#{prefix}#{display_discount}"
   end
   
   # Helper methods for discount categories
@@ -143,16 +157,29 @@ class Coupon < ApplicationRecord
     end
   end
   
+  # Tags helper methods
+  def tag_list
+    tags.present? ? tags.join(', ') : ''
+  end
+  
+  def tag_list=(value)
+    self.tags = value.to_s.split(',').map(&:strip).reject(&:blank?)
+  end
+  
+  def has_tag?(tag)
+    tags&.include?(tag.to_s)
+  end
+  
   # Ransack for ActiveAdmin search
   def self.ransackable_attributes(auth_object = nil)
-    ["active", "code", "created_at", "discount_type", "discount_value", 
+    ["active", "name", "code", "created_at", "discount_type", "discount_value", 
      "expires_at", "id", "minimum_purchase", "times_used", "updated_at", "usage_limit",
-     "discount_category", "applies_to_quantity", "first_time_buyer_only", "flash_sale_ends_at"]
+     "discount_category", "applies_to_quantity", "first_time_buyer_only", "flash_sale_ends_at", "tags"]
   end
 
   def self.ransackable_associations(auth_object = nil)
-  []
-end
+    []
+  end
 
   private
   
@@ -160,8 +187,19 @@ end
     self.code = code.upcase.strip if code.present?
   end
   
+  def normalize_tags
+    self.tags = [] if tags.nil?
+    self.tags = tags.map(&:strip).reject(&:blank?).uniq if tags.is_a?(Array)
+  end
+  
+  def tags_must_be_array
+    return if tags.nil? || tags.is_a?(Array)
+    errors.add(:tags, 'must be an array')
+  end
+  
   def set_defaults
     self.times_used ||= 0
     self.active = true if active.nil?
+    self.tags ||= []
   end
 end

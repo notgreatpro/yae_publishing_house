@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_08_201459) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_09_051623) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -126,6 +126,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_08_201459) do
     t.integer "applies_to_quantity"
     t.boolean "first_time_buyer_only"
     t.datetime "flash_sale_ends_at"
+    t.string "name"
+    t.text "tags"
   end
 
   create_table "customers", force: :cascade do |t|

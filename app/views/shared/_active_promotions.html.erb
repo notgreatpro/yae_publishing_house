@@ -17,7 +17,6 @@
                   <div class="yae-promo-icon flash-sale">
                     <i class="bi bi-lightning-charge-fill"></i>
                   </div>
-                  <div class="yae-promo-badge flash-sale">FLASH SALE</div>
                 <% elsif coupon.bulk_discount? %>
                   <div class="yae-promo-icon bulk">
                     <i class="bi bi-cart-check-fill"></i>
@@ -32,11 +31,27 @@
               </div>
               
               <div class="yae-promo-content">
+                <!-- Display coupon name -->
+                <h3 class="yae-promo-name"><%= coupon.display_name %></h3>
+                
+                <!-- Display discount amount -->
                 <h4 class="yae-promo-discount"><%= coupon.display_discount %></h4>
+                
+                <!-- Display coupon code -->
                 <p class="yae-promo-code">
                   Use code: <strong><%= coupon.code %></strong>
                 </p>
                 
+                <!-- Display tags if present -->
+                <% if coupon.tags.present? %>
+                  <div class="yae-promo-tags">
+                    <% coupon.tags.each do |tag| %>
+                      <span class="yae-tag"><i class="bi bi-tag-fill me-1"></i><%= tag %></span>
+                    <% end %>
+                  </div>
+                <% end %>
+                
+                <!-- Minimum purchase requirement -->
                 <% if coupon.minimum_purchase.present? %>
                   <p class="yae-promo-condition">
                     <i class="bi bi-info-circle me-1"></i>
@@ -44,6 +59,15 @@
                   </p>
                 <% end %>
                 
+                <!-- Bulk discount quantity requirement -->
+                <% if coupon.bulk_discount? && coupon.applies_to_quantity.present? %>
+                  <p class="yae-promo-condition">
+                    <i class="bi bi-cart3 me-1"></i>
+                    Buy <%= coupon.applies_to_quantity %>+ items
+                  </p>
+                <% end %>
+                
+                <!-- Flash sale countdown -->
                 <% if coupon.flash_sale? && coupon.time_remaining %>
                   <div class="yae-countdown">
                     <i class="bi bi-clock-fill me-1"></i>
@@ -162,6 +186,15 @@
     text-align: center;
   }
 
+  .yae-promo-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--yae-purple);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
   .yae-promo-discount {
     font-size: 1.8rem;
     font-weight: 700;
@@ -181,6 +214,27 @@
     padding: 0.25rem 0.75rem;
     border-radius: 8px;
     font-size: 1.1rem;
+  }
+
+  .yae-promo-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .yae-tag {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 8px rgba(139, 44, 127, 0.3);
   }
 
   .yae-promo-condition {
@@ -209,6 +263,10 @@
   @media (max-width: 767px) {
     .yae-promotions-title {
       font-size: 1.5rem;
+    }
+
+    .yae-promo-name {
+      font-size: 1.2rem;
     }
 
     .yae-promo-discount {
