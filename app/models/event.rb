@@ -1,7 +1,7 @@
 # app/models/event.rb
 class Event < ApplicationRecord
   # Enums
-  enum event_type: {
+  enum :event_type, {
     book_launch: 0,
     author_signing: 1,
     reading_session: 2,
@@ -12,7 +12,7 @@ class Event < ApplicationRecord
     other: 7
   }
 
-  enum status: {
+  enum :status, {
     upcoming: 0,
     ongoing: 1,
     completed: 2,

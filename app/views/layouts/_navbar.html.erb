@@ -38,6 +38,10 @@
         </li>
 
         <li class="nav-item">
+          <%= link_to "Events", events_path, class: 'nav-link' %>
+        </li>
+
+        <li class="nav-item">
           <%= link_to "About", about_path, class: 'nav-link' %>
         </li>
 
@@ -53,10 +57,6 @@
                 (<%= wishlist_count %>)
               <% end %>
             <% end %>
-          </li>
-          
-          <li class="nav-item">
-            <%= link_to "My Orders", orders_path, class: 'nav-link' %>
           </li>
           
           <!-- Customer Profile Dropdown -->

@@ -46,7 +46,12 @@ ActiveAdmin.register Event do
               hint: 'Detailed description of the event'
       f.input :event_type, as: :select, collection: Event.event_types.keys.map { |k| [k.titleize, k] }
       f.input :status, as: :select, collection: Event.statuses.keys.map { |k| [k.titleize, k] }
-      f.input :cover_image, as: :file, hint: f.object.cover_image.attached? ? image_tag(f.object.cover_image.variant(resize_to_limit: [200, 200])) : 'Upload event cover image'
+      
+      if f.object.new_record?
+        f.input :cover_image, as: :file, hint: 'Upload event cover image'
+      else
+        f.input :cover_image, as: :file, hint: f.object.cover_image.attached? ? image_tag(f.object.cover_image.variant(resize_to_limit: [200, 200])) : 'Upload event cover image'
+      end
     end
 
     f.inputs 'Date & Time' do

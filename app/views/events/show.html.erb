@@ -37,7 +37,7 @@
           <!-- Event Image -->
           <div class="yae-event-main-image">
             <% if @event.cover_image.attached? %>
-              <%= image_tag @event.large_image, alt: @event.title %>
+              <%= image_tag url_for(@event.cover_image), alt: @event.title %>
             <% else %>
               <div class="yae-event-main-placeholder">
                 <i class="bi bi-<%= @event.event_type_icon %>"></i>

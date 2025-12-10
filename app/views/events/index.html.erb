@@ -6,10 +6,10 @@
     <div class="container-fluid px-lg-5">
       <div class="text-center py-5">
         <h1 class="display-3 fw-bold text-white mb-3 animate-fade-in">
-          <i class="bi bi-calendar-event me-3"></i>Literary Events
+          <i class="bi bi-calendar-event me-3"></i>Yae Publishing House Event
         </h1>
         <p class="lead text-white-50 fst-italic mb-0">
-          Join us for exclusive book launches, author signings, and literary experiences
+          We host numerous events such as our yearly This Novel Is Amazing Contest. Please stay tuned for more updates!
         </p>
       </div>
     </div>
@@ -34,7 +34,7 @@
                   
                   <div class="yae-featured-image">
                     <% if event.cover_image.attached? %>
-                      <%= image_tag event.medium_image, alt: event.title %>
+                      <%= image_tag url_for(event.cover_image), alt: event.title %>
                     <% else %>
                       <div class="yae-featured-placeholder">
                         <i class="bi bi-<%= event.event_type_icon %>"></i>
@@ -151,7 +151,7 @@
                 <!-- Event Image -->
                 <div class="yae-event-image">
                   <% if event.cover_image.attached? %>
-                    <%= image_tag event.medium_image, alt: event.title %>
+                    <%= image_tag url_for(event.cover_image), alt: event.title %>
                   <% else %>
                     <div class="yae-event-placeholder">
                       <i class="bi bi-<%= event.event_type_icon %>"></i>
@@ -229,7 +229,7 @@
         <div class="text-center py-5">
           <i class="bi bi-calendar-x display-1 text-muted mb-4"></i>
           <h4 class="mb-3">No events found</h4>
-          <p class="text-muted mb-4">Check back soon for upcoming literary events!</p>
+          <p class="text-muted mb-4">Check back soon for our upcoming events!</p>
           <%= link_to "View All Events", events_path, class: "btn btn-yae-primary btn-lg" %>
         </div>
       </div>
