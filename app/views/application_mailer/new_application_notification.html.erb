@@ -330,7 +330,7 @@
     <!-- Content -->
     <div class="content">
       <div class="alert-badge">
-        📬 Action Required
+        Action Required
       </div>
       
       <h2>New Application Received</h2>
@@ -397,7 +397,6 @@
       <% if @application.linkedin_url.present? || @application.portfolio_url.present? %>
         <div class="info-section">
           <h3>
-            <span class="section-icon">🔗</span>
             Online Profiles
           </h3>
           <% if @application.linkedin_url.present? %>
@@ -432,7 +431,7 @@
           View Full Application
         </a>
         <a href="mailto:<%= @application.email %>" class="button button-secondary">
-          ✉️ Email Applicant
+          Email Applicant
         </a>
       </div>
       

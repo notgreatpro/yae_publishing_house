@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_10_071401) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_11_064830) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -154,6 +154,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_10_071401) do
     t.index ["province_id"], name: "index_customers_on_province_id"
     t.index ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true
     t.index ["stripe_customer_id"], name: "index_customers_on_stripe_customer_id"
+  end
+
+  create_table "event_registrations", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "customer_id", null: false
+    t.datetime "registered_at"
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["customer_id"], name: "index_event_registrations_on_customer_id"
+    t.index ["event_id"], name: "index_event_registrations_on_event_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -364,6 +375,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_10_071401) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "customers", "provinces"
+  add_foreign_key "event_registrations", "customers"
+  add_foreign_key "event_registrations", "events"
   add_foreign_key "job_applications", "jobs"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"

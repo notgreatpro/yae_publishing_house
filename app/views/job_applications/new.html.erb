@@ -301,6 +301,72 @@
       </div>
     </div>
   </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle resume file upload
+  const resumeInput = document.querySelector('input[type="file"][name*="resume"]');
+  if (resumeInput) {
+    resumeInput.addEventListener('change', function(e) {
+      handleFileSelection(e.target, 'resume');
+    });
+  }
+
+  // Handle cover letter file upload
+  const coverLetterInput = document.querySelector('input[type="file"][name*="cover_letter"]');
+  if (coverLetterInput) {
+    coverLetterInput.addEventListener('change', function(e) {
+      handleFileSelection(e.target, 'cover_letter');
+    });
+  }
+
+  function handleFileSelection(input, fieldName) {
+    const wrapper = input.closest('.yae-file-upload-wrapper');
+    const label = wrapper.querySelector('.yae-file-upload-label');
+    
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const fileSize = (file.size / (1024 * 1024)).toFixed(2); // Convert to MB
+      
+      // Create or update the file display
+      let fileDisplay = wrapper.querySelector('.yae-file-selected');
+      
+      if (!fileDisplay) {
+        fileDisplay = document.createElement('div');
+        fileDisplay.className = 'yae-file-selected';
+        // Insert after the label instead of appending
+        label.parentNode.insertBefore(fileDisplay, label.nextSibling);
+      }
+      
+      fileDisplay.innerHTML = `
+        <div class="yae-file-info">
+          <i class="bi bi-file-earmark-check-fill"></i>
+          <div class="yae-file-details">
+            <span class="yae-file-name">${file.name}</span>
+            <span class="yae-file-size">${fileSize} MB</span>
+          </div>
+          <button type="button" class="yae-file-remove" data-field="${fieldName}">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        </div>
+      `;
+      
+      // Hide the upload label and disable file input overlay
+      label.style.display = 'none';
+      input.classList.add('has-file');
+      
+      // Add remove functionality
+      const removeBtn = fileDisplay.querySelector('.yae-file-remove');
+      removeBtn.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent event bubbling
+        input.value = '';
+        fileDisplay.remove();
+        label.style.display = 'block';
+        input.classList.remove('has-file');
+      });
+    }
+  }
+});
+</script>
 </div>
 
 <style>
@@ -334,6 +400,129 @@
     background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
     color: white;
     transform: translateX(-5px);
+  }
+
+  /* File Selected Display */
+  .yae-file-selected {
+    border: 2px solid var(--yae-purple);
+    border-radius: 15px;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 100%);
+    animation: fadeIn 0.3s ease;
+    position: relative;
+    z-index: 1;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .yae-file-info {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .yae-file-info > i {
+    font-size: 2.5rem;
+    color: var(--yae-purple);
+    flex-shrink: 0;
+  }
+
+  .yae-file-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0; /* Allows text truncation */
+  }
+
+  .yae-file-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .yae-file-size {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 600;
+  }
+
+  .yae-file-remove {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10; /* Ensure button is above other elements */
+  }
+
+  .yae-file-remove i {
+    font-size: 1.75rem;
+    color: #9ca3af;
+    transition: all 0.3s ease;
+  }
+
+  .yae-file-remove:hover i {
+    color: #ef4444;
+    transform: scale(1.1);
+  }
+
+  /* Update existing file upload wrapper */
+  .yae-file-upload-wrapper {
+    position: relative;
+  }
+
+  .yae-file-input {
+    opacity: 0;
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+  }
+
+  .yae-file-input.has-file {
+    pointer-events: none; /* Only disable when file is selected */
+  }
+
+  .yae-file-upload-label {
+    position: relative;
+    z-index: 0;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
+    .yae-file-info {
+      gap: 1rem;
+    }
+
+    .yae-file-info > i {
+      font-size: 2rem;
+    }
+
+    .yae-file-name {
+      font-size: 0.9rem;
+    }
+
+    .yae-file-size {
+      font-size: 0.8rem;
+    }
   }
 
   /* Application Card */
