@@ -62,4 +62,15 @@ Rails.application.routes.draw do
 
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
+
+  # Public careers pages (customer-facing)
+  resources :careers, only: [:index, :show] do
+    # Nested application route
+    member do
+      get 'apply', to: 'job_applications#new', as: 'apply'
+    end
+  end
+  
+  # Job applications submission
+  resources :job_applications, only: [:create], path: 'careers/applications'
 end

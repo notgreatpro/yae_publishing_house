@@ -1,0 +1,67 @@
+════════════════════════════════════════════════════════════
+YAE PUBLISHING HOUSE 
+Inazuma's Biggest Book Publishing Since 1984!
+════════════════════════════════════════════════════════════
+
+THANK YOU FOR YOUR APPLICATION! 
+
+Dear <%= @application.first_name %>,
+
+Thank you for applying to Yae Publishing House! We're excited to review 
+your application and learn more about your passion for bringing stories 
+to life.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+POSITION: <%= @job.title %>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+APPLICATION SUMMARY
+
+Position: <%= @job.title %>
+Department: <%= @job.department.titleize %>
+Location: <%= @job.location.titleize %>
+Submitted: <%= @application.created_at.strftime('%B %d, %Y at %I:%M %p') %>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ WHAT HAPPENS NEXT?
+
+- Review Process: Our recruitment team will carefully review your 
+  application and qualifications
+
+- Initial Screening: We'll reach out if your experience matches our 
+  requirements
+
+- Timeline: You can expect to hear from us within 2-3 weeks
+
+- Status Updates: We'll keep you informed throughout the process
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+EXPLORE MORE OPPORTUNITIES
+
+In the meantime, feel free to explore more career opportunities with us:
+<%= careers_url %>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+QUESTIONS?
+
+If you have any questions about your application, please contact us at:
+<%= @job.contact_email || 'careers@yaepublishing.co.in' %>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Best regards,
+The Yae Publishing House Career Services
+
+"Bringing stories to life, one page at a time"
+
+════════════════════════════════════════════════════════════
+© <%= Time.current.year %> Yae Publishing House. All rights reserved.
+Inazuma's Premier Book Publisher Since 1984
+
+This is an automated message. Please do not reply directly to this email.
+════════════════════════════════════════════════════════════

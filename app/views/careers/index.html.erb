@@ -1,0 +1,595 @@
+<!-- app/views/careers/index.html.erb -->
+<div class="yae-careers-page">
+  <div class="container-fluid px-lg-5 py-5">
+    
+    <!-- Hero Section -->
+    <div class="yae-careers-hero">
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <h1 class="yae-careers-main-title">
+            <i class="bi bi-briefcase-fill me-3"></i>Join Yae Publishing House
+          </h1>
+          <p class="yae-careers-subtitle">
+            Where stories come to life and careers flourish. Discover your next adventure in the world of publishing.
+          </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+          <% if admin_user_signed_in? %>
+            <%= link_to admin_root_path, class: "btn btn-yae-admin" do %>
+              <i class="bi bi-briefcase me-2"></i>Admin Panel
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="yae-filters-card">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="yae-filter-label">Department</label>
+          <select class="form-select yae-filter-select" id="departmentFilter">
+            <option value="">All Departments</option>
+            <option value="editorial">Editorial</option>
+            <option value="design">Design & Production</option>
+            <option value="marketing">Marketing</option>
+            <option value="sales">Sales</option>
+            <option value="operations">Operations</option>
+            <option value="technology">Technology</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="yae-filter-label">Job Type</label>
+          <select class="form-select yae-filter-select" id="typeFilter">
+            <option value="">All Types</option>
+            <option value="full_time">Full Time</option>
+            <option value="part_time">Part Time</option>
+            <option value="contract">Contract</option>
+            <option value="internship">Internship</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="yae-filter-label">Location</label>
+          <select class="form-select yae-filter-select" id="locationFilter">
+            <option value="">All Locations</option>
+            <option value="inazuma">Inazuma City</option>
+            <option value="remote">Remote</option>
+            <option value="hybrid">Hybrid</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="yae-filter-label">Experience Level</label>
+          <select class="form-select yae-filter-select" id="experienceFilter">
+            <option value="">All Levels</option>
+            <option value="entry">Entry Level</option>
+            <option value="mid">Mid Level</option>
+            <option value="senior">Senior Level</option>
+            <option value="lead">Lead/Manager</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jobs Grid -->
+    <div class="row g-4 mt-2">
+      <% @jobs.each do |job| %>
+        <div class="col-lg-6">
+          <div class="yae-job-card" data-department="<%= job.department %>" data-type="<%= job.job_type %>" data-location="<%= job.location %>" data-experience="<%= job.experience_level %>">
+            
+            <!-- Job Header -->
+            <div class="yae-job-header">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <span class="yae-dept-badge yae-dept-<%= job.department %>">
+                  <i class="bi bi-<%= job.department_icon %> me-2"></i>
+                  <%= job.department.titleize %>
+                </span>
+                <% if job.featured? %>
+                  <span class="yae-featured-badge">
+                    <i class="bi bi-star-fill me-1"></i>Featured
+                  </span>
+                <% end %>
+              </div>
+              
+              <h3 class="yae-job-title">
+                <%= link_to job.title, career_path(job), class: "yae-job-title-link" %>
+              </h3>
+            </div>
+
+            <!-- Job Meta -->
+            <div class="yae-job-meta">
+              <span class="yae-meta-item">
+                <i class="bi bi-clock"></i>
+                <%= job.job_type.titleize.gsub('_', ' ') %>
+              </span>
+              <span class="yae-meta-item">
+                <i class="bi bi-geo-alt-fill"></i>
+                <%= job.location.titleize %>
+              </span>
+              <span class="yae-meta-item">
+                <i class="bi bi-graph-up"></i>
+                <%= job.experience_level.titleize %>
+              </span>
+            </div>
+
+            <!-- Job Description Preview -->
+            <p class="yae-job-preview">
+              <%= truncate(job.description, length: 150) %>
+            </p>
+
+            <!-- Job Footer -->
+            <div class="yae-job-footer">
+              <div class="yae-salary-range">
+                <i class="bi bi-currency-dollar"></i>
+                <% if job.salary_min.present? && job.salary_max.present? %>
+                  <%= number_to_currency(job.salary_min) %> - <%= number_to_currency(job.salary_max) %>
+                <% else %>
+                  Competitive Salary
+                <% end %>
+              </div>
+              
+              <%= link_to career_path(job), class: "btn btn-yae-apply-small" do %>
+                View Details <i class="bi bi-arrow-right ms-2"></i>
+              <% end %>
+            </div>
+
+            <!-- Posted Date -->
+            <div class="yae-posted-date">
+              Posted <%= time_ago_in_words(job.created_at) %> ago
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Empty State -->
+    <% if @jobs.empty? %>
+      <div class="yae-empty-state">
+        <i class="bi bi-inbox"></i>
+        <h3>No Open Positions</h3>
+        <p>We don't have any open positions at the moment, but check back soon!</p>
+      </div>
+    <% end %>
+
+    <!-- Why Join Us Section -->
+    <div class="yae-benefits-section mt-5">
+      <h2 class="yae-section-title text-center mb-5">
+        <i class="bi bi-heart-fill me-3"></i>Why Join Yae Publishing House?
+      </h2>
+      
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="yae-benefit-card">
+            <div class="yae-benefit-icon">
+              <i class="bi bi-book-half"></i>
+            </div>
+            <h4>Creative Freedom</h4>
+            <p>Work on exciting projects and bring imaginative stories to life with a team that values innovation.</p>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="yae-benefit-card">
+            <div class="yae-benefit-icon">
+              <i class="bi bi-people-fill"></i>
+            </div>
+            <h4>Collaborative Culture</h4>
+            <p>Join a supportive team of passionate professionals who celebrate each other's successes.</p>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="yae-benefit-card">
+            <div class="yae-benefit-icon">
+              <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <h4>Growth Opportunities</h4>
+            <p>Advance your career with mentorship programs, training, and clear paths for promotion.</p>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="yae-benefit-card">
+            <div class="yae-benefit-icon">
+              <i class="bi bi-heart-pulse-fill"></i>
+            </div>
+            <h4>Health & Wellness</h4>
+            <p>Comprehensive health benefits, mental health support, and wellness programs.</p>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="yae-benefit-card">
+            <div class="yae-benefit-icon">
+              <i class="bi bi-calendar-check"></i>
+            </div>
+            <h4>Work-Life Balance</h4>
+            <p>Flexible schedules, generous PTO, and respect for your time outside of work.</p>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="yae-benefit-card">
+            <div class="yae-benefit-icon">
+              <i class="bi bi-trophy-fill"></i>
+            </div>
+            <h4>Competitive Benefits</h4>
+            <p>Attractive compensation packages, bonuses, and perks that value your contribution.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  :root {
+    --yae-pink: #E91E8C;
+    --yae-purple: #8B2C7F;
+    --yae-dark: #4A1942;
+    --yae-light-pink: #F8C8DC;
+  }
+
+  .yae-careers-page {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    min-height: 100vh;
+  }
+
+  /* Hero Section */
+  .yae-careers-hero {
+    background: white;
+    border-radius: 25px;
+    padding: 3rem 2.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
+
+  .yae-careers-main-title {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+  }
+
+  .yae-careers-subtitle {
+    font-size: 1.3rem;
+    color: #6b7280;
+    line-height: 1.6;
+    margin-bottom: 0;
+  }
+
+  .btn-yae-admin {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .btn-yae-admin:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(139, 44, 127, 0.4);
+  }
+
+  /* Filters Card */
+  .yae-filters-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
+
+  .yae-filter-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--yae-purple);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .yae-filter-select {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: var(--yae-dark);
+    transition: all 0.3s ease;
+  }
+
+  .yae-filter-select:focus {
+    border-color: var(--yae-pink);
+    box-shadow: 0 0 0 3px rgba(233, 30, 140, 0.1);
+  }
+
+  /* Job Cards */
+  .yae-job-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .yae-job-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .yae-job-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .yae-job-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  /* Department Badges */
+  .yae-dept-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    color: white;
+  }
+
+  .yae-dept-editorial { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+  .yae-dept-design { background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
+  .yae-dept-marketing { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+  .yae-dept-sales { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+  .yae-dept-operations { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+  .yae-dept-technology { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
+
+  .yae-featured-badge {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    animation: pulse 2s infinite;
+  }
+
+  /* Job Title */
+  .yae-job-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 1rem;
+  }
+
+  .yae-job-title-link {
+    color: var(--yae-dark);
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .yae-job-title-link:hover {
+    background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Job Meta */
+  .yae-job-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .yae-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #6b7280;
+    font-weight: 600;
+  }
+
+  .yae-meta-item i {
+    color: var(--yae-purple);
+  }
+
+  /* Job Preview */
+  .yae-job-preview {
+    font-size: 1rem;
+    color: #4b5563;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Job Footer */
+  .yae-job-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f3f4f6;
+  }
+
+  .yae-salary-range {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--yae-purple);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-yae-apply-small {
+    background: linear-gradient(135deg, var(--yae-pink) 0%, #d91479 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 15px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .btn-yae-apply-small:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(233, 30, 140, 0.4);
+  }
+
+  /* Posted Date */
+  .yae-posted-date {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    font-style: italic;
+    margin-top: 1rem;
+  }
+
+  /* Empty State */
+  .yae-empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .yae-empty-state i {
+    font-size: 5rem;
+    color: var(--yae-purple);
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-empty-state h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 1rem;
+  }
+
+  .yae-empty-state p {
+    font-size: 1.1rem;
+    color: #6b7280;
+  }
+
+  /* Benefits Section */
+  .yae-benefits-section {
+    background: white;
+    border-radius: 25px;
+    padding: 4rem 2.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .yae-section-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--yae-dark);
+  }
+
+  .yae-benefit-card {
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #fef3c7 0%, #fce7f3 100%);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+  }
+
+  .yae-benefit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .yae-benefit-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+  }
+
+  .yae-benefit-card h4 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 1rem;
+  }
+
+  .yae-benefit-card p {
+    font-size: 1rem;
+    color: #4b5563;
+    line-height: 1.7;
+    margin-bottom: 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 991px) {
+    .yae-careers-main-title {
+      font-size: 2.5rem;
+    }
+
+    .yae-job-footer {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .yae-careers-hero {
+      padding: 2rem 1.5rem;
+    }
+
+    .yae-careers-main-title {
+      font-size: 2rem;
+    }
+
+    .yae-careers-subtitle {
+      font-size: 1.1rem;
+    }
+
+    .yae-filters-card {
+      padding: 1.5rem;
+    }
+
+    .yae-job-card {
+      padding: 1.5rem;
+    }
+
+    .yae-benefits-section {
+      padding: 3rem 1.5rem;
+    }
+
+    .yae-section-title {
+      font-size: 2rem;
+    }
+  }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

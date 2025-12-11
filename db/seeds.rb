@@ -353,6 +353,101 @@ categories = {
 }
 puts "#{categories.count} categories created!"
 
+# Creating jobs
+puts "✨ Creating sample jobs..."
+
+jobs_data = [
+  {
+    title: "Senior Content Editor",
+    department: "editorial",
+    job_type: "full_time",
+    location: "inazuma",
+    experience_level: "senior",
+    description: "We're seeking an experienced editor to lead our fiction editorial team at Yae Publishing House. You'll work with talented authors to bring their stories to life, ensuring our publications maintain the highest literary standards. This role offers the opportunity to shape the future of publishing in Inazuma.",
+    responsibilities: "- Lead editorial team meetings and workflow planning\n- Review and edit manuscripts for content, style, and clarity\n- Work closely with authors through the revision process\n- Mentor junior editors and provide feedback\n- Coordinate with design and marketing teams\n- Manage editorial calendar and deadlines\n- Participate in acquisition decisions",
+    requirements: "- 7+ years of editorial experience in publishing\n- Bachelor's degree in English, Literature, or related field\n- Exceptional editing and proofreading skills\n- Strong communication and interpersonal abilities\n- Experience managing editorial teams\n- Knowledge of publishing industry trends\n- Proficiency with editorial management software",
+    preferred_qualifications: "- Master's degree in English or Creative Writing\n- Experience with light novels or fantasy fiction\n- Background in digital publishing\n- Multilingual abilities (Japanese preferred)\n- Published author or editor credits",
+    benefits: "- Competitive salary with performance bonuses\n- Comprehensive health and dental insurance\n- Professional development budget ($2,000/year)\n- Flexible work arrangements\n- 4 weeks paid vacation\n- Book allowance and employee discounts\n- Creative workspace in our Inazuma City office",
+    salary_min: 70000,
+    salary_max: 95000,
+    contact_email: "editorial@yaepublishing.com",
+    active: true,
+    featured: true
+  },
+  {
+    title: "Marketing Coordinator",
+    department: "marketing",
+    job_type: "full_time",
+    location: "remote",
+    experience_level: "mid",
+    description: "Join our dynamic marketing team to promote exciting new releases and engage our passionate reading community. As a Marketing Coordinator, you'll develop creative campaigns that bring our authors' stories to readers worldwide. This is a fully remote position with occasional travel for book tours and conventions.",
+    responsibilities: "- Develop and execute marketing campaigns for book launches\n- Manage social media presence across multiple platforms\n- Coordinate author events, signings, and virtual book tours\n- Create engaging content for newsletters and blog posts\n- Analyze campaign performance and adjust strategies\n- Build relationships with book bloggers and influencers\n- Assist with press releases and media outreach",
+    requirements: "- 3-5 years of marketing experience, preferably in publishing\n- Strong written and verbal communication skills\n- Social media marketing expertise\n- Proficiency with marketing analytics tools\n- Creative thinking and problem-solving abilities\n- Ability to work independently in remote environment\n- Experience with email marketing platforms",
+    preferred_qualifications: "- Bachelor's degree in Marketing, Communications, or related field\n- Experience with book marketing or literary promotion\n- Graphic design skills (Adobe Creative Suite)\n- Knowledge of the book community and literary trends\n- Event planning experience",
+    benefits: "- Competitive salary\n- Work from anywhere\n- Health insurance stipend\n- Professional development opportunities\n- Flexible schedule\n- Generous PTO policy\n- Company retreats and team events",
+    salary_min: 55000,
+    salary_max: 75000,
+    contact_email: "marketing@yaepublishing.com",
+    active: true,
+    featured: false
+  },
+  {
+    title: "Graphic Designer",
+    department: "design",
+    job_type: "full_time",
+    location: "hybrid",
+    experience_level: "mid",
+    description: "Create stunning book covers and marketing materials that capture readers' imaginations. As our Graphic Designer, you'll be responsible for the visual identity of our publications, working closely with editors and authors to bring stories to life through compelling design. This hybrid position offers flexibility with 3 days in-office and 2 days remote.",
+    responsibilities: "- Design eye-catching book covers and spine art\n- Create promotional graphics for social media and advertising\n- Develop marketing materials (posters, bookmarks, banners)\n- Maintain brand consistency across all visual assets\n- Collaborate with editorial team on layout and typography\n- Prepare files for print production\n- Stay current with design trends in publishing",
+    requirements: "- 4+ years of professional design experience\n- Expert proficiency in Adobe Creative Suite (Photoshop, Illustrator, InDesign)\n- Strong portfolio demonstrating book design work\n- Understanding of print production processes\n- Typography expertise\n- Ability to work on multiple projects simultaneously\n- Strong communication and collaboration skills",
+    preferred_qualifications: "- Bachelor's degree in Graphic Design or Visual Arts\n- Experience specifically with book cover design\n- Illustration skills\n- Knowledge of digital publishing formats\n- Photography or photo editing skills",
+    benefits: "- Competitive salary package\n- Hybrid work model (3 days office, 2 remote)\n- Full health and dental coverage\n- Creative software subscriptions provided\n- Professional development workshops\n- Beautiful studio workspace\n- Employee book discounts",
+    salary_min: 60000,
+    salary_max: 80000,
+    contact_email: "design@yaepublishing.com",
+    active: true,
+    featured: false
+  },
+  {
+    title: "Sales Representative",
+    department: "sales",
+    job_type: "full_time",
+    location: "inazuma",
+    experience_level: "mid",
+    description: "Drive book sales and build relationships with retailers, libraries, and educational institutions. As a Sales Representative, you'll be the face of Yae Publishing House to our partners, helping connect our amazing stories with readers across Teyvat. Perfect for someone who loves books and excels at relationship building.",
+    responsibilities: "- Develop and maintain relationships with bookstores and retailers\n- Present new titles and secure placement orders\n- Negotiate terms and close sales deals\n- Attend trade shows and industry events\n- Monitor market trends and competitor activities\n- Provide sales forecasts and reports\n- Collaborate with marketing on promotional strategies",
+    requirements: "- 3-5 years of sales experience (publishing preferred)\n- Proven track record of meeting sales targets\n- Excellent presentation and negotiation skills\n- Strong relationship-building abilities\n- Knowledge of the book retail landscape\n- Willingness to travel within region\n- CRM software experience",
+    preferred_qualifications: "- Existing relationships with book retailers\n- Experience with institutional sales (libraries, schools)\n- Bachelor's degree in Business or related field\n- Passion for reading and literature\n- Familiarity with publishing industry standards",
+    benefits: "- Base salary plus commission structure\n- Performance bonuses\n- Health and dental insurance\n- Company vehicle or travel allowance\n- Professional development support\n- Flexible schedule around client needs\n- Generous book allowance",
+    salary_min: 50000,
+    salary_max: 75000,
+    contact_email: "sales@yaepublishing.com",
+    active: true,
+    featured: false
+  },
+  {
+    title: "Editorial Intern",
+    department: "editorial",
+    job_type: "internship",
+    location: "hybrid",
+    experience_level: "entry",
+    description: "Launch your publishing career with a hands-on internship at Yae Publishing House! You'll gain real-world experience in editorial processes, work with professional editors, and contribute to bringing exciting new stories to readers. This 6-month internship offers mentorship and potential for full-time hire.",
+    responsibilities: "- Assist editors with manuscript reviews and proofreading\n- Conduct preliminary reads of submission materials\n- Research market trends and competitive titles\n- Help maintain editorial databases and tracking systems\n- Participate in editorial meetings\n- Support book launch preparations\n- Assist with author communications",
+    requirements: "- Currently pursuing or recently completed degree in English, Literature, or related field\n- Strong writing and editing skills\n- Attention to detail and organizational abilities\n- Passion for reading and storytelling\n- Ability to meet deadlines\n- Proficiency in Microsoft Office\n- Availability for 20-30 hours per week",
+    preferred_qualifications: "- Previous internship or volunteer experience in publishing\n- Knowledge of submission and manuscript review processes\n- Familiarity with editorial style guides\n- Active book blogger or reader community participant\n- Creative writing experience",
+    benefits: "- Paid internship with competitive hourly rate\n- Flexible hybrid schedule\n- Mentorship from senior editors\n- Professional development workshops\n- Networking opportunities with industry professionals\n- Letter of recommendation upon completion\n- Potential for full-time employment",
+    salary_min: 18,
+    salary_max: 22,
+    contact_email: "internships@yaepublishing.com",
+    active: true,
+    featured: true
+  }
+]
+
+jobs_data.each do |job_attrs|
+  Job.create!(job_attrs)
+end
+
 # ---------------------------------------- #
 # AUTHORS (REAL + GENSHIN)
 # ---------------------------------------- #
@@ -576,5 +671,9 @@ puts "   - Contact page (slug: 'contact')"
 puts "\n Public Pages:"
 puts "   About: http://localhost:3000/about"
 puts "   Contact: http://localhost:3000/contact"
+
+puts "✓ Created #{Job.count} sample jobs!"
+puts "  - #{Job.active_jobs.count} active positions"
+puts "  - #{Job.featured_jobs.count} featured positions"
 
 puts "\nMay the Sacred Sakura bless your publishing ventures!"

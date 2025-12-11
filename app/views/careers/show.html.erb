@@ -1,0 +1,673 @@
+<!-- app/views/careers/show.html.erb -->
+<div class="yae-career-show-page">
+  <div class="container-fluid px-lg-5 py-5">
+    
+    <!-- Back Button -->
+    <div class="mb-4">
+      <%= link_to careers_path, class: "btn btn-yae-back" do %>
+        <i class="bi bi-arrow-left me-2"></i>Back to Careers
+      <% end %>
+    </div>
+
+    <div class="row g-4">
+      <!-- Main Content -->
+      <div class="col-lg-8">
+        <div class="yae-career-main-card">
+          
+          <!-- Job Header -->
+          <div class="yae-career-header">
+            <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-3">
+              <span class="yae-dept-badge yae-dept-<%= @job.department %>">
+                <i class="bi bi-<%= @job.department_icon %> me-2"></i>
+                <%= @job.department.titleize %>
+              </span>
+              
+              <% if @job.featured? %>
+                <span class="yae-featured-badge">
+                  <i class="bi bi-star-fill me-1"></i>Featured Position
+                </span>
+              <% end %>
+            </div>
+            
+            <h1 class="yae-career-main-title"><%= @job.title %></h1>
+            
+            <!-- Job Meta -->
+            <div class="yae-career-meta">
+              <span class="yae-meta-item">
+                <i class="bi bi-clock"></i>
+                <%= @job.job_type.titleize.gsub('_', ' ') %>
+              </span>
+              <span class="yae-meta-item">
+                <i class="bi bi-geo-alt-fill"></i>
+                <%= @job.location.titleize %>
+              </span>
+              <span class="yae-meta-item">
+                <i class="bi bi-graph-up"></i>
+                <%= @job.experience_level.titleize %>
+              </span>
+              <span class="yae-meta-item">
+                <i class="bi bi-calendar3"></i>
+                Posted <%= time_ago_in_words(@job.created_at) %> ago
+              </span>
+            </div>
+          </div>
+
+          <!-- Job Description -->
+          <div class="yae-career-section">
+            <h3 class="yae-section-heading">
+              <i class="bi bi-file-text me-2"></i>Job Description
+            </h3>
+            <div class="yae-section-content">
+              <%= simple_format(@job.description) %>
+            </div>
+          </div>
+
+          <!-- Responsibilities -->
+          <div class="yae-career-section">
+            <h3 class="yae-section-heading">
+              <i class="bi bi-list-check me-2"></i>Key Responsibilities
+            </h3>
+            <div class="yae-section-content">
+              <%= simple_format(@job.responsibilities) %>
+            </div>
+          </div>
+
+          <!-- Requirements -->
+          <div class="yae-career-section">
+            <h3 class="yae-section-heading">
+              <i class="bi bi-clipboard-check me-2"></i>Requirements
+            </h3>
+            <div class="yae-section-content">
+              <%= simple_format(@job.requirements) %>
+            </div>
+          </div>
+
+          <!-- Preferred Qualifications -->
+          <% if @job.preferred_qualifications.present? %>
+            <div class="yae-career-section">
+              <h3 class="yae-section-heading">
+                <i class="bi bi-star me-2"></i>Preferred Qualifications
+              </h3>
+              <div class="yae-section-content">
+                <%= simple_format(@job.preferred_qualifications) %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Benefits -->
+          <% if @job.benefits.present? %>
+            <div class="yae-career-section">
+              <h3 class="yae-section-heading">
+                <i class="bi bi-gift me-2"></i>What We Offer
+              </h3>
+              <div class="yae-section-content">
+                <%= simple_format(@job.benefits) %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Admin Actions -->
+          <% if admin_user_signed_in? %>
+            <div class="yae-admin-actions">
+              <%= link_to edit_admin_job_path(@job), class: "btn btn-yae-admin-edit" do %>
+                <i class="bi bi-pencil-square me-2"></i>Edit Job
+              <% end %>
+              <%= link_to admin_job_path(@job), data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: "btn btn-yae-admin-delete" do %>
+                <i class="bi bi-trash me-2"></i>Delete Job
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-4">
+        <div class="yae-career-sidebar">
+          
+          <!-- Quick Info Card -->
+          <div class="yae-sidebar-card">
+            <h4 class="yae-sidebar-title">Position Details</h4>
+            
+            <div class="yae-sidebar-details">
+              <div class="yae-sidebar-item">
+                <i class="bi bi-currency-dollar"></i>
+                <div>
+                  <div class="yae-sidebar-label">Salary Range</div>
+                  <div class="yae-sidebar-value yae-salary-value">
+                    <% if @job.salary_min.present? && @job.salary_max.present? %>
+                      <%= number_to_currency(@job.salary_min) %> - <%= number_to_currency(@job.salary_max) %>
+                    <% else %>
+                      Competitive
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="yae-sidebar-item">
+                <i class="bi bi-building"></i>
+                <div>
+                  <div class="yae-sidebar-label">Department</div>
+                  <div class="yae-sidebar-value"><%= @job.department.titleize %></div>
+                </div>
+              </div>
+
+              <div class="yae-sidebar-item">
+                <i class="bi bi-briefcase"></i>
+                <div>
+                  <div class="yae-sidebar-label">Employment Type</div>
+                  <div class="yae-sidebar-value"><%= @job.job_type.titleize.gsub('_', ' ') %></div>
+                </div>
+              </div>
+
+              <div class="yae-sidebar-item">
+                <i class="bi bi-pin-map-fill"></i>
+                <div>
+                  <div class="yae-sidebar-label">Work Location</div>
+                  <div class="yae-sidebar-value"><%= @job.location.titleize %></div>
+                </div>
+              </div>
+
+              <div class="yae-sidebar-item">
+                <i class="bi bi-mortarboard"></i>
+                <div>
+                  <div class="yae-sidebar-label">Experience Level</div>
+                  <div class="yae-sidebar-value"><%= @job.experience_level.titleize %></div>
+                </div>
+              </div>
+
+              <% if @job.application_deadline.present? %>
+                <div class="yae-sidebar-item">
+                  <i class="bi bi-alarm"></i>
+                  <div>
+                    <div class="yae-sidebar-label">Application Deadline</div>
+                    <div class="yae-sidebar-value">
+                      <%= @job.application_deadline.strftime('%B %d, %Y') %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Application Box -->
+            <div class="yae-application-box">
+              <% if @job.accepting_applications? %>
+                <%= link_to apply_career_path(@job), class: "btn btn-yae-apply" do %>
+                  <i class="bi bi-send-fill me-2"></i>Apply Now
+                <% end %>
+                <p class="yae-apply-note">
+                  Join our team and bring stories to life
+                </p>
+              <% else %>
+                <button class="btn btn-yae-apply-disabled" disabled>
+                  <i class="bi bi-x-circle me-2"></i>Applications Closed
+                </button>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Share Card -->
+          <div class="yae-sidebar-card yae-share-card">
+            <h4 class="yae-sidebar-title">Share This Position</h4>
+            <div class="yae-share-buttons">
+              <button class="btn btn-yae-share btn-share-linkedin" onclick="shareOnLinkedIn()">
+                <i class="bi bi-linkedin"></i>
+              </button>
+              <button class="btn btn-yae-share btn-share-twitter" onclick="shareOnTwitter()">
+                <i class="bi bi-twitter"></i>
+              </button>
+              <button class="btn btn-yae-share btn-share-facebook" onclick="shareOnFacebook()">
+                <i class="bi bi-facebook"></i>
+              </button>
+              <button class="btn btn-yae-share btn-share-email" onclick="shareViaEmail()">
+                <i class="bi bi-envelope-fill"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Contact Card -->
+          <% if @job.contact_email.present? %>
+            <div class="yae-sidebar-card yae-contact-card">
+              <h4 class="yae-sidebar-title">Questions?</h4>
+              <p class="yae-contact-text">
+                Have questions about this position? Feel free to reach out to our recruitment team.
+              </p>
+              <a href="mailto:<%= @job.contact_email %>" class="btn btn-yae-contact">
+                <i class="bi bi-envelope me-2"></i>Contact Recruiter
+              </a>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  :root {
+    --yae-pink: #E91E8C;
+    --yae-purple: #8B2C7F;
+    --yae-dark: #4A1942;
+    --yae-light-pink: #F8C8DC;
+  }
+
+  .yae-career-show-page {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    min-height: 100vh;
+  }
+
+  /* Back Button */
+  .btn-yae-back {
+    background: white;
+    color: var(--yae-purple);
+    border: 2px solid var(--yae-purple);
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .btn-yae-back:hover {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    transform: translateX(-5px);
+  }
+
+  /* Main Card */
+  .yae-career-main-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
+
+  /* Header */
+  .yae-career-header {
+    padding-bottom: 2rem;
+    border-bottom: 3px solid #f3f4f6;
+    margin-bottom: 2rem;
+  }
+
+  .yae-dept-badge {
+    padding: 0.6rem 1.3rem;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    color: white;
+  }
+
+  .yae-dept-editorial { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+  .yae-dept-design { background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
+  .yae-dept-marketing { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+  .yae-dept-sales { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+  .yae-dept-operations { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+  .yae-dept-technology { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
+
+  .yae-featured-badge {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    padding: 0.6rem 1.3rem;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .yae-career-main-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--yae-dark);
+    line-height: 1.3;
+    margin: 1.5rem 0 1rem 0;
+  }
+
+  /* Career Meta */
+  .yae-career-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .yae-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: #6b7280;
+    font-weight: 600;
+  }
+
+  .yae-meta-item i {
+    font-size: 1.2rem;
+    color: var(--yae-purple);
+  }
+
+  /* Sections */
+  .yae-career-section {
+    padding: 2rem 0;
+    border-bottom: 2px solid #f3f4f6;
+  }
+
+  .yae-career-section:last-of-type {
+    border-bottom: none;
+  }
+
+  .yae-section-heading {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--yae-purple);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .yae-section-content {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #374151;
+  }
+
+  .yae-section-content ul {
+    padding-left: 1.5rem;
+  }
+
+  .yae-section-content li {
+    margin-bottom: 0.75rem;
+  }
+
+  /* Admin Actions */
+  .yae-admin-actions {
+    display: flex;
+    gap: 1rem;
+    padding-top: 2rem;
+    margin-top: 2rem;
+    border-top: 2px solid #f3f4f6;
+  }
+
+  .btn-yae-admin-edit {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    padding: 0.9rem 1.8rem;
+    border-radius: 15px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .btn-yae-admin-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  }
+
+  .btn-yae-admin-delete {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    padding: 0.9rem 1.8rem;
+    border-radius: 15px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .btn-yae-admin-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  }
+
+  /* Sidebar */
+  .yae-career-sidebar {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .yae-sidebar-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-sidebar-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--yae-pink);
+  }
+
+  .yae-sidebar-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .yae-sidebar-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .yae-sidebar-item > i {
+    font-size: 1.5rem;
+    color: var(--yae-purple);
+    width: 25px;
+    flex-shrink: 0;
+  }
+
+  .yae-sidebar-label {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+  }
+
+  .yae-sidebar-value {
+    font-size: 1rem;
+    color: var(--yae-dark);
+    font-weight: 600;
+  }
+
+  .yae-salary-value {
+    font-size: 1.3rem;
+    background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Application Box */
+  .yae-application-box {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #f3f4f6;
+  }
+
+  .btn-yae-apply {
+    width: 100%;
+    background: linear-gradient(135deg, var(--yae-pink) 0%, #d91479 100%);
+    color: white;
+    border: none;
+    padding: 1.25rem 2rem;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+  }
+
+  .btn-yae-apply:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(233, 30, 140, 0.4);
+    background: linear-gradient(135deg, #d91479 0%, var(--yae-pink) 100%);
+  }
+
+  .btn-yae-apply-disabled {
+    width: 100%;
+    background: #e5e7eb;
+    color: #9ca3af;
+    border: none;
+    padding: 1.25rem 2rem;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: not-allowed;
+  }
+
+  .yae-apply-note {
+    font-size: 0.9rem;
+    color: #6b7280;
+    text-align: center;
+    margin-top: 0.75rem;
+    margin-bottom: 0;
+    font-style: italic;
+  }
+
+  /* Share Card */
+  .yae-share-card {
+    background: linear-gradient(135deg, #fef3c7 0%, white 100%);
+  }
+
+  .yae-share-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+  }
+
+  .btn-yae-share {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.5rem;
+    color: white;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-yae-share:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-share-linkedin { background: #0a66c2; }
+  .btn-share-twitter { background: #1da1f2; }
+  .btn-share-facebook { background: #1877f2; }
+  .btn-share-email { background: var(--yae-purple); }
+
+  /* Contact Card */
+  .yae-contact-card {
+    background: linear-gradient(135deg, #ddd6fe 0%, white 100%);
+  }
+
+  .yae-contact-text {
+    font-size: 0.95rem;
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-yae-contact {
+    width: 100%;
+    background: white;
+    color: var(--yae-purple);
+    border: 2px solid var(--yae-purple);
+    padding: 0.9rem 1.5rem;
+    border-radius: 15px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-yae-contact:hover {
+    background: var(--yae-purple);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  /* Responsive */
+  @media (max-width: 991px) {
+    .yae-career-sidebar {
+      position: relative;
+      top: 0;
+    }
+
+    .yae-career-main-title {
+      font-size: 2rem;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .yae-career-main-card {
+      padding: 1.5rem;
+    }
+
+    .yae-career-main-title {
+      font-size: 1.75rem;
+    }
+
+    .yae-sidebar-card {
+      padding: 1.5rem;
+    }
+
+    .yae-admin-actions {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script>
+  function shareOnLinkedIn() {
+    const url = window.location.href;
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+  }
+
+  function shareOnTwitter() {
+    const url = window.location.href;
+    const text = document.querySelector('.yae-career-main-title').textContent;
+    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+  }
+
+  function shareOnFacebook() {
+    const url = window.location.href;
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+  }
+
+  function shareViaEmail() {
+    const url = window.location.href;
+    const subject = document.querySelector('.yae-career-main-title').textContent;
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(url)}`;
+  }
+</script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

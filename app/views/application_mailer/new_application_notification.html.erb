@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 650px;
+      margin: 0 auto;
+      padding: 0;
+      background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    }
+    
+    .email-container {
+      background: white;
+      margin: 20px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(139, 44, 127, 0.25);
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #8B2C7F 0%, #4A1942 100%);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+      position: relative;
+      border-bottom: 5px solid #E91E8C;
+    }
+    
+    .header-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+      animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+    
+    .header .subtitle {
+      margin: 10px 0 0 0;
+      font-size: 14px;
+      opacity: 0.9;
+      font-style: italic;
+    }
+    
+    .content {
+      padding: 40px 30px;
+      background: white;
+    }
+    
+    .alert-badge {
+      background: linear-gradient(135deg, #E91E8C 0%, #d91479 100%);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 25px;
+      display: inline-block;
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(233, 30, 140, 0.3);
+    }
+    
+    .content h2 {
+      color: #8B2C7F;
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 20px 0;
+    }
+    
+    .applicant-name {
+      font-size: 32px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #E91E8C 0%, #8B2C7F 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 15px 0;
+      text-align: center;
+      padding: 15px;
+      border: 3px solid #F8C8DC;
+      border-radius: 15px;
+      background-color: #fce7f3;
+    }
+    
+    .position-info {
+      text-align: center;
+      font-size: 18px;
+      color: #4A1942;
+      margin-bottom: 30px;
+      padding: 15px;
+      background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+      border-radius: 12px;
+    }
+    
+    .position-info strong {
+      color: #E91E8C;
+      font-weight: 700;
+    }
+    
+    .info-section {
+      background: white;
+      padding: 25px;
+      margin: 20px 0;
+      border-radius: 15px;
+      border: 2px solid #F8C8DC;
+      box-shadow: 0 4px 15px rgba(139, 44, 127, 0.1);
+    }
+    
+    .info-section h3 {
+      color: #8B2C7F;
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 20px 0;
+      padding-bottom: 12px;
+      border-bottom: 3px solid #E91E8C;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .section-icon {
+      font-size: 24px;
+    }
+    
+    .info-row {
+      margin: 15px 0;
+      padding: 12px 0;
+      border-bottom: 1px solid #f3f4f6;
+      display: flex;
+      align-items: flex-start;
+    }
+    
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .label {
+      font-weight: 700;
+      color: #8B2C7F;
+      min-width: 160px;
+      font-size: 15px;
+    }
+    
+    .value {
+      color: #374151;
+      flex: 1;
+      font-size: 15px;
+    }
+    
+    .value a {
+      color: #E91E8C;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    .value a:hover {
+      color: #8B2C7F;
+      text-decoration: underline;
+    }
+    
+    .cta-section {
+      text-align: center;
+      margin: 35px 0;
+      padding: 30px;
+      background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+      border-radius: 15px;
+      border: 3px solid #E91E8C;
+    }
+    
+    .button {
+      display: inline-block;
+      background: linear-gradient(135deg, #E91E8C 0%, #d91479 100%);
+      color: white !important;
+      padding: 16px 35px;
+      text-decoration: none;
+      border-radius: 30px;
+      margin: 10px 8px;
+      font-weight: 700;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 6px 20px rgba(233, 30, 140, 0.4);
+      transition: all 0.3s ease;
+      border: 3px solid transparent;
+    }
+    
+    .button:hover {
+      background: linear-gradient(135deg, #d91479 0%, #E91E8C 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(233, 30, 140, 0.5);
+    }
+    
+    .button-secondary {
+      background: linear-gradient(135deg, #8B2C7F 0%, #4A1942 100%);
+      box-shadow: 0 6px 20px rgba(139, 44, 127, 0.4);
+    }
+    
+    .button-secondary:hover {
+      background: linear-gradient(135deg, #4A1942 0%, #8B2C7F 100%);
+      box-shadow: 0 8px 25px rgba(139, 44, 127, 0.5);
+    }
+    
+    .timestamp {
+      text-align: center;
+      margin-top: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 2px solid #F8C8DC;
+    }
+    
+    .timestamp strong {
+      color: #8B2C7F;
+      font-size: 15px;
+    }
+    
+    .timestamp .time {
+      color: #4A1942;
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 5px;
+    }
+    
+    .footer {
+      background: linear-gradient(135deg, #8B2C7F 0%, #4A1942 100%);
+      color: white;
+      text-align: center;
+      padding: 30px;
+      font-size: 13px;
+    }
+    
+    .footer-logo {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+    
+    .footer p {
+      margin: 5px 0;
+      opacity: 0.9;
+    }
+    
+    .decorative-line {
+      height: 4px;
+      background: linear-gradient(90deg, #E91E8C 0%, #8B2C7F 50%, #E91E8C 100%);
+      margin: 25px 0;
+      border-radius: 2px;
+    }
+    
+    .highlight-box {
+      background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+      border-left: 5px solid #f59e0b;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+    
+    .highlight-box p {
+      margin: 0;
+      color: #78350f;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    /* Responsive */
+    @media only screen and (max-width: 600px) {
+      .email-container {
+        margin: 10px;
+      }
+      
+      .header {
+        padding: 30px 20px;
+      }
+      
+      .header h1 {
+        font-size: 24px;
+      }
+      
+      .content {
+        padding: 30px 20px;
+      }
+      
+      .applicant-name {
+        font-size: 24px;
+      }
+      
+      .info-row {
+        flex-direction: column;
+      }
+      
+      .label {
+        min-width: auto;
+        margin-bottom: 5px;
+      }
+      
+      .button {
+        display: block;
+        margin: 10px 0;
+      }
+      
+      .cta-section {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <!-- Header -->
+    <div class="header">
+      <h1>New Job Application!</h1>
+      <p class="subtitle">Yae Publishing House Recruitment Portal</p>
+    </div>
+    
+    <!-- Content -->
+    <div class="content">
+      <div class="alert-badge">
+        📬 Action Required
+      </div>
+      
+      <h2>New Application Received</h2>
+      
+      <div class="applicant-name">
+        <%= @application.full_name %>
+      </div>
+      
+      <div class="position-info">
+        has applied for the <strong><%= @job.title %></strong> position
+      </div>
+      
+      <div class="decorative-line"></div>
+      
+      <!-- Contact Information -->
+      <div class="info-section">
+        <h3>
+          Contact Information
+        </h3>
+        <div class="info-row">
+          <span class="label">Email:</span>
+          <span class="value">
+            <a href="mailto:<%= @application.email %>"><%= @application.email %></a>
+          </span>
+        </div>
+        <div class="info-row">
+          <span class="label">Phone:</span>
+          <span class="value">
+            <a href="tel:<%= @application.phone %>"><%= @application.phone %></a>
+          </span>
+        </div>
+        <div class="info-row">
+          <span class="label">Location:</span>
+          <span class="value"><%= @application.location %></span>
+        </div>
+      </div>
+      
+      <!-- Professional Details -->
+      <div class="info-section">
+        <h3>
+          Professional Details
+        </h3>
+        <div class="info-row">
+          <span class="label">Experience:</span>
+          <span class="value"><%= @application.years_experience %></span>
+        </div>
+        <div class="info-row">
+          <span class="label">Current Company:</span>
+          <span class="value"><%= @application.current_company.presence || 'Not specified' %></span>
+        </div>
+        <div class="info-row">
+          <span class="label">Availability:</span>
+          <span class="value"><%= @application.formatted_availability %></span>
+        </div>
+        <% if @application.salary_expectation.present? %>
+          <div class="info-row">
+            <span class="label">Salary Expectation:</span>
+            <span class="value"><%= number_to_currency(@application.salary_expectation) %></span>
+          </div>
+        <% end %>
+      </div>
+      
+      <!-- Online Profiles -->
+      <% if @application.linkedin_url.present? || @application.portfolio_url.present? %>
+        <div class="info-section">
+          <h3>
+            <span class="section-icon">🔗</span>
+            Online Profiles
+          </h3>
+          <% if @application.linkedin_url.present? %>
+            <div class="info-row">
+              <span class="label">LinkedIn:</span>
+              <span class="value">
+                <a href="<%= @application.linkedin_url %>" target="_blank">View LinkedIn Profile →</a>
+              </span>
+            </div>
+          <% end %>
+          <% if @application.portfolio_url.present? %>
+            <div class="info-row">
+              <span class="label">Portfolio:</span>
+              <span class="value">
+                <a href="<%= @application.portfolio_url %>" target="_blank">View Portfolio →</a>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+      
+      <div class="highlight-box">
+        <p>Quick action tip: Review applications within 48 hours for the best candidate experience!</p>
+      </div>
+      
+      <!-- CTA Buttons -->
+      <div class="cta-section">
+        <p style="color: #6b7280; margin-bottom: 20px; font-size: 15px;">
+          <strong>Take action on this application:</strong>
+        </p>
+        <a href="<%= admin_job_application_url(@application) %>" class="button">
+          View Full Application
+        </a>
+        <a href="mailto:<%= @application.email %>" class="button button-secondary">
+          ✉️ Email Applicant
+        </a>
+      </div>
+      
+      <!-- Timestamp -->
+      <div class="timestamp">
+        <div><strong>Application Submitted:</strong></div>
+        <div class="time"><%= @application.created_at.strftime('%B %d, %Y at %I:%M %p') %></div>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-logo">YAE PUBLISHING HOUSE</div>
+      <p>Recruitment Management System</p>
+      <p>© <%= Time.current.year %> Yae Publishing House. All rights reserved.</p>
+      <p style="font-size: 12px; opacity: 0.8; margin-top: 10px;">
+        This is an automated notification from your job application system.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

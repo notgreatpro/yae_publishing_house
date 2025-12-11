@@ -1,0 +1,727 @@
+<!-- app/views/job_applications/new.html.erb -->
+<div class="yae-application-page">
+  <div class="container-fluid px-lg-5 py-5">
+    
+    <!-- Back Button -->
+    <div class="mb-4">
+      <%= link_to career_path(@job), class: "btn btn-yae-back" do %>
+        <i class="bi bi-arrow-left me-2"></i>Back to Job Posting
+      <% end %>
+    </div>
+
+    <div class="row g-4">
+      <!-- Application Form -->
+      <div class="col-lg-8">
+        <div class="yae-application-card">
+          
+          <!-- Form Header -->
+          <div class="yae-application-header">
+            <h1 class="yae-application-title">
+              <i class="bi bi-send-fill me-3"></i>Apply for Position
+            </h1>
+            <h2 class="yae-job-title"><%= @job.title %></h2>
+            <p class="yae-application-subtitle">
+              Complete the form below to submit your application. We'll review it and get back to you soon!
+            </p>
+          </div>
+
+          <%= form_with(model: @application, url: job_applications_path, local: true, html: { multipart: true, class: 'yae-application-form' }) do |f| %>
+            <%= hidden_field_tag :job_id, @job.id %>
+            
+            <!-- Error Messages -->
+            <% if @application.errors.any? %>
+              <div class="yae-error-box">
+                <h4 class="yae-error-title">
+                  <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                  <%= pluralize(@application.errors.count, "error") %> prevented your application from being submitted:
+                </h4>
+                <ul class="yae-error-list">
+                  <% @application.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <!-- Personal Information Section -->
+            <div class="yae-form-section">
+              <h3 class="yae-form-section-title">
+                <i class="bi bi-person-fill me-2"></i>Personal Information
+              </h3>
+              
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="yae-form-group">
+                    <%= f.label :first_name, class: "yae-form-label required" %>
+                    <%= f.text_field :first_name, class: "form-control yae-form-control", 
+                        placeholder: "Enter your first name", required: true %>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="yae-form-group">
+                    <%= f.label :last_name, class: "yae-form-label required" %>
+                    <%= f.text_field :last_name, class: "form-control yae-form-control", 
+                        placeholder: "Enter your last name", required: true %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="yae-form-group">
+                    <%= f.label :email, class: "yae-form-label required" %>
+                    <%= f.email_field :email, class: "form-control yae-form-control", 
+                        placeholder: "your.email@example.com", required: true %>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="yae-form-group">
+                    <%= f.label :phone, "Phone Number", class: "yae-form-label required" %>
+                    <%= f.telephone_field :phone, class: "form-control yae-form-control", 
+                        placeholder: "(123) 456-7890", required: true %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="yae-form-group">
+                <%= f.label :location, "Current Location", class: "yae-form-label required" %>
+                <%= f.text_field :location, class: "form-control yae-form-control", 
+                    placeholder: "City, State/Province, Country", required: true %>
+              </div>
+            </div>
+
+            <!-- Professional Information Section -->
+            <div class="yae-form-section">
+              <h3 class="yae-form-section-title">
+                <i class="bi bi-briefcase-fill me-2"></i>Professional Information
+              </h3>
+              
+              <div class="yae-form-group">
+                <%= f.label :linkedin_url, "LinkedIn Profile (Optional)", class: "yae-form-label" %>
+                <%= f.url_field :linkedin_url, class: "form-control yae-form-control", 
+                    placeholder: "https://linkedin.com/in/yourprofile" %>
+              </div>
+
+              <div class="yae-form-group">
+                <%= f.label :portfolio_url, "Portfolio/Website (Optional)", class: "yae-form-label" %>
+                <%= f.url_field :portfolio_url, class: "form-control yae-form-control", 
+                    placeholder: "https://yourportfolio.com" %>
+              </div>
+
+              <div class="yae-form-group">
+                <%= f.label :current_company, "Current/Most Recent Employer (Optional)", class: "yae-form-label" %>
+                <%= f.text_field :current_company, class: "form-control yae-form-control", 
+                    placeholder: "Company name" %>
+              </div>
+
+              <div class="yae-form-group">
+                <%= f.label :years_experience, "Years of Relevant Experience", class: "yae-form-label required" %>
+                <%= f.select :years_experience, 
+                    [['Less than 1 year', 'zero_to_one'],
+                     ['1-2 years', 'one_to_two'],
+                     ['3-5 years', 'three_to_five'],
+                     ['5-10 years', 'five_to_ten'],
+                     ['10+ years', 'ten_plus']], 
+                    { prompt: 'Select years of experience' },
+                    { class: "form-select yae-form-control", required: true } %>
+              </div>
+            </div>
+
+            <!-- Application Materials Section -->
+            <div class="yae-form-section">
+              <h3 class="yae-form-section-title">
+                <i class="bi bi-file-earmark-text me-2"></i>Application Materials
+              </h3>
+              
+              <div class="yae-form-group">
+                <%= f.label :resume, "Resume/CV", class: "yae-form-label required" %>
+                <small class="yae-form-hint">Accepted formats: PDF, DOC, DOCX (Max 5MB)</small>
+                <div class="yae-file-upload-wrapper">
+                  <%= f.file_field :resume, class: "form-control yae-file-input", 
+                      accept: ".pdf,.doc,.docx", required: true %>
+                  <div class="yae-file-upload-label">
+                    <i class="bi bi-cloud-upload"></i>
+                    <span>Choose file or drag here</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="yae-form-group">
+                <%= f.label :cover_letter, "Cover Letter (Optional)", class: "yae-form-label" %>
+                <small class="yae-form-hint">Accepted formats: PDF, DOC, DOCX (Max 5MB)</small>
+                <div class="yae-file-upload-wrapper">
+                  <%= f.file_field :cover_letter, class: "form-control yae-file-input", 
+                      accept: ".pdf,.doc,.docx" %>
+                  <div class="yae-file-upload-label">
+                    <i class="bi bi-cloud-upload"></i>
+                    <span>Choose file or drag here</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Additional Information Section -->
+            <div class="yae-form-section">
+              <h3 class="yae-form-section-title">
+                <i class="bi bi-chat-left-text me-2"></i>Additional Information
+              </h3>
+              
+              <div class="yae-form-group">
+                <%= f.label :why_interested, "Why are you interested in this position?", class: "yae-form-label required" %>
+                <small class="yae-form-hint">Tell us what excites you about this opportunity (200-500 words)</small>
+                <%= f.text_area :why_interested, rows: 6, class: "form-control yae-form-control", 
+                    placeholder: "Share your motivation and what you hope to bring to Yae Publishing House...", 
+                    required: true %>
+              </div>
+
+              <div class="yae-form-group">
+                <%= f.label :availability, "When can you start?", class: "yae-form-label required" %>
+                <%= f.select :availability, 
+                    [['Immediately', 'immediate'],
+                     ['Within 2 weeks', 'two_weeks'],
+                     ['Within 1 month', 'one_month'],
+                     ['Within 2-3 months', 'two_three_months'],
+                     ['Other (please specify in additional notes)', 'other']], 
+                    { prompt: 'Select your availability' },
+                    { class: "form-select yae-form-control", required: true } %>
+              </div>
+
+              <div class="yae-form-group">
+                <%= f.label :salary_expectation, "Salary Expectation (Optional)", class: "yae-form-label" %>
+                <div class="input-group">
+                  <span class="input-group-text yae-input-addon">$</span>
+                  <%= f.number_field :salary_expectation, class: "form-control yae-form-control", 
+                      placeholder: "Annual salary expectation", step: 1000 %>
+                </div>
+              </div>
+
+              <div class="yae-form-group">
+                <%= f.label :additional_notes, "Additional Notes (Optional)", class: "yae-form-label" %>
+                <small class="yae-form-hint">Anything else you'd like us to know?</small>
+                <%= f.text_area :additional_notes, rows: 4, class: "form-control yae-form-control", 
+                    placeholder: "Optional additional information..." %>
+              </div>
+            </div>
+
+            <!-- Consent Section -->
+            <div class="yae-form-section yae-consent-section">
+              <div class="yae-checkbox-wrapper">
+                <%= f.check_box :consent, class: "form-check-input yae-checkbox", 
+                    id: "application_consent", required: true %>
+                <%= f.label :consent, class: "form-check-label yae-checkbox-label", 
+                    for: "application_consent" do %>
+                  I consent to Yae Publishing House processing my personal data for recruitment purposes 
+                  and agree to the <a href="<%= privacy_path %>" class="yae-link" target="_blank">Privacy Policy</a> and 
+                  <a href="<%= terms_path %>" class="yae-link" target="_blank">Terms of Service</a>.
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="yae-form-actions">
+              <%= f.submit "Submit Application", class: "btn btn-yae-submit" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-4">
+        <div class="yae-sidebar-sticky">
+          
+          <!-- Job Summary Card -->
+          <div class="yae-sidebar-card">
+            <h4 class="yae-sidebar-title">Position Summary</h4>
+            
+            <div class="yae-job-summary">
+              <h5 class="yae-summary-job-title"><%= @job.title %></h5>
+              
+              <div class="yae-summary-item">
+                <i class="bi bi-building"></i>
+                <span><%= @job.department.titleize %></span>
+              </div>
+              
+              <div class="yae-summary-item">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span><%= @job.location.titleize %></span>
+              </div>
+              
+              <div class="yae-summary-item">
+                <i class="bi bi-clock"></i>
+                <span><%= @job.job_type.titleize.gsub('_', ' ') %></span>
+              </div>
+              
+              <% if @job.salary_min.present? && @job.salary_max.present? %>
+                <div class="yae-summary-item">
+                  <i class="bi bi-currency-dollar"></i>
+                  <span><%= number_to_currency(@job.salary_min) %> - <%= number_to_currency(@job.salary_max) %></span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Tips Card -->
+          <div class="yae-sidebar-card yae-tips-card">
+            <h4 class="yae-sidebar-title">Application Tips</h4>
+            
+            <div class="yae-tip">
+              <i class="bi bi-lightbulb-fill"></i>
+              <p>Tailor your resume to highlight relevant experience for this specific role.</p>
+            </div>
+            
+            <div class="yae-tip">
+              <i class="bi bi-lightbulb-fill"></i>
+              <p>Be specific about your achievements and use quantifiable results when possible.</p>
+            </div>
+            
+            <div class="yae-tip">
+              <i class="bi bi-lightbulb-fill"></i>
+              <p>Proofread your application carefully before submitting.</p>
+            </div>
+            
+            <div class="yae-tip">
+              <i class="bi bi-lightbulb-fill"></i>
+              <p>Show your passion for publishing and storytelling in your responses.</p>
+            </div>
+          </div>
+
+          <!-- Contact Card -->
+          <div class="yae-sidebar-card yae-help-card">
+            <h4 class="yae-sidebar-title">Need Help?</h4>
+            <p class="yae-help-text">
+              If you encounter any issues with your application, please contact our recruitment team.
+            </p>
+            <a href="mailto:<%= @job.contact_email %>" class="btn btn-yae-help">
+              <i class="bi bi-envelope me-2"></i>Get Support
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  :root {
+    --yae-pink: #E91E8C;
+    --yae-purple: #8B2C7F;
+    --yae-dark: #4A1942;
+    --yae-light-pink: #F8C8DC;
+  }
+
+  .yae-application-page {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    min-height: 100vh;
+  }
+
+  /* Back Button */
+  .btn-yae-back {
+    background: white;
+    color: var(--yae-purple);
+    border: 2px solid var(--yae-purple);
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .btn-yae-back:hover {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    transform: translateX(-5px);
+  }
+
+  /* Application Card */
+  .yae-application-card {
+    background: white;
+    border-radius: 25px;
+    padding: 3rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Application Header */
+  .yae-application-header {
+    text-align: center;
+    padding-bottom: 2.5rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 3px solid #f3f4f6;
+  }
+
+  .yae-application-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.75rem;
+  }
+
+  .yae-job-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 1rem;
+  }
+
+  .yae-application-subtitle {
+    font-size: 1.1rem;
+    color: #6b7280;
+    margin-bottom: 0;
+  }
+
+  /* Error Box */
+  .yae-error-box {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border: 2px solid #ef4444;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .yae-error-title {
+    color: #dc2626;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .yae-error-list {
+    margin: 0;
+    padding-left: 1.5rem;
+  }
+
+  .yae-error-list li {
+    color: #991b1b;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Form Sections */
+  .yae-form-section {
+    background: #f9fafb;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .yae-consent-section {
+    background: linear-gradient(135deg, #fef3c7 0%, #fce7f3 100%);
+  }
+
+  .yae-form-section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--yae-purple);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Form Groups */
+  .yae-form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-form-label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .yae-form-label.required::after {
+    content: " *";
+    color: #ef4444;
+  }
+
+  .yae-form-hint {
+    display: block;
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+    font-weight: normal;
+  }
+
+  .yae-form-control {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.9rem 1.2rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+
+  .yae-form-control:focus {
+    border-color: var(--yae-pink);
+    box-shadow: 0 0 0 4px rgba(233, 30, 140, 0.1);
+    outline: none;
+  }
+
+  textarea.yae-form-control {
+    resize: vertical;
+    font-family: inherit;
+  }
+
+  .yae-input-addon {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    border: 2px solid var(--yae-purple);
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  /* File Upload */
+  .yae-file-upload-wrapper {
+    position: relative;
+  }
+
+  .yae-file-input {
+    opacity: 0;
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .yae-file-upload-label {
+    border: 3px dashed var(--yae-purple);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    background: white;
+    transition: all 0.3s ease;
+  }
+
+  .yae-file-upload-label:hover {
+    background: #f9fafb;
+    border-color: var(--yae-pink);
+  }
+
+  .yae-file-upload-label i {
+    font-size: 3rem;
+    color: var(--yae-purple);
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .yae-file-upload-label span {
+    font-size: 1rem;
+    color: #6b7280;
+    font-weight: 600;
+  }
+
+  /* Checkbox */
+  .yae-checkbox-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+  }
+
+  .yae-checkbox {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--yae-purple);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .yae-checkbox:checked {
+    background-color: var(--yae-purple);
+    border-color: var(--yae-purple);
+  }
+
+  .yae-checkbox-label {
+    font-size: 0.95rem;
+    color: #374151;
+    line-height: 1.6;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .yae-link {
+    color: var(--yae-purple);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .yae-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Submit Button */
+  .yae-form-actions {
+    margin-top: 2rem;
+  }
+
+  .btn-yae-submit {
+    width: 100%;
+    background: linear-gradient(135deg, var(--yae-pink) 0%, #d91479 100%);
+    color: white;
+    border: none;
+    padding: 1.5rem 2rem;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .btn-yae-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(233, 30, 140, 0.4);
+    background: linear-gradient(135deg, #d91479 0%, var(--yae-pink) 100%);
+  }
+
+  /* Sidebar */
+  .yae-sidebar-sticky {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .yae-sidebar-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-sidebar-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--yae-pink);
+  }
+
+  /* Job Summary */
+  .yae-job-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .yae-summary-job-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--yae-purple);
+    margin-bottom: 0.5rem;
+  }
+
+  .yae-summary-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    color: #4b5563;
+  }
+
+  .yae-summary-item i {
+    font-size: 1.2rem;
+    color: var(--yae-purple);
+  }
+
+  /* Tips Card */
+  .yae-tips-card {
+    background: linear-gradient(135deg, #fef3c7 0%, white 100%);
+  }
+
+  .yae-tip {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .yae-tip:last-child {
+    margin-bottom: 0;
+  }
+
+  .yae-tip i {
+    font-size: 1.5rem;
+    color: #f59e0b;
+    flex-shrink: 0;
+  }
+
+  .yae-tip p {
+    font-size: 0.9rem;
+    color: #4b5563;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Help Card */
+  .yae-help-card {
+    background: linear-gradient(135deg, #ddd6fe 0%, white 100%);
+  }
+
+  .yae-help-text {
+    font-size: 0.95rem;
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-yae-help {
+    width: 100%;
+    background: white;
+    color: var(--yae-purple);
+    border: 2px solid var(--yae-purple);
+    padding: 0.9rem 1.5rem;
+    border-radius: 15px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-yae-help:hover {
+    background: var(--yae-purple);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  /* Responsive */
+  @media (max-width: 991px) {
+    .yae-sidebar-sticky {
+      position: relative;
+      top: 0;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .yae-application-card {
+      padding: 2rem 1.5rem;
+    }
+
+    .yae-application-title {
+      font-size: 2rem;
+    }
+
+    .yae-job-title {
+      font-size: 1.5rem;
+    }
+
+    .yae-form-section {
+      padding: 1.5rem;
+    }
+  }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

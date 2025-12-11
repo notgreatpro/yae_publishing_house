@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_09_202741) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_10_071401) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -183,6 +183,60 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_09_202741) do
     t.index ["status"], name: "index_events_on_status"
   end
 
+  create_table "job_applications", force: :cascade do |t|
+    t.bigint "job_id", null: false
+    t.string "first_name", null: false
+    t.string "last_name", null: false
+    t.string "email", null: false
+    t.string "phone", null: false
+    t.string "location", null: false
+    t.string "linkedin_url"
+    t.string "portfolio_url"
+    t.string "current_company"
+    t.string "years_experience", null: false
+    t.text "why_interested", null: false
+    t.string "availability", null: false
+    t.decimal "salary_expectation", precision: 10, scale: 2
+    t.text "additional_notes"
+    t.boolean "consent", default: false, null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_job_applications_on_created_at"
+    t.index ["email"], name: "index_job_applications_on_email"
+    t.index ["job_id", "email"], name: "index_job_applications_on_job_and_email", unique: true
+    t.index ["job_id"], name: "index_job_applications_on_job_id"
+    t.index ["status"], name: "index_job_applications_on_status"
+  end
+
+  create_table "jobs", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "department", null: false
+    t.string "job_type", null: false
+    t.string "location", null: false
+    t.string "experience_level", null: false
+    t.text "description", null: false
+    t.text "responsibilities", null: false
+    t.text "requirements", null: false
+    t.text "preferred_qualifications"
+    t.text "benefits"
+    t.decimal "salary_min", precision: 10, scale: 2
+    t.decimal "salary_max", precision: 10, scale: 2
+    t.datetime "application_deadline"
+    t.string "contact_email", null: false
+    t.boolean "active", default: true, null: false
+    t.boolean "featured", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_jobs_on_active"
+    t.index ["created_at"], name: "index_jobs_on_created_at"
+    t.index ["department"], name: "index_jobs_on_department"
+    t.index ["experience_level"], name: "index_jobs_on_experience_level"
+    t.index ["featured"], name: "index_jobs_on_featured"
+    t.index ["job_type"], name: "index_jobs_on_job_type"
+    t.index ["location"], name: "index_jobs_on_location"
+  end
+
   create_table "order_items", force: :cascade do |t|
     t.bigint "order_id", null: false
     t.bigint "product_id", null: false
@@ -310,6 +364,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_09_202741) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "customers", "provinces"
+  add_foreign_key "job_applications", "jobs"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "customers"

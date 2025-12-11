@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background: linear-gradient(135deg, #8B2C7F 0%, #4A1942 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      border-radius: 10px 10px 0 0;
+    }
+    .content {
+      background: #f9f9f9;
+      padding: 30px;
+      border-radius: 0 0 10px 10px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .status-under_review { background: #fbbf24; color: #78350f; }
+    .status-interview { background: #60a5fa; color: #1e3a8a; }
+    .status-accepted { background: #34d399; color: #065f46; }
+    .status-rejected { background: #f87171; color: #7f1d1d; }
+    .info-box {
+      background: white;
+      padding: 20px;
+      border-left: 4px solid #8B2C7F;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+    .button {
+      display: inline-block;
+      background: linear-gradient(135deg, #E91E8C 0%, #8B2C7F 100%);
+      color: white;
+      padding: 15px 30px;
+      text-decoration: none;
+      border-radius: 25px;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Application Status Update</h1>
+    <p>Yae Publishing House</p>
+  </div>
+  
+  <div class="content">
+    <p>Dear <%= @application.first_name %>,</p>
+    
+    <p>We have an update regarding your application for the <strong><%= @job.title %></strong> position at Yae Publishing House.</p>
+    
+    <div class="info-box">
+      <p><strong>Application Status:</strong></p>
+      <span class="status-badge status-<%= @new_status %>">
+        <%= @new_status.titleize %>
+      </span>
+    </div>
+    
+    <% case @new_status %>
+    <% when 'under_review' %>
+      <p>Great news! Your application is now under review by our hiring team. We're carefully evaluating your qualifications and experience for this role.</p>
+      <p>We'll be in touch soon with next steps.</p>
+      
+    <% when 'interview' %>
+      <p>Congratulations! We'd like to invite you for an interview. Our recruitment team will be reaching out to you shortly to schedule a time that works for you.</p>
+      <p>Please keep an eye on your email and phone for our call.</p>
+      
+    <% when 'accepted' %>
+      <p>Congratulations! We're thrilled to offer you the position of <strong><%= @job.title %></strong> at Yae Publishing House!</p>
+      <p>Our HR team will be in touch with you shortly with details about your offer, next steps, and onboarding process.</p>
+      <p>Welcome to the Yae Publishing Gang</p>
+      
+    <% when 'rejected' %>
+      <p>Thank you for your interest in the <strong><%= @job.title %></strong> position and for taking the time to apply to Yae Publishing House.</p>
+      <p>After careful consideration, we've decided to move forward with other candidates whose qualifications more closely match our current needs.</p>
+      <p>We encourage you to apply for other positions at Yae Publishing House that align with your skills and experience. We'll keep your application on file for future opportunities.</p>
+      
+      <center>
+        <a href="<%= careers_url %>" class="button">View Open Positions</a>
+      </center>
+    <% end %>
+    
+    <p>If you have any questions, please don't hesitate to reach out to us at <a href="mailto:<%= @job.contact_email || 'careers@yaepublishing.co.in' %>"><%= @job.contact_email || 'careers@yaepublishing.co.in' %></a>.</p>
+    
+    <p>Best regards,<br>
+    <strong>The Yae Publishing House Career Services</strong></p>
+  </div>
+</body>
+</html>

@@ -42,6 +42,12 @@
         </li>
 
         <li class="nav-item">
+          <%= link_to careers_path, class: "nav-link #{'active' if current_page?(careers_path)}" do %>
+            <i class="bi bi-briefcase me-1"></i>Careers
+          <% end %>
+        </li>
+
+        <li class="nav-item">
           <%= link_to "About", about_path, class: 'nav-link' %>
         </li>
 
@@ -152,6 +158,10 @@
     transform: translateY(-2px);
   }
 
+  .yae-navbar .nav-link.active {
+    color: var(--yae-pink) !important;
+  }
+
   .yae-navbar .nav-link::after {
     content: '';
     position: absolute;
@@ -164,8 +174,24 @@
     transform: translateX(-50%);
   }
 
-  .yae-navbar .nav-link:hover::after {
+  .yae-navbar .nav-link:hover::after,
+  .yae-navbar .nav-link.active::after {
     width: 80%;
+  }
+
+  /* Special highlight for Careers link */
+  .yae-navbar .nav-link .bi-briefcase {
+    color: var(--yae-pink);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
   }
 
   .yae-navbar .dropdown-toggle {

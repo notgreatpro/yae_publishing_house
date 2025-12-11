@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0;
+      background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    }
+    
+    .email-container {
+      background: white;
+      margin: 20px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(139, 44, 127, 0.2);
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #E91E8C 0%, #8B2C7F 100%);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+      position: relative;
+      border-bottom: 4px solid #4A1942;
+    }
+    
+    .header h1 {
+      margin: 0 0 10px 0;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    
+    .header p {
+      margin: 0;
+      font-size: 16px;
+      font-style: italic;
+      opacity: 0.95;
+      font-weight: 300;
+    }
+    
+    .content {
+      padding: 40px 30px;
+      background: white;
+    }
+    
+    .content h2 {
+      color: #8B2C7F;
+      font-size: 26px;
+      font-weight: 700;
+      margin: 0 0 20px 0;
+      text-align: center;
+    }
+    
+    .greeting {
+      font-size: 18px;
+      color: #4A1942;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    
+    .intro-text {
+      font-size: 16px;
+      color: #374151;
+      margin-bottom: 25px;
+      line-height: 1.8;
+    }
+    
+    .job-title {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #E91E8C 0%, #8B2C7F 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center;
+      margin: 25px 0;
+      padding: 15px;
+      border-top: 3px solid #F8C8DC;
+      border-bottom: 3px solid #F8C8DC;
+    }
+    
+    .info-box {
+      background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 50%, #fce7f3 100%);
+      padding: 25px;
+      border-left: 6px solid #E91E8C;
+      margin: 25px 0;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(233, 30, 140, 0.15);
+    }
+    
+    .info-box strong {
+      color: #8B2C7F;
+      font-size: 18px;
+      display: block;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+    
+    .info-row {
+      margin: 10px 0;
+      padding: 8px 0;
+      color: #4A1942;
+      font-size: 15px;
+    }
+    
+    .info-row strong {
+      display: inline;
+      color: #8B2C7F;
+      font-weight: 700;
+      font-size: 15px;
+      margin-right: 8px;
+    }
+    
+    .section-title {
+      color: #8B2C7F;
+      font-size: 20px;
+      font-weight: 700;
+      margin: 30px 0 15px 0;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #E91E8C;
+    }
+    
+    .content ul {
+      margin: 20px 0;
+      padding-left: 25px;
+    }
+    
+    .content li {
+      margin: 12px 0;
+      color: #374151;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    
+    .cta-section {
+      text-align: center;
+      margin: 35px 0;
+      padding: 25px;
+      background: linear-gradient(135deg, #fce7f3 0%, white 100%);
+      border-radius: 15px;
+    }
+    
+    .button {
+      display: inline-block;
+      background: linear-gradient(135deg, #E91E8C 0%, #d91479 100%);
+      color: white !important;
+      padding: 16px 40px;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 6px 20px rgba(233, 30, 140, 0.4);
+      transition: all 0.3s ease;
+      border: 3px solid transparent;
+    }
+    
+    .button:hover {
+      background: linear-gradient(135deg, #d91479 0%, #E91E8C 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(233, 30, 140, 0.5);
+    }
+    
+    .contact-info {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 25px 0;
+      text-align: center;
+      border: 2px solid #F8C8DC;
+    }
+    
+    .contact-info p {
+      margin: 10px 0;
+      color: #6b7280;
+      font-size: 15px;
+    }
+    
+    .contact-info a {
+      color: #E91E8C;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    .contact-info a:hover {
+      color: #8B2C7F;
+      text-decoration: underline;
+    }
+    
+    .signature {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #F8C8DC;
+      color: #374151;
+      font-size: 15px;
+    }
+    
+    .signature strong {
+      color: #8B2C7F;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    
+    .footer {
+      background: linear-gradient(135deg, #8B2C7F 0%, #4A1942 100%);
+      color: white;
+      text-align: center;
+      padding: 30px;
+      font-size: 13px;
+    }
+    
+    .footer p {
+      margin: 8px 0;
+      opacity: 0.9;
+    }
+    
+    .footer-logo {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+    }
+    
+    .decorative-line {
+      height: 4px;
+      background: linear-gradient(90deg, #E91E8C 0%, #8B2C7F 50%, #E91E8C 100%);
+      margin: 30px 0;
+      border-radius: 2px;
+    }
+    
+    /* Responsive */
+    @media only screen and (max-width: 600px) {
+      .email-container {
+        margin: 10px;
+      }
+      
+      .header {
+        padding: 30px 20px;
+      }
+      
+      .header h1 {
+        font-size: 24px;
+      }
+      
+      .content {
+        padding: 30px 20px;
+      }
+      
+      .content h2 {
+        font-size: 22px;
+      }
+      
+      .job-title {
+        font-size: 22px;
+      }
+      
+      .button {
+        padding: 14px 30px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Yae Publishing House </h1>
+      <p>Inazuma's Biggest Book Publishing Since 1984!</p>
+    </div>
+    
+    <!-- Content -->
+    <div class="content">
+      <h2>Thank You for Your Application!</h2>
+      
+      <p class="greeting">Dear <%= @application.first_name %>,</p>
+      
+      <p class="intro-text">
+        Thank you for applying to Yae Publishing House! We're excited to review your application and learn more about your passion for bringing stories to life.
+      </p>
+      
+      <div class="job-title">
+        <%= @job.title %>
+      </div>
+      
+      <div class="info-box">
+        <strong>Application Summary</strong>
+        <div class="info-row">
+          <strong>Position:</strong> <%= @job.title %>
+        </div>
+        <div class="info-row">
+          <strong>Department:</strong> <%= @job.department.titleize %>
+        </div>
+        <div class="info-row">
+          <strong>Location:</strong> <%= @job.location.titleize %>
+        </div>
+        <div class="info-row">
+          <strong>Submitted:</strong> <%= @application.created_at.strftime('%B %d, %Y at %I:%M %p') %>
+        </div>
+      </div>
+      
+      <div class="decorative-line"></div>
+      
+      <h3 class="section-title">What Happens Next?</h3>
+      <ul>
+        <li><strong>Review Process:</strong> Our recruitment team will carefully review your application and qualifications</li>
+        <li><strong>Initial Screening:</strong> We'll reach out if your experience matches our requirements</li>
+        <li><strong>Timeline:</strong> You can expect to hear from us within 2-3 weeks</li>
+        <li><strong>Status Updates:</strong> We'll keep you informed throughout the process</li>
+      </ul>
+      
+      <div class="cta-section">
+        <p style="margin-bottom: 20px; color: #6b7280; font-size: 15px;">
+          In the meantime, feel free to explore more opportunities with us:
+        </p>
+        <a href="<%= careers_url %>" class="button">
+          🔍 View Open Positions
+        </a>
+      </div>
+      
+      <div class="contact-info">
+        <p><strong>Questions?</strong></p>
+        <p>
+          If you have any questions about your application, please don't hesitate to contact us at 
+          <a href="mailto:<%= @job.contact_email || 'careers@yaepublishing.co.in' %>">
+            <%= @job.contact_email || 'careers@yaepublishing.co.in' %>
+          </a>
+        </p>
+      </div>
+      
+      <div class="signature">
+        <p>Best regards,</p>
+        <p><strong>The Yae Publishing House Career Services</strong></p>
+        <p style="color: #8B2C7F; font-style: italic; margin-top: 10px;">
+          "Bringing stories to life, one page at a time"
+        </p>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-logo">YAE PUBLISHING HOUSE</div>
+      <p>© <%= Time.current.year %> Yae Publishing House. All rights reserved.</p>
+      <p>Inazuma's Premier Book Publisher Since 1984</p>
+      <p style="font-size: 12px; opacity: 0.8; margin-top: 15px;">
+        This is an automated message. Please do not reply directly to this email.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
