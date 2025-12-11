@@ -1,293 +1,450 @@
-<!-- app/views/products/index.html.erb -->
-<div class="yae-products-page">
-  
-  <!-- Enhanced Hero Header with CTA -->
-  <div class="yae-hero">
-    <div class="container-fluid px-lg-5">
-      <div class="text-center py-5">
-        <h1 class="display-3 fw-bold text-white mb-3 animate-fade-in">
-          Yae Publishing House
-        </h1>
-        <p class="lead text-white-50 fst-italic mb-4">
-          Inazuma's biggest book publishing since 1984!
-        </p>
-        <div class="hero-cta">
-          <%= link_to products_path(filter: 'new'), class: "btn btn-hero-cta me-3" do %>
-            <i class="bi bi-star-fill me-2"></i>Explore New Arrivals
+<!-- app/views/products/show.html.erb -->
+
+<div class="yae-product-show">
+  <div class="container-fluid px-lg-5 py-4">
+    
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb yae-breadcrumb">
+        <li class="breadcrumb-item"><%= link_to 'Home', root_path %></li>
+        <li class="breadcrumb-item"><%= link_to 'Products', products_path %></li>
+        <li class="breadcrumb-item active" aria-current="page"><%= truncate(@product.title, length: 50) %></li>
+      </ol>
+    </nav>
+
+    <div class="row mt-4 g-4">
+      <!-- Product Image Column -->
+      <div class="col-lg-5 col-md-6">
+        <div class="yae-product-image-container">
+          <% if @product.cover_image.attached? %>
+            <%= image_tag @product.large_image, alt: @product.title, class: 'yae-product-image-large' %>
+          <% else %>
+            <div class="yae-placeholder-large">
+              <i class="bi bi-book"></i>
+              <p>No cover image available</p>
+            </div>
           <% end %>
-          <%= link_to products_path, class: "btn btn-hero-cta-outline" do %>
-            <i class="bi bi-book-half me-2"></i>Browse All Books
+        </div>
+      </div>
+
+      <!-- Product Information Column -->
+      <div class="col-lg-7 col-md-6">
+        <div class="yae-product-header">
+          <h1 class="yae-product-main-title"><%= @product.title %></h1>
+          
+          <% if @product.authors.any? %>
+            <p class="yae-product-authors">
+              by <%= @product.authors.map(&:author_name).join(', ') %>
+            </p>
+          <% end %>
+
+          <!-- Rating Display -->
+          <div class="yae-rating-section">
+            <div class="d-flex align-items-center gap-3">
+              <div class="yae-rating-stars-large">
+                <%= render 'shared/star_rating', rating: @product.average_rating %>
+              </div>
+              <span class="yae-rating-text">
+                <%= number_with_precision(@product.average_rating, precision: 1) %>
+                (<%= @product.ratings_count %> <%= 'review'.pluralize(@product.ratings_count) %>)
+              </span>
+            </div>
+          </div>
+
+          <!-- Badges -->
+          <div class="yae-badges-section">
+            <% if @product.category %>
+              <span class="yae-category-badge">
+                <i class="bi bi-tag-fill me-1"></i><%= @product.category.category_name %>
+              </span>
+            <% end %>
+            
+            <% if @product.created_at >= 3.days.ago %>
+              <span class="yae-new-badge">
+                <i class="bi bi-star-fill me-1"></i>NEW
+              </span>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Price Section -->
+        <div class="yae-price-card">
+          <div class="yae-price-amount">
+            <%= number_to_currency(@product.current_price) %>
+          </div>
+          
+          <% if @product.stock_quantity && @product.stock_quantity > 0 %>
+            <div class="yae-stock-status in-stock">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              In Stock (<%= @product.stock_quantity %> available)
+            </div>
+          <% else %>
+            <div class="yae-stock-status out-of-stock">
+              <i class="bi bi-x-circle-fill me-2"></i>
+              Out of Stock
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Add to Cart Form -->
+        <div class="yae-cart-section">
+          <%= form_with url: cart_add_path, method: :post do |f| %>
+            <%= f.hidden_field :product_id, value: @product.id %>
+            
+            <div class="yae-quantity-section">
+              <label for="quantity" class="yae-quantity-label">
+                <i class="bi bi-hash me-1"></i>Quantity:
+              </label>
+              <%= f.number_field :quantity, value: 1, min: 1, max: @product.stock_quantity || 99, 
+                  class: 'yae-quantity-input' %>
+            </div>
+            
+            <% if @product.stock_quantity && @product.stock_quantity > 0 %>
+              <%= f.submit 'Add to Cart', class: 'btn yae-add-to-cart-btn' %>
+            <% else %>
+              <button class="btn yae-out-of-stock-btn" disabled>
+                <i class="bi bi-x-circle me-2"></i>Out of Stock
+              </button>
+            <% end %>
+          <% end %>
+        </div>
+
+        <!-- Product Description -->
+        <div class="yae-description-section">
+          <h3 class="yae-section-title">
+            <i class="bi bi-file-text-fill me-2"></i>About This Book
+          </h3>
+          <div class="yae-description-text">
+            <%= simple_format(@product.description) %>
+          </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="yae-details-card">
+          <h3 class="yae-section-title mb-3">
+            <i class="bi bi-info-circle-fill me-2"></i>Product Details
+          </h3>
+          
+          <% if @product.isbn.present? %>
+            <div class="yae-detail-row">
+              <span class="yae-detail-label">ISBN:</span>
+              <span class="yae-detail-value"><%= @product.isbn %></span>
+            </div>
+          <% end %>
+
+          <% if @product.publisher.present? %>
+            <div class="yae-detail-row">
+              <span class="yae-detail-label">Publisher:</span>
+              <span class="yae-detail-value"><%= @product.publisher %></span>
+            </div>
+          <% end %>
+
+          <% if @product.publication_date.present? %>
+            <div class="yae-detail-row">
+              <span class="yae-detail-label">Publication Date:</span>
+              <span class="yae-detail-value"><%= @product.publication_date.strftime('%B %d, %Y') %></span>
+            </div>
+          <% end %>
+
+          <% if @product.pages.present? %>
+            <div class="yae-detail-row">
+              <span class="yae-detail-label">Pages:</span>
+              <span class="yae-detail-value"><%= @product.pages %></span>
+            </div>
+          <% end %>
+
+          <% if @product.language.present? %>
+            <div class="yae-detail-row">
+              <span class="yae-detail-label">Language:</span>
+              <span class="yae-detail-value"><%= @product.language %></span>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Back Link -->
+        <%= link_to products_path, class: 'btn yae-back-btn' do %>
+          <i class="bi bi-arrow-left me-2"></i>Back to Products
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <div class="yae-reviews-section">
+          <div class="section-header text-center mb-4">
+            <h3 class="yae-section-main-title">
+              <i class="bi bi-chat-left-text-fill me-2"></i>Customer Reviews
+            </h3>
+          </div>
+
+          <!-- Customer's Rating Form -->
+          <% if customer_signed_in? %>
+            <div class="yae-review-form-card">
+              <h5 class="yae-review-form-title">
+                <i class="bi bi-pencil-square me-2"></i>Write a Review
+              </h5>
+              <%= form_with model: Rating.new, url: product_ratings_path(@product), 
+                  local: true, class: 'yae-rating-form' do |f| %>
+                
+                <div class="mb-4">
+                  <label class="yae-form-label">Your Rating</label>
+                  <div class="yae-star-input">
+                    <% (1..5).reverse_each do |i| %>
+                      <%= f.radio_button :score, i, id: "rating_new_#{i}", class: 'd-none' %>
+                      <label for="rating_new_<%= i %>" class="yae-star-label">
+                        <i class="bi bi-star-fill"></i>
+                      </label>
+                    <% end %>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <%= f.label :review, 'Your Review (Optional)', class: 'yae-form-label' %>
+                  <%= f.text_area :review, class: 'yae-form-textarea', rows: 4, 
+                      placeholder: 'Share your thoughts about this book...' %>
+                </div>
+
+                <%= f.submit 'Submit Review', class: 'btn yae-submit-review-btn' %>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="yae-sign-in-prompt">
+              <i class="bi bi-person-circle me-2"></i>
+              <%= link_to 'Sign in', new_customer_session_path %> to leave a review.
+            </div>
+          <% end %>
+
+          <!-- Display All Reviews -->
+          <div class="yae-reviews-list mt-4">
+            <% @product.ratings.order(created_at: :desc).each do |rating| %>
+              <div class="yae-review-card">
+                <div class="d-flex gap-3">
+                  <!-- Customer Avatar -->
+                  <div class="flex-shrink-0">
+                    <% if rating.customer.profile_picture.attached? %>
+                      <%= image_tag rating.customer.profile_picture.variant(resize_to_fill: [60, 60]), 
+                          class: 'yae-review-avatar',
+                          alt: rating.customer.full_name %>
+                    <% else %>
+                      <div class="yae-review-avatar-placeholder">
+                        <%= rating.customer.initials %>
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <!-- Review Content -->
+                  <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <div>
+                        <h6 class="yae-reviewer-name"><%= rating.customer.full_name %></h6>
+                        <div class="yae-review-stars mb-1">
+                          <%= render 'shared/star_rating', rating: rating.score %>
+                        </div>
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        <small class="yae-review-date">
+                          <%= rating.created_at.strftime('%B %d, %Y') %>
+                        </small>
+                        
+                        <% if customer_signed_in? && rating.customer == current_customer %>
+                          <div class="dropdown">
+                            <button class="yae-review-menu-btn" type="button" 
+                                    id="reviewMenu<%= rating.id %>" data-bs-toggle="dropdown">
+                              <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                              <li>
+                                <a class="dropdown-item" href="#" onclick="showEditForm(<%= rating.id %>); return false;">
+                                  <i class="bi bi-pencil me-2"></i>Edit Review
+                                </a>
+                              </li>
+                              <li><hr class="dropdown-divider"></li>
+                              <li>
+                                <%= button_to product_rating_path(@product, rating), 
+                                    method: :delete, 
+                                    class: 'dropdown-item text-danger',
+                                    data: { confirm: 'Delete this review?' },
+                                    form: { style: 'display: inline;' } do %>
+                                  <i class="bi bi-trash me-2"></i>Delete Review
+                                <% end %>
+                              </li>
+                            </ul>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                    
+                    <!-- Review Text -->
+                    <div id="review-view-<%= rating.id %>">
+                      <% if rating.review.present? %>
+                        <p class="yae-review-text"><%= rating.review %></p>
+                      <% end %>
+                    </div>
+
+                    <!-- Edit Form (Hidden) -->
+                    <% if customer_signed_in? && rating.customer == current_customer %>
+                      <div id="review-edit-<%= rating.id %>" style="display: none;">
+                        <%= form_with model: rating, url: product_rating_path(@product, rating), 
+                            method: :patch, local: true do |f| %>
+                          
+                          <div class="mb-3">
+                            <label class="yae-form-label">Rating</label>
+                            <div class="yae-star-input">
+                              <% (1..5).reverse_each do |i| %>
+                                <%= f.radio_button :score, i, id: "rating_edit_#{rating.id}_#{i}", class: 'd-none', checked: rating.score == i %>
+                                <label for="rating_edit_<%= rating.id %>_<%= i %>" class="yae-star-label">
+                                  <i class="bi bi-star-fill"></i>
+                                </label>
+                              <% end %>
+                            </div>
+                          </div>
+
+                          <div class="mb-3">
+                            <%= f.label :review, 'Your Review', class: 'yae-form-label' %>
+                            <%= f.text_area :review, class: 'yae-form-textarea', rows: 3 %>
+                          </div>
+
+                          <div class="d-flex gap-2">
+                            <%= f.submit 'Update Review', class: 'btn yae-update-btn' %>
+                            <button type="button" class="btn yae-cancel-btn" onclick="hideEditForm(<%= rating.id %>)">
+                              Cancel
+                            </button>
+                          </div>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+
+            <% if @product.ratings.empty? %>
+              <div class="yae-no-reviews">
+                <i class="bi bi-chat-left-dots display-4 text-muted mb-3"></i>
+                <p>No reviews yet. Be the first to review this book!</p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- You May Also Like Section -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <div class="section-header text-center mb-4">
+          <h3 class="yae-section-main-title">
+            <i class="bi bi-heart-fill me-2"></i>You May Also Like
+          </h3>
+          <p class="text-muted">Similar books you might enjoy</p>
+        </div>
+        
+        <div class="row g-4">
+          <% @related_products.each do |product| %>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+              <%= link_to product_path(product), class: 'text-decoration-none' do %>
+                <div class="yae-recommendation-card">
+                  <div class="yae-recommendation-image">
+                    <% if product.cover_image.attached? %>
+                      <%= image_tag product.medium_image, alt: product.title %>
+                    <% else %>
+                      <div class="yae-recommendation-placeholder">
+                        <i class="bi bi-book"></i>
+                      </div>
+                    <% end %>
+                  </div>
+                  
+                  <div class="yae-recommendation-info">
+                    <h6 class="yae-recommendation-title">
+                      <%= truncate(product.title, length: 40) %>
+                    </h6>
+                    
+                    <% if product.authors.any? %>
+                      <p class="yae-recommendation-author">
+                        <%= product.authors.first.author_name %>
+                      </p>
+                    <% end %>
+
+                    <% if product.average_rating > 0 %>
+                      <div class="yae-recommendation-rating">
+                        <div class="yae-stars-small">
+                          <%= render 'shared/star_rating', rating: product.average_rating %>
+                        </div>
+                        <span>(<%= product.ratings_count %>)</span>
+                      </div>
+                    <% end %>
+                    
+                    <div class="yae-recommendation-price">
+                      <%= number_to_currency(product.current_price) %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
           <% end %>
         </div>
       </div>
     </div>
-  </div>
 
-  <%= render 'shared/active_promotions' %>
-
-  <div class="container-fluid px-lg-5 py-5">
-    
-    <!-- Featured/Bestseller Section -->
-    <% if @products && @products.limit(5).any? %>
-      <div class="mb-5">
-        <div class="section-header text-center mb-4">
-          <h2 class="fw-bold" style="color: var(--yae-purple);">
-            <i class="bi bi-trophy-fill me-2"></i>Featured Bestsellers
-          </h2>
-          <p class="text-muted">Discover our most loved books by readers</p>
-        </div>
-        
-        <div class="yae-featured-slider mb-4">
-          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
-            <% @products.limit(5).each do |product| %>
-              <div class="col">
+    <!-- Recently Viewed Section -->
+    <% if @recently_viewed_products.present? %>
+      <div class="row mt-5 mb-5">
+        <div class="col-12">
+          <div class="section-header text-center mb-4">
+            <h3 class="yae-section-main-title">
+              <i class="bi bi-clock-history me-2"></i>Recently Viewed
+            </h3>
+            <p class="text-muted">Books you've checked out recently</p>
+          </div>
+          
+          <div class="row g-4">
+            <% @recently_viewed_products.each do |product| %>
+              <div class="col-lg-2 col-md-3 col-sm-4 col-6">
                 <%= link_to product_path(product), class: 'text-decoration-none' do %>
-                  <div class="yae-featured-card h-100">
-                    <div class="yae-featured-image">
+                  <div class="yae-recommendation-card">
+                    <div class="yae-recommendation-image">
                       <% if product.cover_image.attached? %>
                         <%= image_tag product.medium_image, alt: product.title %>
                       <% else %>
-                        <div class="yae-product-placeholder">
+                        <div class="yae-recommendation-placeholder">
                           <i class="bi bi-book"></i>
                         </div>
                       <% end %>
-                      <div class="yae-featured-overlay">
-                        <span class="yae-quick-view">Quick View</span>
-                      </div>
                     </div>
-                    <div class="yae-featured-info text-center p-3">
-                      <h6 class="mb-2 fw-bold"><%= truncate(product.title, length: 40) %></h6>
+                    
+                    <div class="yae-recommendation-info">
+                      <h6 class="yae-recommendation-title">
+                        <%= truncate(product.title, length: 40) %>
+                      </h6>
+                      
+                      <% if product.authors.any? %>
+                        <p class="yae-recommendation-author">
+                          <%= product.authors.first.author_name %>
+                        </p>
+                      <% end %>
+
                       <% if product.average_rating > 0 %>
-                        <div class="mb-2">
-                          <%= render 'shared/star_rating', rating: product.average_rating %>
+                        <div class="yae-recommendation-rating">
+                          <div class="yae-stars-small">
+                            <%= render 'shared/star_rating', rating: product.average_rating %>
+                          </div>
+                          <span>(<%= product.ratings_count %>)</span>
                         </div>
                       <% end %>
-                      <p class="yae-featured-price mb-0"><%= number_to_currency(product.current_price) %></p>
-                    </div>
-                  </div>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    <% end %>
-
-    <!-- Browse by Category -->
-    <% if @categories && @categories.any? %>
-      <div class="mb-5">
-        <div class="section-header text-center mb-4">
-          <h2 class="fw-bold" style="color: var(--yae-purple);">
-            <i class="bi bi-bookshelf me-2"></i>Browse by Category
-          </h2>
-          <p class="text-muted">Find your next great read by genre</p>
-        </div>
-        <div class="d-flex flex-wrap justify-content-center gap-3">
-          <% @categories.each do |category| %>
-            <%= link_to category_path(category), class: "btn btn-category" do %>
-              <i class="bi bi-tag-fill me-2"></i><%= category.category_name %>
-            <% end %>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
-
-    <!-- Enhanced Search Section -->
-    <div class="card yae-search-card shadow-lg mb-5 mx-auto">
-      <div class="card-body p-4">
-        <h3 class="card-title text-center mb-4 fw-bold" style="color: var(--yae-purple);">
-          <i class="bi bi-search me-2"></i>Find Your Perfect Book
-        </h3>
-        <%= form_with url: search_products_path, method: :get, class: "row g-3" do |f| %>
-          <div class="col-md-5">
-            <%= f.text_field :keyword, 
-                class: "form-control form-control-lg yae-input", 
-                placeholder: "Search by title or description...",
-                value: params[:keyword] %>
-          </div>
-          <div class="col-md-4">
-            <%= f.select :category_id, 
-                options_for_select([['All Categories', '']] + @categories.map { |c| [c.category_name, c.id] }, params[:category_id]),
-                {},
-                class: "form-select form-select-lg yae-input" %>
-          </div>
-          <div class="col-md-3">
-            <%= f.submit "Search", class: "btn btn-yae-search btn-lg w-100" %>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <!-- Trust Badges Section -->
-    <div class="yae-trust-section mb-5">
-      <div class="row g-4 text-center">
-        <div class="col-6 col-md-3">
-          <div class="yae-trust-badge">
-            <i class="bi bi-truck display-4 mb-3"></i>
-            <h6 class="fw-bold">Free Shipping</h6>
-            <p class="small text-muted mb-0">On orders over $50</p>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="yae-trust-badge">
-            <i class="bi bi-arrow-clockwise display-4 mb-3"></i>
-            <h6 class="fw-bold">Easy Returns</h6>
-            <p class="small text-muted mb-0">30-day return policy</p>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="yae-trust-badge">
-            <i class="bi bi-shield-check display-4 mb-3"></i>
-            <h6 class="fw-bold">Secure Payment</h6>
-            <p class="small text-muted mb-0">100% secure checkout</p>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="yae-trust-badge">
-            <i class="bi bi-headset display-4 mb-3"></i>
-            <h6 class="fw-bold">24/7 Support</h6>
-            <p class="small text-muted mb-0">Here to help you</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Filter Buttons -->
-    <div class="text-center mb-5">
-      <div class="btn-group-yae" role="group">
-        <%= link_to products_path, 
-            class: "btn btn-filter #{params[:filter].blank? ? 'active' : ''}" do %>
-          <i class="bi bi-grid-3x3-gap-fill me-2"></i>All Products
-        <% end %>
-        <%= link_to products_path(filter: 'new'), 
-            class: "btn btn-filter #{params[:filter] == 'new' ? 'active' : ''}" do %>
-          <i class="bi bi-star-fill me-2"></i>New Arrivals
-        <% end %>
-        <%= link_to products_path(filter: 'updated'), 
-            class: "btn btn-filter #{params[:filter] == 'updated' ? 'active' : ''}" do %>
-          <i class="bi bi-clock-history me-2"></i>Recently Updated
-        <% end %>
-      </div>
-    </div>
-
-    <!-- Products Grid -->
-    <% if @products && @products.any? %>
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4 mb-5">
-        <% @products.each do |product| %>
-          <div class="col">
-            <%= link_to product_path(product), class: 'text-decoration-none yae-product-link' do %>
-              <div class="yae-product-card h-100">
-                
-                <!-- Badges -->
-                <% if product.created_at >= 3.days.ago %>
-                  <span class="yae-badge yae-badge-new">
-                    <i class="bi bi-star-fill me-1"></i>NEW
-                  </span>
-                <% end %>
-                
-                <% if product.on_sale %>
-                  <span class="yae-badge yae-badge-sale">
-                    <i class="bi bi-tag-fill me-1"></i>SALE
-                  </span>
-                <% end %>
-                
-                <!-- Product Image -->
-                <div class="yae-product-image">
-                  <% if product.cover_image.attached? %>
-                    <%= image_tag product.medium_image, alt: product.title %>
-                  <% else %>
-                    <div class="yae-product-placeholder">
-                      <i class="bi bi-book"></i>
-                    </div>
-                  <% end %>
-                  <div class="yae-product-overlay">
-                    <span class="yae-view-btn">
-                      <i class="bi bi-eye-fill me-2"></i>View Details
-                    </span>
-                  </div>
-                  
-                  <!-- Wishlist Icon -->
-                  <button class="yae-wishlist-btn" onclick="event.preventDefault(); toggleWishlist(this);" title="Add to Wishlist">
-                    <i class="bi bi-heart"></i>
-                  </button>
-                </div>
-
-                <!-- Card Info -->
-                <div class="yae-product-info">
-                  <h6 class="yae-product-title">
-                    <%= truncate(product.title, length: 50) %>
-                  </h6>
-                  
-                  <% if product.authors.any? %>
-                    <p class="yae-product-author">
-                      <%= product.authors.first.author_name %>
-                    </p>
-                  <% end %>
-
-                  <!-- Rating -->
-                  <% if product.average_rating > 0 %>
-                    <div class="yae-product-rating">
-                      <div class="yae-stars">
-                        <%= render 'shared/star_rating', rating: product.average_rating %>
+                      
+                      <div class="yae-recommendation-price">
+                        <%= number_to_currency(product.current_price) %>
                       </div>
-                      <span class="yae-rating-count">
-                        (<%= product.ratings_count %>)
-                      </span>
                     </div>
-                  <% end %>
-                  
-                  <!-- Price -->
-                  <div class="yae-product-price">
-                    <%= number_to_currency(product.current_price) %>
                   </div>
-                </div>
+                <% end %>
               </div>
             <% end %>
           </div>
-        <% end %>
-      </div>
-
-      <!-- Pagination -->
-      <div class="mt-5 d-flex justify-content-center">
-        <nav aria-label="Page navigation">
-          <%= paginate @products, theme: 'bootstrap-5' %>
-        </nav>
-      </div>
-
-    <% else %>
-      <div class="yae-no-results">
-        <div class="text-center py-5">
-          <i class="bi bi-search display-1 text-muted mb-4"></i>
-          <h4 class="mb-3">No products found</h4>
-          <p class="text-muted mb-4">Try adjusting your search or browse all products.</p>
-          <%= link_to "View All Products", products_path, class: "btn btn-yae-primary btn-lg" %>
         </div>
       </div>
     <% end %>
-
-    <!-- Newsletter Section -->
-    <div class="yae-newsletter-section mt-5 mb-4">
-      <div class="yae-newsletter-card">
-        <div class="row align-items-center">
-          <div class="col-lg-6 mb-4 mb-lg-0 text-center text-lg-start">
-            <h3 class="fw-bold mb-3">
-              <i class="bi bi-envelope-heart me-2"></i>Join Our Book Club
-            </h3>
-            <p class="mb-0">Subscribe to get exclusive deals, new releases, and reading recommendations!</p>
-          </div>
-          <div class="col-lg-6">
-            <form class="yae-newsletter-form">
-              <div class="input-group input-group-lg">
-                <input type="email" class="form-control yae-newsletter-input" placeholder="Enter your email address" required>
-                <button class="btn btn-yae-newsletter" type="submit">
-                  <i class="bi bi-send-fill me-2"></i>Subscribe
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -299,87 +456,29 @@
     --yae-light-pink: #F8C8DC;
   }
 
-  .yae-products-page {
+  .yae-product-show {
     background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
     min-height: 100vh;
+    padding: 2rem 0;
   }
 
-  /* Hero Section */
-  .yae-hero {
-    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
-    border-bottom: 4px solid var(--yae-pink);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  /* Section Headers - Matching Index Style */
+  .section-header {
+    margin-bottom: 2rem;
   }
 
-  .animate-fade-in {
-    animation: fadeIn 0.8s ease-in;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .hero-cta {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .btn-hero-cta {
-    background: linear-gradient(135deg, var(--yae-pink) 0%, #d91479 100%);
-    color: white;
-    border: none;
-    padding: 1rem 2.5rem;
-    border-radius: 30px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-size: 0.95rem;
-  }
-
-  .btn-hero-cta:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(233, 30, 140, 0.5);
-    color: white;
-  }
-
-  .btn-hero-cta-outline {
-    background: transparent;
-    color: white;
-    border: 2px solid white;
-    padding: 1rem 2.5rem;
-    border-radius: 30px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-size: 0.95rem;
-  }
-
-  .btn-hero-cta-outline:hover {
-    background: white;
-    color: var(--yae-purple);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
-  }
-
-  /* Section Headers */
-  .section-header h2 {
+  .section-header h3,
+  .yae-section-main-title {
     position: relative;
     display: inline-block;
     padding-bottom: 1rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--yae-purple);
   }
 
-  .section-header h2::after {
+  .section-header h3::after,
+  .yae-section-main-title::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -391,174 +490,355 @@
     border-radius: 2px;
   }
 
-  /* Featured Bestsellers */
-  .yae-featured-card {
+  .section-header p {
+    color: #6b7280;
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+  }
+
+  /* Breadcrumb */
+  .yae-breadcrumb {
     background: white;
+    padding: 1rem 1.5rem;
     border-radius: 15px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: none;
   }
 
-  .yae-featured-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 30px rgba(139, 44, 127, 0.3);
-  }
-
-  .yae-featured-image {
-    width: 100%;
-    aspect-ratio: 2/3;
-    position: relative;
-    overflow: hidden;
-    background: #f8f9fa;
-  }
-
-  .yae-featured-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-
-  .yae-featured-card:hover .yae-featured-image img {
-    transform: scale(1.08);
-  }
-
-  .yae-featured-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to top, rgba(139, 44, 127, 0.95) 0%, transparent 50%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    padding: 1.5rem;
-  }
-
-  .yae-featured-card:hover .yae-featured-overlay {
-    opacity: 1;
-  }
-
-  .yae-quick-view {
-    background: white;
+  .yae-breadcrumb a {
     color: var(--yae-purple);
-    padding: 0.6rem 1.5rem;
-    border-radius: 20px;
+    text-decoration: none;
     font-weight: 600;
-    font-size: 0.9rem;
+    transition: color 0.3s ease;
   }
 
-  .yae-featured-info {
-    background: white;
-  }
-
-  .yae-featured-price {
-    font-size: 1.25rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* Trust Badges */
-  .yae-trust-section {
-    background: white;
-    border-radius: 20px;
-    padding: 2.5rem 1.5rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  }
-
-  .yae-trust-badge i {
-    color: var(--yae-purple);
-    transition: all 0.3s ease;
-  }
-
-  .yae-trust-badge:hover i {
-    transform: scale(1.1);
+  .yae-breadcrumb a:hover {
     color: var(--yae-pink);
   }
 
-  .yae-trust-badge h6 {
-    color: var(--yae-dark);
+  .breadcrumb-item.active {
+    color: #6b7280;
   }
 
-  /* Category Buttons */
-  .btn-category {
+  /* Product Image */
+  .yae-product-image-container {
     background: white;
-    color: var(--yae-purple);
-    border: 2px solid var(--yae-purple);
-    padding: 0.75rem 1.5rem;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 2rem;
+    transition: all 0.3s ease;
+  }
+
+  .yae-product-image-container:hover {
+    box-shadow: 0 12px 40px rgba(139, 44, 127, 0.2);
+  }
+
+  .yae-product-image-large {
+    width: 100%;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+  }
+
+  .yae-product-image-large:hover {
+    transform: scale(1.02);
+  }
+
+  .yae-placeholder-large {
+    aspect-ratio: 2/3;
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 6rem;
+  }
+
+  .yae-placeholder-large p {
+    font-size: 1.2rem;
+    margin-top: 1rem;
+  }
+
+  /* Product Header */
+  .yae-product-header {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .yae-product-header:hover {
+    box-shadow: 0 6px 25px rgba(139, 44, 127, 0.15);
+  }
+
+  .yae-product-main-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+
+  .yae-product-authors {
+    font-size: 1.3rem;
+    color: #6b7280;
+    font-style: italic;
+    margin-bottom: 1rem;
+  }
+
+  /* Rating Section */
+  .yae-rating-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-rating-stars-large {
+    font-size: 1.8rem;
+  }
+
+  .yae-rating-stars-large i {
+    color: #ffc107;
+  }
+
+  .yae-rating-text {
+    font-size: 1.1rem;
+    color: #6b7280;
+    font-weight: 600;
+  }
+
+  /* Badges */
+  .yae-badges-section {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .yae-category-badge, .yae-new-badge {
+    padding: 0.6rem 1.2rem;
     border-radius: 25px;
     font-weight: 600;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
     font-size: 0.9rem;
-    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
-  .btn-category:hover {
-    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+  .yae-category-badge:hover, .yae-new-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .yae-category-badge {
+    background: linear-gradient(135deg, var(--yae-light-pink) 0%, #e9d5ff 100%);
+    color: var(--yae-purple);
+  }
+
+  .yae-new-badge {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
-    border-color: var(--yae-pink);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(139, 44, 127, 0.3);
   }
 
-  /* Search Card */
-  .yae-search-card {
-    max-width: 900px;
-    border: 3px solid var(--yae-purple);
+  /* Price Card */
+  .yae-price-card {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    padding: 2rem;
     border-radius: 20px;
-    background: white;
-  }
-
-  .yae-input {
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(139, 44, 127, 0.3);
+    margin-bottom: 1.5rem;
     transition: all 0.3s ease;
   }
 
-  .yae-input:focus {
-    border-color: var(--yae-purple);
-    box-shadow: 0 0 0 0.2rem rgba(139, 44, 127, 0.25);
+  .yae-price-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(139, 44, 127, 0.4);
   }
 
-  .btn-yae-search {
+  .yae-price-amount {
+    font-size: 3rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1rem;
+  }
+
+  .yae-stock-status {
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+  }
+
+  .yae-stock-status.in-stock {
+    color: #10b981;
+  }
+
+  .yae-stock-status.out-of-stock {
+    color: #ef4444;
+  }
+
+  /* Cart Section */
+  .yae-cart-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .yae-cart-section:hover {
+    box-shadow: 0 6px 25px rgba(139, 44, 127, 0.15);
+  }
+
+  .yae-quantity-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-quantity-label {
+    font-weight: 600;
+    color: var(--yae-purple);
+    font-size: 1.1rem;
+    margin-bottom: 0;
+  }
+
+  .yae-quantity-input {
+    width: 100px;
+    padding: 0.75rem;
+    border: 2px solid var(--yae-purple);
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .yae-quantity-input:focus {
+    outline: none;
+    border-color: var(--yae-pink);
+    box-shadow: 0 0 0 3px rgba(233, 30, 140, 0.2);
+  }
+
+  .yae-add-to-cart-btn {
+    width: 100%;
+    padding: 1.25rem;
     background: linear-gradient(135deg, var(--yae-pink) 0%, #d91479 100%);
     color: white;
     border: none;
-    border-radius: 12px;
-    font-weight: 600;
+    border-radius: 15px;
+    font-size: 1.3rem;
+    font-weight: 700;
     transition: all 0.3s ease;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
   }
 
-  .btn-yae-search:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(233, 30, 140, 0.4);
+  .yae-add-to-cart-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(233, 30, 140, 0.4);
     background: linear-gradient(135deg, #d91479 0%, var(--yae-pink) 100%);
+    color: white;
   }
 
-  /* Filter Buttons */
-  .btn-group-yae {
-    display: inline-flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
+  .yae-out-of-stock-btn {
+    width: 100%;
+    padding: 1.25rem;
+    background: #9ca3af;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 1.3rem;
+    font-weight: 700;
   }
 
-  .btn-filter {
+  /* Description Section */
+  .yae-description-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .yae-description-section:hover {
+    box-shadow: 0 6px 25px rgba(139, 44, 127, 0.15);
+  }
+
+  .yae-section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--yae-purple);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .yae-description-text {
+    line-height: 1.8;
+    color: #4b5563;
+    font-size: 1.05rem;
+  }
+
+  /* Details Card */
+  .yae-details-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .yae-details-card:hover {
+    box-shadow: 0 6px 25px rgba(139, 44, 127, 0.15);
+  }
+
+  .yae-detail-row {
+    display: flex;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e5e7eb;
+    transition: background 0.3s ease;
+  }
+
+  .yae-detail-row:hover {
+    background: #f9fafb;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    border-radius: 8px;
+  }
+
+  .yae-detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .yae-detail-label {
+    flex: 0 0 40%;
+    font-weight: 600;
+    color: var(--yae-purple);
+  }
+
+  .yae-detail-value {
+    flex: 1;
+    color: #4b5563;
+  }
+
+  /* Back Button */
+  .yae-back-btn {
     background: white;
     color: var(--yae-purple);
     border: 2px solid var(--yae-purple);
     padding: 0.75rem 2rem;
-    border-radius: 25px;
+    border-radius: 15px;
     font-weight: 600;
     transition: all 0.3s ease;
     text-decoration: none;
@@ -566,96 +846,280 @@
     align-items: center;
   }
 
-  .btn-filter:hover {
-    background: linear-gradient(135deg, var(--yae-light-pink) 0%, #e9d5ff 100%);
-    color: var(--yae-purple);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.2);
+  .yae-back-btn:hover {
+    background: var(--yae-purple);
+    color: white;
+    transform: translateX(-5px);
+    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.3);
   }
 
-  .btn-filter.active {
+  /* Reviews Section */
+  .yae-reviews-section {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .yae-reviews-section:hover {
+    box-shadow: 0 6px 25px rgba(139, 44, 127, 0.15);
+  }
+
+  /* Review Form */
+  .yae-review-form-card {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .yae-review-form-card:hover {
+    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.15);
+  }
+
+  .yae-review-form-title {
+    color: var(--yae-purple);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-form-label {
+    font-weight: 600;
+    color: var(--yae-purple);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .yae-star-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  .yae-star-label {
+    cursor: pointer;
+    font-size: 2.5rem;
+    color: #d1d5db;
+    transition: all 0.2s;
+  }
+
+  .yae-star-label:hover {
+    transform: scale(1.1);
+  }
+
+  .yae-star-input input:checked ~ label,
+  .yae-star-input label:hover,
+  .yae-star-input label:hover ~ label {
+    color: #ffc107;
+  }
+
+  .yae-form-textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    resize: vertical;
+  }
+
+  .yae-form-textarea:focus {
+    border-color: var(--yae-purple);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 44, 127, 0.1);
+  }
+
+  .yae-submit-review-btn {
     background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
     color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .yae-submit-review-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 44, 127, 0.3);
+  }
+
+  /* Sign In Prompt */
+  .yae-sign-in-prompt {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--yae-dark);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .yae-sign-in-prompt a {
+    color: var(--yae-purple);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .yae-sign-in-prompt a:hover {
+    color: var(--yae-pink);
+  }
+
+  /* Review Cards */
+  .yae-review-card {
+    background: #f9fafb;
+    padding: 1.5rem;
+    border-radius: 15px;
+    margin-bottom: 1rem;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s ease;
+  }
+
+  .yae-review-card:hover {
+    border-color: var(--yae-purple);
+    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.1);
+    background: white;
+  }
+
+  .yae-review-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--yae-purple);
+    transition: all 0.3s ease;
+  }
+
+  .yae-review-card:hover .yae-review-avatar {
     border-color: var(--yae-pink);
   }
 
-  /* Product Card */
-  .yae-product-link {
-    display: block;
-    height: 100%;
+  .yae-review-avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    border: 3px solid var(--yae-pink);
   }
 
-  .yae-product-card {
+  .yae-reviewer-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin-bottom: 0.25rem;
+  }
+
+  .yae-review-stars {
+    font-size: 1rem;
+  }
+
+  .yae-review-stars i {
+    color: #ffc107;
+  }
+
+  .yae-review-date {
+    color: #9ca3af;
+  }
+
+  .yae-review-menu-btn {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: 1.2rem;
+    padding: 0;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  .yae-review-menu-btn:hover {
+    color: var(--yae-purple);
+  }
+
+  .yae-review-text {
+    color: #4b5563;
+    line-height: 1.7;
+    margin-top: 1rem;
+  }
+
+  .yae-update-btn, .yae-cancel-btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s ease;
+  }
+
+  .yae-update-btn {
+    background: var(--yae-purple);
+    color: white;
+  }
+
+  .yae-update-btn:hover {
+    background: var(--yae-dark);
+    transform: translateY(-2px);
+  }
+
+  .yae-cancel-btn {
+    background: #e5e7eb;
+    color: #6b7280;
+  }
+
+  .yae-cancel-btn:hover {
+    background: #d1d5db;
+  }
+
+  /* No Reviews */
+  .yae-no-reviews {
+    text-align: center;
+    padding: 3rem;
+    color: #9ca3af;
+  }
+
+  /* Recommendations */
+  .yae-recommendation-card {
     background: white;
     border-radius: 15px;
     overflow: hidden;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    position: relative;
+    height: 100%;
   }
 
-  .yae-product-card:hover {
-    transform: translateY(-10px);
+  .yae-recommendation-card:hover {
+    transform: translateY(-8px);
     box-shadow: 0 12px 30px rgba(139, 44, 127, 0.3);
   }
 
-  /* Wishlist Button */
-  .yae-wishlist-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: white;
-    border: none;
-    color: var(--yae-pink);
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 10;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-
-  .yae-wishlist-btn:hover {
-    background: var(--yae-pink);
-    color: white;
-    transform: scale(1.1);
-  }
-
-  .yae-wishlist-btn.active {
-    background: var(--yae-pink);
-    color: white;
-  }
-
-  .yae-wishlist-btn.active i::before {
-    content: "\f5a5"; /* filled heart */
-  }
-
-  /* Product Image */
-  .yae-product-image {
-    width: 100%;
+  .yae-recommendation-image {
     aspect-ratio: 2/3;
-    position: relative;
     overflow: hidden;
-    background: #f8f9fa;
   }
 
-  .yae-product-image img {
+  .yae-recommendation-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
   }
 
-  .yae-product-card:hover .yae-product-image img {
+  .yae-recommendation-card:hover .yae-recommendation-image img {
     transform: scale(1.05);
   }
 
-  .yae-product-placeholder {
+  .yae-recommendation-placeholder {
     width: 100%;
     height: 100%;
     background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
@@ -663,461 +1127,115 @@
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 4rem;
+    font-size: 3rem;
   }
 
-  /* Product Overlay */
-  .yae-product-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to top, rgba(139, 44, 127, 0.9) 0%, transparent 60%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
+  .yae-recommendation-info {
     padding: 1rem;
   }
 
-  .yae-product-card:hover .yae-product-overlay {
-    opacity: 1;
-  }
-
-  .yae-view-btn {
-    background: white;
-    color: var(--yae-purple);
-    padding: 0.75rem 1.5rem;
-    border-radius: 25px;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    transform: translateY(20px);
-    transition: transform 0.3s ease;
-  }
-
-  .yae-product-card:hover .yae-view-btn {
-    transform: translateY(0);
-  }
-
-  /* Badges */
-  .yae-badge {
-    position: absolute;
-    top: 10px;
-    padding: 0.4rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    z-index: 10;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    display: inline-flex;
-    align-items: center;
-  }
-
-  .yae-badge-new {
-    left: 10px;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-  }
-
-  .yae-badge-sale {
-    right: 60px;
-    background: linear-gradient(135deg, var(--yae-pink) 0%, #d91479 100%);
-    color: white;
-  }
-
-  /* Product Info */
-  .yae-product-info {
-    padding: 1.25rem;
-  }
-
-  .yae-product-title {
-    font-size: 0.95rem;
-    line-height: 1.4;
-    min-height: 2.8rem;
+  .yae-recommendation-title {
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--yae-dark);
     margin-bottom: 0.5rem;
+    min-height: 2.5rem;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
   }
 
-  .yae-product-author {
-    font-size: 0.85rem;
+  .yae-recommendation-author {
+    font-size: 0.8rem;
     color: #6b7280;
-    margin-bottom: 0.75rem;
     font-style: italic;
+    margin-bottom: 0.5rem;
   }
 
-  .yae-product-rating {
+  .yae-recommendation-rating {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .yae-stars {
-    font-size: 0.85rem;
-  }
-
-  .yae-stars i {
-    color: #ffc107;
-  }
-
-  .yae-rating-count {
-    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
     color: #9ca3af;
   }
 
-  .yae-product-price {
-    font-size: 1.5rem;
+  .yae-stars-small {
+    font-size: 0.75rem;
+  }
+
+  .yae-stars-small i {
+    color: #ffc107;
+  }
+
+  .yae-recommendation-price {
+    font-size: 1.2rem;
     font-weight: 700;
-    color: var(--yae-purple);
     background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Quick View Book Button */
-  .btn-yae-view-book {
-    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 0.6rem 1rem;
-    font-weight: 600;
-    font-size: 0.85rem;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .btn-yae-view-book:hover {
-    background: linear-gradient(135deg, var(--yae-pink) 0%, #d91479 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.4);
-    color: white;
-  }
-
-  .btn-yae-view-book:active {
-    transform: translateY(0);
-  }
-
-  /* Newsletter Section */
-  .yae-newsletter-section {
-    background: white;
-    border-radius: 20px;
-    padding: 3rem 2rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  }
-
-  .yae-newsletter-card h3 {
-    color: var(--yae-dark);
-  }
-
-  .yae-newsletter-card p {
-    color: #6b7280;
-    font-size: 1.1rem;
-  }
-
-  .yae-newsletter-input {
-    border: 2px solid #e0e0e0;
-    border-radius: 12px 0 0 12px;
-    padding: 0.75rem 1.5rem;
-    transition: all 0.3s ease;
-  }
-
-  .yae-newsletter-input:focus {
-    border-color: var(--yae-purple);
-    box-shadow: 0 0 0 0.2rem rgba(139, 44, 127, 0.25);
-    outline: none;
-  }
-
-  .btn-yae-newsletter {
-    background: linear-gradient(135deg, var(--yae-pink) 0%, #d91479 100%);
-    color: white;
-    border: none;
-    border-radius: 0 12px 12px 0;
-    padding: 0.75rem 2rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-  }
-
-  .btn-yae-newsletter:hover {
-    background: linear-gradient(135deg, #d91479 0%, var(--yae-pink) 100%);
-    box-shadow: 0 4px 15px rgba(233, 30, 140, 0.4);
-  }
-
-  /* No Results */
-  .yae-no-results {
-    background: white;
-    border-radius: 20px;
-    padding: 3rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  }
-
-  .btn-yae-primary {
-    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
-    color: white;
-    border: none;
-    padding: 1rem 3rem;
-    border-radius: 30px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-  }
-
-  .btn-yae-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(139, 44, 127, 0.4);
-    color: white;
-  }
-
-  /* Pagination Styling */
-  nav[aria-label="Page navigation"] {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 0.5rem 0;
-  }
-
-  .pagination {
-    gap: 0.5rem;
-    flex-wrap: nowrap;
-    margin-bottom: 0;
-  }
-
-  .pagination .page-link {
-    border: 2px solid var(--yae-purple);
-    color: var(--yae-purple);
-    border-radius: 10px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    padding: 0.5rem 0.75rem;
-    min-width: 42px;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  .pagination .page-link:hover {
-    background: var(--yae-purple);
-    color: white;
-  }
-
-  .pagination .page-item.active .page-link {
-    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
-    border-color: var(--yae-pink);
-    color: white;
-  }
-
-  .pagination .page-item.disabled .page-link {
-    opacity: 0.5;
-  }
-
   /* Responsive */
   @media (max-width: 768px) {
-    .yae-hero h1 {
-      font-size: 2rem;
+    .yae-product-main-title {
+      font-size: 1.8rem;
     }
 
-    .btn-category, .btn-filter {
-      font-size: 0.8rem;
-      padding: 0.6rem 1.2rem;
+    .yae-product-authors {
+      font-size: 1.1rem;
     }
 
-    .btn-group-yae {
-      gap: 0.5rem;
+    .yae-price-amount {
+      font-size: 2.2rem;
     }
 
-    .btn-hero-cta, .btn-hero-cta-outline {
-      padding: 0.8rem 2rem;
-      font-size: 0.85rem;
+    .yae-product-image-container {
+      position: relative;
+      top: 0;
     }
 
-    .yae-newsletter-section {
-      padding: 2rem 1.5rem;
-    }
-
-    .yae-newsletter-card h3 {
+    .section-header h3,
+    .yae-section-main-title {
       font-size: 1.5rem;
-    }
-
-    .yae-newsletter-card p {
-      font-size: 0.95rem;
-    }
-
-    .btn-yae-newsletter {
-      padding: 0.75rem 1.5rem;
-      font-size: 0.85rem;
-    }
-
-    /* Mobile Pagination - Enable Horizontal Scroll */
-    nav[aria-label="Page navigation"] {
-      max-width: 100%;
-      overflow-x: auto;
-      overflow-y: hidden;
-    }
-
-    .pagination {
-      flex-wrap: nowrap;
-      justify-content: flex-start;
-      gap: 0.3rem;
-      padding: 0.5rem;
-      min-width: min-content;
-    }
-
-    .pagination .page-link {
-      padding: 0.4rem 0.6rem;
-      min-width: 38px;
-      font-size: 0.85rem;
-    }
-
-    .pagination .page-item {
-      flex-shrink: 0;
-    }
-  }
-
-  @media (max-width: 576px) {
-    .pagination .page-link {
-      padding: 0.35rem 0.5rem;
-      min-width: 35px;
-      font-size: 0.8rem;
-      border-width: 1.5px;
-    }
-
-    .hero-cta {
-      flex-direction: column;
-      width: 100%;
-      padding: 0 1rem;
-    }
-
-    .btn-hero-cta, .btn-hero-cta-outline {
-      width: 100%;
     }
   }
 </style>
 
 <script>
-  // Wishlist functionality
-  function toggleWishlist(button) {
-    button.classList.toggle('active');
-    
-    // Optional: Add haptic feedback on mobile
-    if (navigator.vibrate) {
-      navigator.vibrate(50);
-    }
-    
-    // You can add AJAX call here to save to backend
-    // Example:
-    // const productId = button.closest('.yae-product-card').dataset.productId;
-    // fetch('/wishlist/toggle', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ product_id: productId })
-    // });
-  }
-
-  // Newsletter form submission
+  // Star rating display on page load
   document.addEventListener('DOMContentLoaded', function() {
-    const newsletterForm = document.querySelector('.yae-newsletter-form');
-    if (newsletterForm) {
-      newsletterForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const emailInput = this.querySelector('input[type="email"]');
-        const submitBtn = this.querySelector('.btn-yae-newsletter');
-        const originalText = submitBtn.innerHTML;
-        
-        // Show loading state
-        submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Subscribing...';
-        submitBtn.disabled = true;
-        
-        // Simulate API call (replace with actual AJAX)
-        setTimeout(() => {
-          // Success feedback
-          submitBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Subscribed!';
-          submitBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-          emailInput.value = '';
-          
-          // Show toast
-          showToast('Thanks for subscribing!');
-          
-          // Reset after 3 seconds
-          setTimeout(() => {
-            submitBtn.innerHTML = originalText;
-            submitBtn.style.background = '';
-            submitBtn.disabled = false;
-          }, 3000);
-        }, 1000);
-        
-        // You can add AJAX call here to save to backend
-        // Example:
-        // fetch('/newsletter/subscribe', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({ email: emailInput.value })
-        // });
-      });
-    }
+    const ratingInputs = document.querySelectorAll('.yae-star-input input[type="radio"]');
+    ratingInputs.forEach(input => {
+      if (input.checked) {
+        const labels = input.parentElement.querySelectorAll('label');
+        let foundChecked = false;
+        labels.forEach(label => {
+          if (label.getAttribute('for') === input.id) {
+            foundChecked = true;
+          }
+          if (foundChecked) {
+            label.style.color = '#ffc107';
+          }
+        });
+      }
+    });
   });
 
-  // Simple toast notification (you can replace with Bootstrap toast)
-  function showToast(message) {
-    const toast = document.createElement('div');
-    toast.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
-      color: white;
-      padding: 1rem 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-      z-index: 9999;
-      animation: slideIn 0.3s ease-out;
-      font-weight: 600;
-    `;
-    toast.innerHTML = `<i class="bi bi-check-circle-fill me-2"></i>${message}`;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.style.animation = 'slideOut 0.3s ease-out';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
+  // Show/hide edit form
+  function showEditForm(ratingId) {
+    document.getElementById('review-view-' + ratingId).style.display = 'none';
+    document.getElementById('review-edit-' + ratingId).style.display = 'block';
   }
 
-  // Add animation keyframes
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes slideIn {
-      from {
-        transform: translateX(400px);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-    @keyframes slideOut {
-      from {
-        transform: translateX(0);
-        opacity: 1;
-      }
-      to {
-        transform: translateX(400px);
-        opacity: 0;
-      }
-    }
-  `;
-  document.head.appendChild(style);
+  function hideEditForm(ratingId) {
+    document.getElementById('review-view-' + ratingId).style.display = 'block';
+    document.getElementById('review-edit-' + ratingId).style.display = 'none';
+  }
 </script>
 
 <!-- Ensure Bootstrap Icons are loaded -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">, var(--yae-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

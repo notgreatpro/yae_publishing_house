@@ -35,6 +35,7 @@ class ProductsController < ApplicationController
   # Feature 2.3 - View product details on own page ⭐
   def show
     @product = Product.includes(:category, :authors).find(params[:id])
+    @categories = Category.order(:category_name)
     
     # Track recently viewed products
     track_recently_viewed(@product)
