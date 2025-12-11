@@ -22,7 +22,7 @@ class Event < ApplicationRecord
   # Associations
   has_one_attached :cover_image
   has_many :event_registrations, dependent: :destroy
-  has_many :customers, through: :event_registrations
+  has_many :registered_customers, through: :event_registrations, source: :customer
 
   # Validations
   validates :title, presence: true, length: { maximum: 200 }
@@ -151,6 +151,11 @@ class Event < ApplicationRecord
     when 'cancelled'
       'badge-cancelled'
     end
+  end
+  
+  def registered?(customer)
+    return false unless customer
+    event_registrations.exists?(customer_id: customer.id, status: ['confirmed', 'attended'])
   end
 
   # Ransack for ActiveAdmin search

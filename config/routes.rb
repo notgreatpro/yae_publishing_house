@@ -39,7 +39,13 @@ Rails.application.routes.draw do
   resource :checkout, only: [:show, :create], controller: 'checkout'
 
   # Events routes
-  resources :events, only: [:index, :show]
+   resources :events, only: [:index, :show] do
+    member do
+      post :register
+      delete :unregister
+    end
+  end
+
   
   # Orders
   resources :orders, only: [:index, :show] do
@@ -60,6 +66,7 @@ Rails.application.routes.draw do
   patch 'profile', to: 'customers#update'
   delete 'profile/picture', to: 'customers#remove_profile_picture', as: 'remove_profile_picture'
 
+  
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 

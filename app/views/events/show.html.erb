@@ -193,22 +193,63 @@
               <% end %>
             </div>
 
+           <!-- Show registration status if logged in and registered -->
+            <% if customer_signed_in? && @is_registered %>
+              <div style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); 
+                          border: 2px solid #10b981; 
+                          border-radius: 15px; 
+                          padding: 1.5rem; 
+                          margin-bottom: 1.5rem;
+                          text-align: center;">
+                <i class="bi bi-check-circle-fill" style="color: #059669; font-size: 2rem;"></i>
+                <p style="margin: 0.75rem 0 1rem 0; font-weight: 600; color: #065f46;">
+                  You are registered for this event!
+                </p>
+                <%= button_to unregister_event_path(@event), 
+                    method: :delete, 
+                    data: { turbo_confirm: "Are you sure you want to cancel your registration?" },
+                    style: "background: white; 
+                            color: #dc2626; 
+                            border: 2px solid #dc2626; 
+                            padding: 0.6rem 1.5rem; 
+                            border-radius: 10px; 
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s ease;" do %>
+                  <i class="bi bi-x-circle me-2"></i>Cancel Registration
+                <% end %>
+              </div>
+            <% end %>
+
             <!-- Registration Button -->
             <div class="yae-registration-box">
               <% if @event.can_register? %>
-                <button class="btn btn-yae-register">
-                  <i class="bi bi-check-circle me-2"></i>Register for Event
-                </button>
-                <p class="yae-register-note">
-                  Click to secure your spot at this event
-                </p>
+                <% if customer_signed_in? %>
+                  <% unless @is_registered %>
+                    <%= button_to register_event_path(@event), 
+                        method: :post,
+                        data: { turbo_confirm: "Are you sure you want to register for this event?" },
+                        class: "btn btn-yae-register" do %>
+                      <i class="bi bi-check-circle me-2"></i>Register for Event
+                    <% end %>
+                    <p class="yae-register-note">
+                      Click to secure your spot at this event
+                    </p>
+                  <% end %>
+                <% else %>
+                  <%= link_to new_customer_session_path, class: "btn btn-yae-register" do %>
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Log In to Register
+                  <% end %>
+                  <p class="yae-register-note">
+                    Please log in to register for this event
+                  </p>
+                <% end %>
               <% else %>
                 <button class="btn btn-yae-register-disabled" disabled>
                   <i class="bi bi-x-circle me-2"></i><%= @event.registration_status_text %>
                 </button>
               <% end %>
             </div>
-          </div>
 
           <!-- Share Card -->
           <div class="yae-sidebar-card yae-share-card">
