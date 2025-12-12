@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_11_064830) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_11_231144) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -111,6 +111,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_11_064830) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "countries", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "code", limit: 2, null: false
+    t.decimal "tax_rate", precision: 5, scale: 2, default: "0.0"
+    t.string "tax_name"
+    t.string "currency_code", limit: 3, default: "CAD"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_countries_on_code", unique: true
+    t.index ["name"], name: "index_countries_on_name"
+  end
+
   create_table "coupons", force: :cascade do |t|
     t.string "code"
     t.string "discount_type"
@@ -150,6 +163,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_11_064830) do
     t.bigint "province_id"
     t.string "stripe_customer_id"
     t.string "phone"
+    t.bigint "country_id"
+    t.boolean "is_canada", default: true
+    t.index ["country_id"], name: "index_customers_on_country_id"
     t.index ["email"], name: "index_customers_on_email", unique: true
     t.index ["province_id"], name: "index_customers_on_province_id"
     t.index ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true
@@ -287,6 +303,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_11_064830) do
     t.string "stripe_customer_id"
     t.decimal "discount_amount"
     t.string "coupon_code"
+    t.bigint "country_id"
+    t.boolean "is_canada", default: true
+    t.index ["country_id"], name: "index_orders_on_country_id"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
     t.index ["province_id"], name: "index_orders_on_province_id"
     t.index ["stripe_customer_id"], name: "index_orders_on_stripe_customer_id"
@@ -374,12 +393,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_11_064830) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "customers", "countries"
   add_foreign_key "customers", "provinces"
   add_foreign_key "event_registrations", "customers"
   add_foreign_key "event_registrations", "events"
   add_foreign_key "job_applications", "jobs"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
+  add_foreign_key "orders", "countries"
   add_foreign_key "orders", "customers"
   add_foreign_key "orders", "provinces"
   add_foreign_key "product_authors", "authors"

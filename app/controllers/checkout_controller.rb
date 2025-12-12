@@ -11,6 +11,10 @@ class CheckoutController < ApplicationController
     @subtotal = @cart_items.sum { |item| item[:product].current_price * item[:quantity] }
     @customer = current_customer
     
+    # Load countries and provinces for the form
+    @countries = Country.active.order(:name)
+    @provinces = Province.order(:name)
+    
     # Handle coupon from session
     @coupon = nil
     @discount = 0
@@ -60,6 +64,9 @@ class CheckoutController < ApplicationController
       end
     end
     
+    # Determine if this is a Canadian or international order
+    is_canada = params[:is_canada] == '1' || params[:is_canada] == true
+    
     # Get address from params or use customer's saved address
     address_params = if params[:use_saved_address] == '1' && current_customer.has_complete_address?
       {
@@ -67,16 +74,28 @@ class CheckoutController < ApplicationController
         address_line2: current_customer.address_line2,
         city: current_customer.city,
         postal_code: current_customer.postal_code,
-        province_id: current_customer.province_id
+        province_id: current_customer.province_id,
+        country_id: current_customer.country_id,
+        is_canada: current_customer.is_canada
       }
     else
-      {
+      base_params = {
         address_line1: params[:address_line1],
         address_line2: params[:address_line2],
         city: params[:city],
         postal_code: params[:postal_code],
-        province_id: params[:province_id]
+        is_canada: is_canada
       }
+      
+      if is_canada
+        base_params[:province_id] = params[:province_id]
+        base_params[:country_id] = Country.find_by(code: 'CA')&.id
+      else
+        base_params[:country_id] = params[:country_id]
+        base_params[:province_id] = nil
+      end
+      
+      base_params
     end
 
     # Create order with discount information
@@ -97,7 +116,7 @@ class CheckoutController < ApplicationController
       )
     end
 
-    # Calculate totals (this will include the discount)
+    # Calculate totals (this will include the discount and appropriate taxes)
     @order.calculate_totals
 
     if @order.save
@@ -116,7 +135,8 @@ class CheckoutController < ApplicationController
           metadata: {
             order_id: @order.id,
             customer_email: current_customer.email,
-            coupon_code: coupon&.code
+            coupon_code: coupon&.code,
+            shipping_country: @order.country&.name || 'Canada'
           }
         })
 
@@ -149,6 +169,8 @@ class CheckoutController < ApplicationController
       end
       @subtotal = @cart_items.sum { |item| item[:product].current_price * item[:quantity] }
       @customer = current_customer
+      @countries = Country.active.order(:name)
+      @provinces = Province.order(:name)
       
       flash.now[:alert] = 'There was an error processing your order. Please check the form.'
       render :show

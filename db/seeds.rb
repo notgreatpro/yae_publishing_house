@@ -25,6 +25,7 @@ COUNTRIES = [
 puts "Clearing existing data..."
 
 # Delete in this order:
+EventRegistration.destroy_all 
 OrderItem.destroy_all
 Order.destroy_all
 Customer.destroy_all
@@ -34,7 +35,7 @@ Product.destroy_all
 Author.destroy_all
 Category.destroy_all
 SiteContent.destroy_all
-Page.destroy_all  # Add this line
+Page.destroy_all  
 AdminUser.destroy_all
 
 puts "✓ All existing data cleared!"
@@ -66,6 +67,66 @@ provinces_data.each do |province_data|
 end
 
 puts "✓ Created #{Province.count} provinces & territories"
+
+# ---------------------------------------- #
+# COUNTRIES (Teyvat + Real World)
+# ---------------------------------------- #
+puts "\n✨ Creating Countries with Tax Rates..."
+
+countries_data = [
+  # ===== TEYVAT NATIONS =====
+  { name: 'Mondstadt', code: 'MD', tax_rate: 8.0, tax_name: 'Anemo Tax', currency_code: 'MOR', active: true },
+  { name: 'Liyue', code: 'LY', tax_rate: 12.0, tax_name: 'Geo Commerce Tax', currency_code: 'MOR', active: true },
+  { name: 'Inazuma', code: 'IZ', tax_rate: 15.0, tax_name: 'Electro Decree Tax', currency_code: 'MOR', active: true },
+  { name: 'Sumeru', code: 'SM', tax_rate: 10.0, tax_name: 'Dendro Wisdom Tax', currency_code: 'MOR', active: true },
+  { name: 'Fontaine', code: 'FT', tax_rate: 18.0, tax_name: 'Hydro Justice Tax', currency_code: 'MOR', active: true },
+  { name: 'Natlan', code: 'NT', tax_rate: 9.0, tax_name: 'Pyro Tribal Tax', currency_code: 'MOR', active: true },
+  { name: 'Snezhnaya', code: 'SN', tax_rate: 20.0, tax_name: 'Cryo State Tax', currency_code: 'MOR', active: true },
+  { name: 'Khaenri\'ah', code: 'KH', tax_rate: 0.0, tax_name: 'No Tax (Fallen Nation)', currency_code: 'MOR', active: true },
+  { name: 'Nod-Krai', code: 'NK', tax_rate: 7.0, tax_name: 'Autonomous Tax', currency_code: 'MOR', active: true },
+  
+  # ===== REAL WORLD COUNTRIES =====
+  { name: 'Canada', code: 'CA', tax_rate: 0.0, tax_name: 'Provincial', currency_code: 'CAD', active: true },
+  { name: 'United States', code: 'US', tax_rate: 0.0, tax_name: 'State Sales Tax', currency_code: 'USD', active: true },
+  { name: 'Mexico', code: 'MX', tax_rate: 16.0, tax_name: 'IVA', currency_code: 'MXN', active: true },
+  { name: 'United Kingdom', code: 'GB', tax_rate: 20.0, tax_name: 'VAT', currency_code: 'GBP', active: true },
+  { name: 'Germany', code: 'DE', tax_rate: 19.0, tax_name: 'VAT', currency_code: 'EUR', active: true },
+  { name: 'France', code: 'FR', tax_rate: 20.0, tax_name: 'VAT', currency_code: 'EUR', active: true },
+  { name: 'Italy', code: 'IT', tax_rate: 22.0, tax_name: 'VAT', currency_code: 'EUR', active: true },
+  { name: 'Spain', code: 'ES', tax_rate: 21.0, tax_name: 'VAT', currency_code: 'EUR', active: true },
+  { name: 'Netherlands', code: 'NL', tax_rate: 21.0, tax_name: 'VAT', currency_code: 'EUR', active: true },
+  { name: 'Belgium', code: 'BE', tax_rate: 21.0, tax_name: 'VAT', currency_code: 'EUR', active: true },
+  { name: 'Sweden', code: 'SE', tax_rate: 25.0, tax_name: 'VAT', currency_code: 'SEK', active: true },
+  { name: 'Norway', code: 'NO', tax_rate: 25.0, tax_name: 'VAT', currency_code: 'NOK', active: true },
+  { name: 'Denmark', code: 'DK', tax_rate: 25.0, tax_name: 'VAT', currency_code: 'DKK', active: true },
+  { name: 'Ireland', code: 'IE', tax_rate: 23.0, tax_name: 'VAT', currency_code: 'EUR', active: true },
+  { name: 'Japan', code: 'JP', tax_rate: 10.0, tax_name: 'Consumption Tax', currency_code: 'JPY', active: true },
+  { name: 'Australia', code: 'AU', tax_rate: 10.0, tax_name: 'GST', currency_code: 'AUD', active: true },
+  { name: 'New Zealand', code: 'NZ', tax_rate: 15.0, tax_name: 'GST', currency_code: 'NZD', active: true },
+  { name: 'Singapore', code: 'SG', tax_rate: 9.0, tax_name: 'GST', currency_code: 'SGD', active: true },
+  { name: 'South Korea', code: 'KR', tax_rate: 10.0, tax_name: 'VAT', currency_code: 'KRW', active: true },
+  { name: 'China', code: 'CN', tax_rate: 13.0, tax_name: 'VAT', currency_code: 'CNY', active: true },
+  { name: 'India', code: 'IN', tax_rate: 18.0, tax_name: 'GST', currency_code: 'INR', active: true },
+  { name: 'Philippines', code: 'PH', tax_rate: 12.0, tax_name: 'VAT', currency_code: 'PHP', active: true },
+  { name: 'Thailand', code: 'TH', tax_rate: 7.0, tax_name: 'VAT', currency_code: 'THB', active: true },
+  { name: 'Malaysia', code: 'MY', tax_rate: 10.0, tax_name: 'Sales Tax', currency_code: 'MYR', active: true },
+  { name: 'Indonesia', code: 'ID', tax_rate: 11.0, tax_name: 'VAT', currency_code: 'IDR', active: true },
+  { name: 'Brazil', code: 'BR', tax_rate: 17.0, tax_name: 'ICMS', currency_code: 'BRL', active: true },
+  { name: 'Argentina', code: 'AR', tax_rate: 21.0, tax_name: 'IVA', currency_code: 'ARS', active: true },
+  { name: 'United Arab Emirates', code: 'AE', tax_rate: 5.0, tax_name: 'VAT', currency_code: 'AED', active: true },
+  { name: 'Saudi Arabia', code: 'SA', tax_rate: 15.0, tax_name: 'VAT', currency_code: 'SAR', active: true }
+]
+
+countries_data.each do |country_data|
+  Country.create!(country_data)
+end
+
+puts "✓ Created #{Country.count} countries with tax rates"
+puts "  - #{Country.where(code: ['MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK']).count} Teyvat nations"
+puts "  - #{Country.where.not(code: ['MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK']).count} real-world countries"
+
+
+
 
 # ---------------------------------------- #
 # ADMIN USER
@@ -649,6 +710,7 @@ puts "SEEDING COMPLETE! "
 puts "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 puts "\n Database Summary:"
+
 puts "   AdminUsers: #{AdminUser.count}"
 puts "   Pages: #{Page.count} (About & Contact)"
 puts "   Provinces: #{Province.count}"

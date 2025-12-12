@@ -1,6 +1,7 @@
 <!-- app/views/checkout/show.html.erb -->
 <!-- Feature 3.1.3 - Complete a checkout process (8%) -->
 <!-- Feature 3.3.1 - Stripe Payment Integration (6%) -->
+<!-- UPDATED: International Shipping Support -->
 
 <div class="yae-checkout-page">
   <div class="container mt-4 mb-5">
@@ -80,6 +81,32 @@
               </h3>
             </div>
             <div class="yae-section-body">
+              
+              <!-- Country/Region Selection Toggle -->
+              <div class="country-toggle mb-4">
+                <label class="form-label fw-bold">
+                  <i class="bi bi-globe me-2"></i>Shipping Region
+                </label>
+                <div class="btn-group-custom" role="group">
+                  <%= radio_button_tag :is_canada, '1', @customer.is_canada? || @customer.province_id.present?, 
+                      class: 'btn-check', id: 'canada_shipping' %>
+                  <label class="btn btn-outline-primary btn-region" for="canada_shipping">
+                    <i class="bi bi-flag me-2"></i>Canada
+                  </label>
+                  
+                  <%= radio_button_tag :is_canada, '0', false, class: 'btn-check', id: 'teyvat_shipping', data: { region: 'teyvat' } %>
+                  <label class="btn btn-outline-primary btn-region" for="teyvat_shipping">
+                    <i class="bi bi-stars me-2"></i>Teyvat
+                  </label>
+                  
+                  <%= radio_button_tag :is_canada, '0', !@customer.is_canada? && @customer.country_id.present?, 
+                      class: 'btn-check', id: 'international_shipping', data: { region: 'international' } %>
+                  <label class="btn btn-outline-primary btn-region" for="international_shipping">
+                    <i class="bi bi-airplane me-2"></i>International
+                  </label>
+                </div>
+              </div>
+
               <% if @customer.has_complete_address? %>
                 <div class="yae-address-options">
                   <div class="yae-address-option">
@@ -95,10 +122,11 @@
                         <% if @customer.address_line2.present? %>
                           <p class="mb-1 ms-4"><%= @customer.address_line2 %></p>
                         <% end %>
-                        <p class="mb-1 ms-4"><%= @customer.city %>, <%= @customer.province.code %> <%= @customer.postal_code %></p>
-                        <% if @customer.phone.present? %>
-                          <p class="mb-0"><i class="bi bi-telephone me-2"></i><%= @customer.phone %></p>
-                        <% end %>
+                        <p class="mb-1 ms-4">
+                          <%= @customer.city %>, 
+                          <%= @customer.province&.code || @customer.country&.name %>
+                          <%= @customer.postal_code %>
+                        </p>
                       </div>
                     </label>
                   </div>
@@ -170,19 +198,43 @@
                             placeholder: 'Toronto' %>
                       </div>
 
-                      <div class="col-md-6">
+                      <!-- Canadian Province (shown when Canada is selected) -->
+                      <div class="col-md-6" id="province_field">
                         <label for="province_id" class="yae-form-label">
                           <i class="bi bi-map me-1"></i>Province
                         </label>
                         <%= select_tag :province_id, 
-                            options_from_collection_for_select(Province.order(:name), :id, :name, @customer.province_id),
+                            options_from_collection_for_select(@provinces, :id, :name, @customer.province_id),
                             prompt: 'Select Province',
-                            required: !@customer.has_complete_address?,
+                            required: true,
                             class: 'yae-form-select',
                             id: 'province-select',
                             data: { 
-                              provinces: Province.all.to_json(only: [:id, :name, :gst_rate, :pst_rate, :hst_rate]),
-                              subtotal: @subtotal
+                              provinces: @provinces.to_json(only: [:id, :name, :gst_rate, :pst_rate, :hst_rate]),
+                              subtotal: @subtotal_after_discount
+                            } %>
+                      </div>
+
+                      <!-- International Country (shown when International/Teyvat is selected) -->
+                      <div class="col-md-6" id="country_field" style="display: none;">
+                        <label for="country_id" class="yae-form-label">
+                          <i class="bi bi-globe me-1"></i>
+                          <span id="country_label">Country</span>
+                        </label>
+                        <%= select_tag :country_id,
+                            grouped_options_for_select(
+                              {
+                                'Teyvat Nations' => @countries.where(code: ['MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK']).map { |c| [c.name, c.id] },
+                                'Real World Countries' => @countries.where.not(code: ['CA', 'MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK']).map { |c| [c.name, c.id] }
+                              },
+                              @customer.country_id
+                            ),
+                            prompt: 'Select Country/Nation',
+                            class: 'yae-form-select',
+                            required: false,
+                            id: 'country-select',
+                            data: {
+                              countries: @countries.where.not(code: 'CA').to_json(only: [:id, :name, :code, :tax_rate, :tax_name])
                             } %>
                       </div>
                     </div>
@@ -190,13 +242,14 @@
                     <div class="row g-3 mt-1">
                       <div class="col-md-6">
                         <label for="postal_code" class="yae-form-label">
-                          <i class="bi bi-mailbox me-1"></i>Postal Code
+                          <i class="bi bi-mailbox me-1"></i>
+                          <span id="postal_code_label">Postal Code</span>
                         </label>
                         <%= text_field_tag :postal_code, '', 
                             required: !@customer.has_complete_address?, 
                             class: 'yae-form-input',
                             placeholder: 'A1A 1A1',
-                            pattern: '[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d' %>
+                            id: 'postal-code-input' %>
                       </div>
 
                       <div class="col-md-6">
@@ -207,6 +260,14 @@
                             class: 'yae-form-input',
                             placeholder: '(123) 456-7890' %>
                       </div>
+                    </div>
+
+                    <!-- Tax Information Display -->
+                    <div class="alert alert-info mt-4" id="tax_info">
+                      <i class="bi bi-info-circle me-2"></i>
+                      <span id="tax_message">
+                        Select your province to see applicable taxes
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -369,7 +430,7 @@
                 <span>
                   <i class="bi bi-receipt-cutoff me-1"></i>Tax:
                 </span>
-                <span id="tax-display" class="yae-tax-value">Select province</span>
+                <span id="tax-display" class="yae-tax-value">Select province/country</span>
               </div>
 
               <div class="yae-calc-total">
@@ -379,9 +440,8 @@
               
               <p class="yae-calc-note">
                 <i class="bi bi-info-circle me-1"></i>
-                Final amount calculated after selecting province
+                Final amount calculated after selecting location
               </p>
-            </div>
             </div>
           </div>
         </div>
@@ -389,634 +449,6 @@
     </div>
   </div>
 </div>
-
-<style>
-  :root {
-    --yae-pink: #E91E8C;
-    --yae-purple: #8B2C7F;
-    --yae-dark: #4A1942;
-    --yae-light-pink: #F8C8DC;
-  }
-
-  .yae-checkout-page {
-    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
-    min-height: 100vh;
-    padding: 2rem 0;
-  }
-
-  /* Breadcrumb */
-  .yae-breadcrumb {
-    background: white;
-    padding: 1rem 1.5rem;
-    border-radius: 15px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    margin-bottom: 2rem;
-  }
-
-  .yae-breadcrumb a {
-    color: var(--yae-purple);
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s ease;
-  }
-
-  .yae-breadcrumb a:hover {
-    color: var(--yae-pink);
-  }
-
-  /* Checkout Header */
-  .yae-checkout-header {
-    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
-    padding: 2rem;
-    border-radius: 20px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-    margin-bottom: 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .yae-checkout-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: white;
-    margin: 0;
-    display: flex;
-    align-items: center;
-  }
-
-  .yae-security-badge {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    padding: 0.75rem 1.5rem;
-    border-radius: 30px;
-    color: white;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-  }
-
-  /* Alerts */
-  .yae-alert {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 15px;
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  }
-
-  .yae-alert-danger {
-    border-left: 5px solid #dc2626;
-    color: #991b1b;
-  }
-
-  .yae-alert-heading {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-  }
-
-  .yae-error-list {
-    margin: 0.5rem 0 0 1.5rem;
-  }
-
-  .yae-alert-close {
-    background: none;
-    border: none;
-    color: #991b1b;
-    cursor: pointer;
-    margin-left: auto;
-    font-size: 1.2rem;
-  }
-
-  /* Checkout Sections */
-  .yae-checkout-section {
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-    overflow: hidden;
-    border: 2px solid transparent;
-    transition: border-color 0.3s ease;
-  }
-
-  .yae-checkout-section:hover {
-    border-color: var(--yae-purple);
-  }
-
-  .yae-section-header {
-    background: linear-gradient(135deg, var(--yae-light-pink) 0%, #e9d5ff 100%);
-    padding: 1.5rem 2rem;
-  }
-
-  .yae-section-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--yae-dark);
-    margin: 0;
-    display: flex;
-    align-items: center;
-  }
-
-  .yae-section-body {
-    padding: 2rem;
-  }
-
-  /* Info Display */
-  .yae-info-display {
-    background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
-    padding: 1.5rem;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    border: 2px solid #10b981;
-  }
-
-  .yae-info-label {
-    font-weight: 600;
-    color: #065f46;
-    font-size: 0.9rem;
-  }
-
-  .yae-info-value {
-    font-size: 1.1rem;
-    color: #047857;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-  }
-
-  /* Address Options */
-  .yae-address-options {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  .yae-address-option {
-    border: 3px solid #e5e7eb;
-    border-radius: 15px;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
-    position: relative;
-  }
-
-  .yae-radio-input {
-    position: absolute;
-    opacity: 0;
-  }
-
-  .yae-radio-input:checked + .yae-address-label {
-    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
-  }
-
-  .yae-radio-input:checked ~ .yae-address-label,
-  .yae-address-option:has(.yae-radio-input:checked) {
-    border-color: var(--yae-purple);
-    box-shadow: 0 4px 20px rgba(139, 44, 127, 0.2);
-  }
-
-  .yae-address-label {
-    cursor: pointer;
-    margin: 0;
-    display: block;
-    padding: 1rem;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-  }
-
-  .yae-option-header {
-    font-size: 1.1rem;
-    color: var(--yae-dark);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-  }
-
-  .yae-saved-address {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 10px;
-    color: #4b5563;
-    font-size: 0.95rem;
-    margin-top: 0.5rem;
-  }
-
-  /* Form Elements */
-  .yae-form-section {
-    margin-top: 1.5rem;
-  }
-
-  .yae-form-label {
-    display: block;
-    font-weight: 600;
-    color: var(--yae-purple);
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
-  }
-
-  .yae-form-input, .yae-form-select {
-    width: 100%;
-    padding: 0.875rem 1rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    background: white;
-  }
-
-  .yae-form-input:focus, .yae-form-select:focus {
-    border-color: var(--yae-purple);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(139, 44, 127, 0.1);
-  }
-
-  .yae-form-textarea {
-    width: 100%;
-    padding: 1rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    resize: vertical;
-    font-family: inherit;
-  }
-
-  .yae-form-textarea:focus {
-    border-color: var(--yae-purple);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(139, 44, 127, 0.1);
-  }
-
-  /* Stripe Elements */
-  .yae-stripe-element {
-    padding: 0.875rem 1rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    background: white;
-    transition: all 0.3s ease;
-  }
-
-  .yae-stripe-element:focus-within {
-    border-color: var(--yae-purple);
-    box-shadow: 0 0 0 3px rgba(139, 44, 127, 0.1);
-  }
-
-  .yae-card-error {
-    color: #dc2626;
-    font-size: 0.9rem;
-    margin-top: 1rem;
-    font-weight: 600;
-  }
-
-  /* Secure Notice */
-  .yae-secure-notice {
-    background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
-    padding: 1.5rem;
-    border-radius: 12px;
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    border: 2px solid #10b981;
-    margin-bottom: 1.5rem;
-  }
-
-  .yae-secure-notice i {
-    font-size: 1.5rem;
-    color: #10b981;
-  }
-
-  .yae-secure-notice strong {
-    color: #065f46;
-    display: block;
-    margin-bottom: 0.25rem;
-  }
-
-  .yae-secure-notice p {
-    color: #047857;
-    font-size: 0.9rem;
-  }
-
-  .yae-discount-row-checkout {
-  color: #10b981 !important;
-  font-weight: 600 !important;
-  background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
-  padding: 0.75rem 1rem !important;
-  border-radius: 10px;
-  margin: 0.5rem 0 !important;
-  border: 2px solid #10b981;
-}
-
-.yae-discount-amount-checkout {
-  color: #10b981;
-  font-weight: 700;
-}
-
-  /* Test Mode Notice */
-  .yae-test-mode-notice {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    padding: 1.5rem;
-    border-radius: 12px;
-    margin-top: 1.5rem;
-    border: 2px solid #f59e0b;
-  }
-
-  .yae-test-header {
-    color: #92400e;
-    font-size: 1rem;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-  }
-
-  .yae-test-mode-notice p {
-    color: #78350f;
-    font-size: 0.9rem;
-  }
-
-  .yae-test-code {
-    background: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    color: var(--yae-purple);
-    font-weight: 600;
-  }
-
-  /* Checkout Actions */
-  .yae-checkout-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: space-between;
-    flex-wrap: wrap;
-  }
-
-  .yae-back-btn, .yae-place-order-btn {
-    padding: 1.25rem 2.5rem;
-    border-radius: 15px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    border: none;
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-  }
-
-  .yae-back-btn {
-    background: white;
-    color: var(--yae-purple);
-    border: 2px solid var(--yae-purple);
-  }
-
-  .yae-back-btn:hover {
-    background: var(--yae-purple);
-    color: white;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(139, 44, 127, 0.3);
-  }
-
-  .yae-place-order-btn {
-    background: linear-gradient(135deg, var(--yae-pink) 0%, #d91479 100%);
-    color: white;
-    flex: 1;
-    justify-content: center;
-  }
-
-  .yae-place-order-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(233, 30, 140, 0.4);
-    color: white;
-  }
-
-  .yae-order-summary-checkout {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-  position: sticky;
-  top: 100px;
-  border: 3px solid var(--yae-purple);
-}
-
-.yae-summary-header {
-  background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
-  padding: 1.5rem 2rem;
-}
-
-.yae-summary-title {
-  color: white;
-  font-weight: 700;
-  font-size: 1.5rem;
-  margin: 0;
-  display: flex;
-  align-items: center;
-}
-
-.yae-summary-body-checkout {
-  max-height: calc(100vh - 250px);
-  overflow-y: auto;
-}
-
-/* Summary Items */
-.yae-summary-items {
-  padding: 2rem;
-  max-height: 400px;
-  overflow-y: auto;
-  background: white;
-}
-
-.yae-summary-item {
-  display: flex;
-  gap: 1rem;
-  padding-bottom: 1.5rem;
-  margin-bottom: 1.5rem;
-  border-bottom: 2px solid #f3f4f6;
-}
-
-.yae-summary-item:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-}
-
-.yae-item-image {
-  width: 60px;
-  height: 80px;
-  border-radius: 8px;
-  overflow: hidden;
-  flex-shrink: 0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.yae-item-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.yae-item-placeholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.5rem;
-}
-
-.yae-item-details {
-  flex: 1;
-}
-
-.yae-item-title {
-  font-weight: 600;
-  color: var(--yae-dark);
-  font-size: 0.95rem;
-  margin-bottom: 0.5rem;
-  line-height: 1.4;
-}
-
-.yae-item-meta, .yae-item-price {
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin-bottom: 0.25rem;
-}
-
-.yae-item-total {
-  font-weight: 700;
-  color: var(--yae-purple);
-  font-size: 1.1rem;
-}
-
-/* Summary Calculations */
-.yae-summary-calculations {
-  background: white;
-  padding: 2rem;
-  border-top: 2px solid #f3f4f6;
-}
-
-.yae-calc-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0;
-  font-size: 1rem;
-  color: var(--yae-dark);
-}
-
-.yae-calc-row:first-child {
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.yae-calc-row:first-child strong {
-  font-size: 1.3rem;
-  color: var(--yae-purple);
-}
-
-.yae-calc-row.tax-row {
-  border-top: 1px solid #e5e7eb;
-  border-bottom: 1px solid #e5e7eb;
-  margin: 0.5rem 0;
-}
-
-.yae-calc-row span:first-child {
-  color: #6b7280;
-  display: flex;
-  align-items: center;
-}
-
-.yae-tax-value {
-  font-weight: 600;
-  color: #6b7280;
-  font-style: italic;
-}
-
-.yae-calc-total {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 0 0 0;
-  margin-top: 1rem;
-  border-top: 3px solid var(--yae-purple);
-}
-
-.yae-calc-total > span:first-child {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--yae-dark);
-}
-
-.yae-total-value {
-  font-size: 2rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.yae-calc-note {
-  font-size: 0.85rem;
-  color: #6b7280;
-  font-style: italic;
-  margin: 0.5rem 0 0 0;
-  display: flex;
-  align-items: center;
-}
-
-/* Scrollbar Styling */
-.yae-summary-body-checkout::-webkit-scrollbar,
-.yae-summary-items::-webkit-scrollbar {
-  width: 8px;
-}
-
-.yae-summary-body-checkout::-webkit-scrollbar-track,
-.yae-summary-items::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-.yae-summary-body-checkout::-webkit-scrollbar-thumb,
-.yae-summary-items::-webkit-scrollbar-thumb {
-  background: var(--yae-purple);
-  border-radius: 10px;
-}
-
-.yae-summary-body-checkout::-webkit-scrollbar-thumb:hover,
-.yae-summary-items::-webkit-scrollbar-thumb:hover {
-  background: var(--yae-dark);
-}
-
-  @media (max-width: 767px) {
-    .yae-checkout-title {
-      font-size: 1.8rem;
-    }
-
-    .yae-section-body {
-      padding: 1.5rem;
-    }
-
-    .yae-checkout-actions {
-      flex-direction: column;
-    }
-
-    .yae-back-btn, .yae-place-order-btn {
-      width: 100%;
-      justify-content: center;
-    }
-  }
-</style>
-
-<!-- Load Stripe.js -->
 <script src="https://js.stripe.com/v3/"></script>
 
 <script>
@@ -1128,51 +560,848 @@
       });
     }
     
-    // Province change handler for tax calculation
+    // ========================================
+    // INTERNATIONAL SHIPPING TOGGLE LOGIC
+    // ========================================
+    const canadaRadio = document.getElementById('canada_shipping');
+    const teyvatRadio = document.getElementById('teyvat_shipping');
+    const internationalRadio = document.getElementById('international_shipping');
+    const provinceField = document.getElementById('province_field');
+    const countryField = document.getElementById('country_field');
     const provinceSelect = document.getElementById('province-select');
-    if (provinceSelect) {
-      const provinces = JSON.parse(provinceSelect.dataset.provinces);
-      const subtotal = <%= @subtotal_after_discount %>;
+    const countrySelect = document.getElementById('country-select');
+    const countryLabel = document.getElementById('country_label');
+    const postalCodeLabel = document.getElementById('postal_code_label');
+    const postalCodeInput = document.getElementById('postal-code-input');
+    const taxMessage = document.getElementById('tax_message');
+
+    // Tax rates data from backend
+    const provinceTaxes = JSON.parse(provinceSelect.dataset.provinces);
+    const countryTaxes = JSON.parse(countrySelect.dataset.countries);
+    const subtotal = <%= @subtotal_after_discount %>;
+
+    // Teyvat nation codes
+    const teyvatCodes = ['MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK'];
+
+    // Toggle between Canada, Teyvat, and International
+    function toggleShippingRegion() {
+      const isCanada = canadaRadio.checked;
+      const isTeyvat = teyvatRadio.checked;
       
-      const initialProvinceId = parseInt(provinceSelect.value);
-      if (initialProvinceId) {
-        calculateAndDisplayTax(initialProvinceId);
+      if (isCanada) {
+        provinceField.style.display = 'block';
+        countryField.style.display = 'none';
+        provinceSelect.required = true;
+        countrySelect.required = false;
+        postalCodeLabel.textContent = 'Postal Code';
+        postalCodeInput.placeholder = 'A1A 1A1';
+        updateTaxInfo('province');
+      } else if (isTeyvat) {
+        provinceField.style.display = 'none';
+        countryField.style.display = 'block';
+        provinceSelect.required = false;
+        countrySelect.required = true;
+        countryLabel.textContent = 'Teyvat Nation';
+        postalCodeLabel.textContent = 'Region Code';
+        postalCodeInput.placeholder = 'Enter region code';
+        
+        // Filter country select to show only Teyvat nations
+        filterCountryOptions('teyvat');
+        updateTaxInfo('country');
+      } else {
+        provinceField.style.display = 'none';
+        countryField.style.display = 'block';
+        provinceSelect.required = false;
+        countrySelect.required = true;
+        countryLabel.textContent = 'Country';
+        postalCodeLabel.textContent = 'Postal/Zip Code';
+        postalCodeInput.placeholder = 'Enter postal/zip code';
+        
+        // Show all countries
+        filterCountryOptions('international');
+        updateTaxInfo('country');
       }
+    }
+
+    // Filter country options based on region
+    function filterCountryOptions(region) {
+      const optgroups = countrySelect.querySelectorAll('optgroup');
       
-      provinceSelect.addEventListener('change', function() {
-        calculateAndDisplayTax(parseInt(this.value));
-      });
-      
-      function calculateAndDisplayTax(provinceId) {
-        const province = provinces.find(p => p.id === provinceId);
+      if (region === 'teyvat') {
+        // Show only Teyvat Nations optgroup
+        optgroups.forEach(optgroup => {
+          if (optgroup.label === 'Teyvat Nations') {
+            optgroup.style.display = 'block';
+          } else {
+            optgroup.style.display = 'none';
+          }
+        });
+        // Reset selection if not a Teyvat nation
+        const selectedCountry = countryTaxes.find(c => c.id === parseInt(countrySelect.value));
+        if (selectedCountry && !teyvatCodes.includes(selectedCountry.code)) {
+          countrySelect.value = '';
+        }
+      } else {
+        // Show all optgroups
+        optgroups.forEach(optgroup => {
+          optgroup.style.display = 'block';
+        });
+      }
+    }
+
+    // Update tax information display
+    function updateTaxInfo(type) {
+      if (type === 'province') {
+        const selectedProvinceId = parseInt(provinceSelect.value);
+        const province = provinceTaxes.find(p => p.id === selectedProvinceId);
         
         if (province) {
-          const gst = subtotal * (province.gst_rate / 100);
-          const pst = subtotal * (province.pst_rate / 100);
-          const hst = subtotal * (province.hst_rate / 100);
-          const totalTax = gst + pst + hst;
+          let taxDetails = [];
+          if (province.hst_rate > 0) {
+            taxDetails.push(`HST: ${province.hst_rate}%`);
+          } else {
+            if (province.gst_rate > 0) taxDetails.push(`GST: ${province.gst_rate}%`);
+            if (province.pst_rate > 0) taxDetails.push(`PST: ${province.pst_rate}%`);
+          }
+          
+          const totalRate = province.hst_rate || (province.gst_rate + province.pst_rate);
+          const totalTax = subtotal * (totalRate / 100);
           const total = subtotal + totalTax;
           
-          const formatCurrency = (amount) => {
-            return new Intl.NumberFormat('en-CA', {
-              style: 'currency',
-              currency: 'CAD'
-            }).format(amount);
-          };
-          
+          taxMessage.innerHTML = `<strong>${province.name}:</strong> ${taxDetails.join(', ')} = <strong>${totalRate}% total tax</strong>`;
           document.getElementById('tax-display').textContent = formatCurrency(totalTax);
           document.getElementById('total-display').textContent = formatCurrency(total);
         } else {
+          taxMessage.textContent = 'Select your province to see applicable taxes';
           document.getElementById('tax-display').textContent = 'Select province';
-          document.getElementById('total-display').textContent = new Intl.NumberFormat('en-CA', {
-            style: 'currency',
-            currency: 'CAD'
-          }).format(subtotal) + '+';
+          document.getElementById('total-display').textContent = formatCurrency(subtotal) + '+';
+        }
+      } else {
+        const selectedCountryId = parseInt(countrySelect.value);
+        const country = countryTaxes.find(c => c.id === selectedCountryId);
+        
+        if (country) {
+          const isTeyvat = teyvatCodes.includes(country.code);
+          const icon = isTeyvat ? '⚡' : '🌍';
+          
+          if (country.tax_rate > 0) {
+            const totalTax = subtotal * (country.tax_rate / 100);
+            const total = subtotal + totalTax;
+            
+            taxMessage.innerHTML = `${icon} <strong>${country.name}:</strong> ${country.tax_name} <strong>${country.tax_rate}%</strong>`;
+            document.getElementById('tax-display').textContent = formatCurrency(totalTax);
+            document.getElementById('total-display').textContent = formatCurrency(total);
+          } else {
+            taxMessage.innerHTML = `${icon} <strong>${country.name}:</strong> ${country.tax_name || 'No additional taxes'}`;
+            document.getElementById('tax-display').textContent = formatCurrency(0);
+            document.getElementById('total-display').textContent = formatCurrency(subtotal);
+          }
+        } else {
+          const regionText = teyvatRadio.checked ? 'Select your nation to see applicable taxes' : 'Select your country to see applicable taxes';
+          taxMessage.textContent = regionText;
+          document.getElementById('tax-display').textContent = 'Select location';
+          document.getElementById('total-display').textContent = formatCurrency(subtotal) + '+';
         }
       }
     }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-CA', {
+        style: 'currency',
+        currency: 'CAD'
+      }).format(amount);
+    }
+
+    // Event listeners
+    canadaRadio.addEventListener('change', toggleShippingRegion);
+    teyvatRadio.addEventListener('change', toggleShippingRegion);
+    internationalRadio.addEventListener('change', toggleShippingRegion);
+    provinceSelect.addEventListener('change', () => updateTaxInfo('province'));
+    countrySelect.addEventListener('change', () => updateTaxInfo('country'));
+
+    // Initialize on page load
+    toggleShippingRegion();
+    
+    // Set initial tax if province is already selected
+    if (provinceSelect.value) {
+      updateTaxInfo('province');
+    }
   });
 </script>
+<style>
+  :root {
+    --yae-pink: #E91E8C;
+    --yae-purple: #8B2C7F;
+    --yae-dark: #4A1942;
+    --yae-light-pink: #F8C8DC;
+  }
 
-<!-- Ensure Bootstrap Icons are loaded -->
+  .yae-checkout-page {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    min-height: 100vh;
+    padding-bottom: 3rem;
+  }
+
+  .yae-checkout-page .container {
+    padding-top: 1.5rem;
+    margin-top: 0 !important;
+  }
+
+  /* Breadcrumb */
+  .yae-breadcrumb {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    border: 2px solid #e9d5ff;
+  }
+
+  .yae-breadcrumb-item {
+    font-weight: 600;
+  }
+
+  .yae-breadcrumb a {
+    color: var(--yae-purple);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .yae-breadcrumb a:hover {
+    color: var(--yae-pink);
+  }
+
+  .yae-breadcrumb-item + .yae-breadcrumb-item::before {
+    content: "/";
+    padding: 0 0.5rem;
+    color: #d1d5db;
+  }
+
+  .yae-breadcrumb-item.active {
+    color: var(--yae-dark);
+    font-weight: 700;
+  }
+
+  /* Checkout Header */
+  .yae-checkout-header {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    border: 3px solid var(--yae-purple);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .yae-checkout-header::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--yae-pink) 0%, var(--yae-purple) 50%, var(--yae-pink) 100%);
+  }
+
+  .yae-checkout-title {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--yae-pink) 0%, var(--yae-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .yae-security-badge {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    border: 2px solid #10b981;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+  }
+
+  /* Alert styling */
+  .yae-alert {
+    padding: 1.25rem 1.5rem;
+    border-radius: 15px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .yae-alert-danger {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border: 2px solid #dc2626;
+    color: #991b1b;
+  }
+
+  .yae-alert-heading {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .yae-error-list {
+    margin: 0.5rem 0 0 1.5rem;
+    padding: 0;
+  }
+
+  .yae-error-list li {
+    margin-bottom: 0.5rem;
+  }
+
+  .yae-alert-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 1.2rem;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+  }
+
+  .yae-alert-close:hover {
+    opacity: 1;
+  }
+
+  /* Country Toggle Buttons */
+  .country-toggle {
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    padding: 1.5rem;
+    border-radius: 20px;
+    border: 2px solid #e9d5ff;
+  }
+
+  .country-toggle .form-label {
+    color: var(--yae-purple);
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .btn-group-custom {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .btn-region {
+    flex: 1;
+    min-width: 150px;
+    padding: 1rem 1.5rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    border-radius: 15px;
+  }
+
+  .country-toggle .btn-outline-primary {
+    border: 2px solid #e9d5ff;
+    color: var(--yae-purple);
+    background: white;
+  }
+
+  .country-toggle .btn-check:checked + .btn-outline-primary {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    border-color: var(--yae-purple);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(139, 44, 127, 0.4);
+  }
+
+  .country-toggle .btn-outline-primary:hover {
+    background: var(--yae-light-pink);
+    border-color: var(--yae-purple);
+    color: var(--yae-purple);
+    transform: translateY(-2px);
+  }
+
+  /* Teyvat-themed styling for Teyvat button when selected */
+  #teyvat_shipping:checked + label {
+    background: linear-gradient(135deg, #FFB142 0%, #E91E8C 100%) !important;
+    border-color: #FFB142 !important;
+  }
+
+  /* Tax info alert */
+  #tax_info {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 2px solid #f59e0b;
+    border-radius: 15px;
+    padding: 1.25rem;
+    font-size: 1rem;
+  }
+
+  #tax_message {
+    color: #92400e;
+    font-weight: 600;
+  }
+
+  /* Form styling to match edit profile */
+  .yae-form-label {
+    color: var(--yae-dark);
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .yae-form-input, .yae-form-select, .yae-form-textarea {
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+    border: 2px solid #e9d5ff;
+    border-radius: 15px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+  }
+
+  .yae-form-input:focus, .yae-form-select:focus, .yae-form-textarea:focus {
+    outline: none;
+    border-color: var(--yae-purple);
+    box-shadow: 0 0 0 3px rgba(139, 44, 127, 0.1);
+  }
+
+  .yae-form-textarea {
+    resize: vertical;
+    font-family: inherit;
+  }
+
+  /* Section styling */
+  .yae-checkout-section {
+    background: white;
+    border-radius: 20px;
+    border: 2px solid #e9d5ff;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+
+  .yae-section-header {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    padding: 1.25rem 1.75rem;
+  }
+
+  .yae-section-title {
+    color: white;
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin: 0;
+  }
+
+  .yae-section-body {
+    padding: 2rem;
+  }
+
+  /* Address options styling */
+  .yae-address-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .yae-address-option {
+    position: relative;
+  }
+
+  .yae-radio-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .yae-address-label {
+    display: block;
+    padding: 1.5rem;
+    border: 2px solid #e9d5ff;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+  }
+
+  .yae-radio-input:checked + .yae-address-label {
+    border-color: var(--yae-purple);
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    box-shadow: 0 4px 15px rgba(139, 44, 127, 0.2);
+  }
+
+  .yae-address-label:hover {
+    border-color: var(--yae-purple);
+    transform: translateY(-2px);
+  }
+
+  .yae-option-header {
+    color: var(--yae-purple);
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .yae-saved-address {
+    color: var(--yae-dark);
+    padding-left: 0.5rem;
+  }
+
+  /* Info display */
+  .yae-info-display {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    padding: 1.25rem;
+    border-radius: 15px;
+    border: 2px solid #e9d5ff;
+  }
+
+  .yae-info-label {
+    color: var(--yae-dark);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .yae-info-value {
+    color: var(--yae-purple);
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  /* Secure notice */
+  .yae-secure-notice {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    padding: 1.25rem;
+    border-radius: 15px;
+    border: 2px solid #10b981;
+    margin-bottom: 1.5rem;
+    color: #065f46;
+  }
+
+  .yae-secure-notice strong {
+    font-size: 1.1rem;
+  }
+
+  /* Stripe elements */
+  .yae-stripe-element {
+    padding: 0.85rem 1.25rem;
+    border: 2px solid #e9d5ff;
+    border-radius: 15px;
+    background: white;
+    transition: all 0.3s ease;
+  }
+
+  .yae-stripe-element:focus-within {
+    border-color: var(--yae-purple);
+    box-shadow: 0 0 0 3px rgba(139, 44, 127, 0.1);
+  }
+
+  .yae-card-error {
+    color: #dc2626;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    display: none;
+  }
+
+  .yae-card-error:not(:empty) {
+    display: block;
+  }
+
+  /* Test mode notice */
+  .yae-test-mode-notice {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 2px solid #f59e0b;
+    border-radius: 15px;
+    padding: 1.25rem;
+    margin-top: 1.5rem;
+  }
+
+  .yae-test-header {
+    color: #92400e;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .yae-test-mode-notice p {
+    color: #92400e;
+    margin-bottom: 0.25rem;
+  }
+
+  .yae-test-code {
+    background: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    color: var(--yae-purple);
+  }
+
+  /* Checkout actions */
+  .yae-checkout-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .yae-back-btn {
+    background: white;
+    color: var(--yae-dark);
+    border: 2px solid #e5e7eb;
+    padding: 0.85rem 2rem;
+    border-radius: 25px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .yae-back-btn:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    transform: translateY(-2px);
+  }
+
+  .yae-place-order-btn {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    padding: 0.85rem 2.5rem;
+    border-radius: 25px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .yae-place-order-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(139, 44, 127, 0.4);
+  }
+
+  .yae-place-order-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Order Summary Sidebar */
+  .yae-order-summary-checkout {
+    background: white;
+    border-radius: 20px;
+    border: 3px solid var(--yae-purple);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 110px;
+  }
+
+  .yae-summary-header {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    padding: 1.5rem 2rem;
+    border-radius: 17px 17px 0 0;
+  }
+
+  .yae-summary-title {
+    color: white;
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin: 0;
+  }
+
+  .yae-summary-body-checkout {
+    padding: 2rem;
+  }
+
+  /* Cart Items in Summary */
+  .yae-summary-items {
+    margin-bottom: 2rem;
+  }
+
+  .yae-summary-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    border-radius: 15px;
+    margin-bottom: 1rem;
+    border: 2px solid #e9d5ff;
+  }
+
+  .yae-item-image {
+    width: 60px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid var(--yae-purple);
+  }
+
+  .yae-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .yae-item-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: var(--yae-purple);
+    font-size: 1.5rem;
+  }
+
+  .yae-item-details {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .yae-item-title {
+    font-weight: 700;
+    color: var(--yae-dark);
+    margin: 0 0 0.25rem 0;
+    font-size: 0.95rem;
+  }
+
+  .yae-item-meta {
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin: 0 0 0.25rem 0;
+  }
+
+  .yae-item-price {
+    color: var(--yae-purple);
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  .yae-item-total {
+    font-weight: 700;
+    color: var(--yae-purple);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Summary Calculations */
+  .yae-summary-calculations {
+    border-top: 3px solid #e9d5ff;
+    padding-top: 1.5rem;
+  }
+
+  .yae-calc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    color: var(--yae-dark);
+    font-size: 1rem;
+  }
+
+  .yae-calc-row strong {
+    font-weight: 700;
+  }
+
+  .yae-discount-row-checkout {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    margin: 0.5rem 0;
+    border: 2px solid #10b981;
+  }
+
+  .yae-discount-amount-checkout {
+    color: #065f46;
+    font-weight: 700;
+  }
+
+  .tax-row {
+    border-top: 2px solid #e9d5ff;
+    margin-top: 0.5rem;
+  }
+
+  .yae-tax-value {
+    font-weight: 700;
+    color: var(--yae-purple);
+  }
+
+  .yae-calc-total {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+    padding: 1.25rem;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+
+  .yae-total-value {
+    font-size: 1.5rem;
+  }
+
+  .yae-calc-note {
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin-top: 1rem;
+    margin-bottom: 0;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 767px) {
+    .btn-group-custom {
+      flex-direction: column;
+    }
+    
+    .btn-region {
+      width: 100%;
+      min-width: unset;
+    }
+
+    .yae-section-body {
+      padding: 1.5rem;
+    }
+
+    .yae-checkout-actions {
+      flex-direction: column-reverse;
+    }
+
+    .yae-checkout-actions .btn {
+      width: 100%;
+    }
+
+    .yae-order-summary-checkout {
+      position: static;
+      margin-top: 2rem;
+    }
+
+    .yae-summary-body-checkout {
+      padding: 1.5rem;
+    }
+  }
+</style>
+<!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

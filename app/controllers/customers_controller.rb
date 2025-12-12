@@ -15,6 +15,18 @@ class CustomersController < ApplicationController
   def update
     @customer = current_customer
     
+    # Handle region selection - clear the field that's not being used
+    if params[:customer][:is_canada] == "1"
+      # Canada selected - clear country_id
+      params[:customer][:country_id] = nil
+    else
+      # International/Teyvat selected - clear province_id
+      params[:customer][:province_id] = nil
+    end
+    
+    # Remove is_canada from params as it's not a database column
+    params[:customer].delete(:is_canada)
+    
     # Check if we need to validate password (email change or password change)
     if customer_params[:password].present? || email_changed?
       # Use update_with_password for password changes or email changes
@@ -57,6 +69,7 @@ class CustomersController < ApplicationController
       :city, 
       :postal_code, 
       :province_id,
+      :country_id,  # ADD THIS LINE
       :profile_picture
     )
   end

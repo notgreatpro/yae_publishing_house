@@ -42,7 +42,11 @@
                 <% if @order.address_line2.present? %>
                   <p class="yae-address-line"><%= @order.address_line2 %></p>
                 <% end %>
-                <p class="yae-address-line"><%= @order.city %>, <%= @order.province.name %> <%= @order.postal_code %></p>
+                <p class="yae-address-line">
+                  <%= @order.city %>, 
+                  <%= @order.province&.code || @order.country&.name %>
+                  <%= @order.postal_code %>
+                </p>
               </div>
             </div>
 
@@ -92,7 +96,14 @@
                 <% end %>
                 
                 <div class="yae-summary-row">
-                  <span>Tax (<%= @order.province.name %>):</span>
+                  <span>
+                    Tax 
+                    <% if @order.province %>
+                      (<%= @order.province.name %>)
+                    <% elsif @order.country %>
+                      (<%= @order.country.name %>)
+                    <% end %>:
+                  </span>
                   <span><%= number_to_currency(@order.tax_amount) %></span>
                 </div>
                 <div class="yae-summary-total">
@@ -380,22 +391,23 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-/* Discount row in confirmation */
-.yae-discount-row-confirmation {
-  color: #10b981 !important;
-  font-weight: 600 !important;
-  background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
-  padding: 0.75rem 1rem !important;
-  border-radius: 10px;
-  margin: 0.5rem 0 !important;
-  border: 2px solid #10b981;
-}
 
-.yae-discount-value {
-  color: #10b981;
-  font-weight: 700;
-  font-size: 1.1rem;
-}
+  /* Discount row in confirmation */
+  .yae-discount-row-confirmation {
+    color: #10b981 !important;
+    font-weight: 600 !important;
+    background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+    padding: 0.75rem 1rem !important;
+    border-radius: 10px;
+    margin: 0.5rem 0 !important;
+    border: 2px solid #10b981;
+  }
+
+  .yae-discount-value {
+    color: #10b981;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
 
   /* Payment Info */
   .yae-payment-info {

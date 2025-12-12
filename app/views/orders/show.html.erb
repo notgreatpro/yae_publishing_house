@@ -48,6 +48,11 @@
       <div class="col-lg-8">
         <!-- Shipping Address -->
         <div class="yae-detail-card">
+          <div class="yae-detail-card-header">
+            <h3 class="yae-detail-card-title">
+              <i class="bi bi-truck me-2"></i>Shipping Address
+            </h3>
+          </div>
           <div class="yae-detail-card-body">
             <div class="yae-address-display">
               <p class="yae-address-name">
@@ -62,7 +67,9 @@
                 <p class="yae-address-line ms-4"><%= @order.address_line2 %></p>
               <% end %>
               <p class="yae-address-line ms-4">
-                <%= @order.city %>, <%= @order.province.name %> <%= @order.postal_code %>
+                <%= @order.city %>, 
+                <%= @order.province&.code || @order.country&.name %>
+                <%= @order.postal_code %>
               </p>
             </div>
           </div>
@@ -288,14 +295,14 @@
   }
 
   .yae-detail-card-header {
-    background: linear-gradient(135deg, var(--yae-light-pink) 0%, #e9d5ff 100%);
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
     padding: 1.5rem 2rem;
   }
 
   .yae-detail-card-title {
     font-size: 1.3rem;
     font-weight: 700;
-    color: var(--yae-dark);
+    color: white;
     margin: 0;
     display: flex;
     align-items: center;
@@ -477,20 +484,21 @@
   .yae-summary-row-show.yae-summary-tax:last-of-type {
     margin-bottom: 0.5rem;
   }
-  .yae-summary-row-show.yae-discount-row {
-  color: #10b981;
-  font-weight: 600;
-  background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
-  padding: 1rem;
-  border-radius: 10px;
-  margin: 0.5rem 0;
-  border: 2px solid #10b981;
-}
 
-.yae-discount-amount {
-  color: #10b981;
-  font-weight: 700;
-}
+  .yae-summary-row-show.yae-discount-row {
+    color: #10b981;
+    font-weight: 600;
+    background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+    padding: 1rem;
+    border-radius: 10px;
+    margin: 0.5rem 0;
+    border: 2px solid #10b981;
+  }
+
+  .yae-discount-amount {
+    color: #10b981;
+    font-weight: 700;
+  }
 
   .yae-summary-total-show {
     display: flex;

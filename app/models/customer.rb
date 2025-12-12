@@ -9,7 +9,8 @@ class Customer < ApplicationRecord
   # Associations
   has_many :orders, dependent: :destroy
   has_many :ratings, dependent: :destroy
-  belongs_to :province, optional: true
+  belongs_to :province, optional: true  # Made optional for international customers
+  belongs_to :country, optional: true   # New: for international customers
   has_many :wishlists, dependent: :destroy
   has_many :wishlist_products, through: :wishlists, source: :product  
 
@@ -21,7 +22,7 @@ class Customer < ApplicationRecord
   validates :address_line1, length: { maximum: 255 }, allow_blank: true
   validates :address_line2, length: { maximum: 255 }, allow_blank: true
   validates :city, length: { maximum: 100 }, allow_blank: true
-  validates :postal_code, format: { with: /\A[A-Z]\d[A-Z] ?\d[A-Z]\d\z/i }, allow_blank: true
+  validates :postal_code, length: { maximum: 50 }, allow_blank: true  # Increased for international codes
   validates :phone, length: { maximum: 20 }, allow_blank: true
   
   # Helper method to get full name
@@ -35,7 +36,16 @@ class Customer < ApplicationRecord
   
   # Check if customer has complete address (for checkout validation)
   def has_complete_address?
-    address_line1.present? && city.present? && postal_code.present? && province_id.present?
+    if is_canada?
+      address_line1.present? && city.present? && postal_code.present? && province_id.present?
+    else
+      address_line1.present? && city.present? && postal_code.present? && country_id.present?
+    end
+  end
+  
+  # Check if this is a Canadian address
+  def is_canada?
+    is_canada == true || (country.present? && country.canada?)
   end
   
   # Check if product is in wishlist
@@ -45,11 +55,11 @@ class Customer < ApplicationRecord
 
   # Ransack methods for Active Admin search
   def self.ransackable_associations(auth_object = nil)
-    ["orders", "province", "ratings"]
+    ["orders", "province", "country", "ratings"]
   end
 
   def self.ransackable_attributes(auth_object = nil)
     ["id", "email", "first_name", "last_name", "address_line1", "address_line2", 
-     "city", "postal_code", "province_id", "created_at", "updated_at"]
+     "city", "postal_code", "province_id", "country_id", "is_canada", "created_at", "updated_at"]
   end
 end

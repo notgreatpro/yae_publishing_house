@@ -100,6 +100,34 @@
                 <h5 class="yae-section-title">
                   <i class="bi bi-geo-alt-fill me-2"></i>Shipping Address <span class="yae-optional">(Optional)</span>
                 </h5>
+
+                <!-- Region Selection Toggle -->
+                <div class="country-toggle mb-4">
+                  <label class="form-label fw-bold">
+                    <i class="bi bi-globe me-2"></i>Shipping Region
+                  </label>
+                  <div class="btn-group-custom" role="group">
+                    <input type="radio" name="customer[is_canada]" value="1" 
+                           <%= 'checked' if @customer.province_id.present? %>
+                           class="btn-check" id="canada_shipping">
+                    <label class="btn btn-outline-primary btn-region" for="canada_shipping">
+                      <i class="bi bi-flag me-2"></i>Canada
+                    </label>
+                    
+                    <input type="radio" name="customer[is_canada]" value="0" 
+                           class="btn-check" id="teyvat_shipping" data-region="teyvat">
+                    <label class="btn btn-outline-primary btn-region" for="teyvat_shipping">
+                      <i class="bi bi-stars me-2"></i>Teyvat
+                    </label>
+                    
+                    <input type="radio" name="customer[is_canada]" value="0"
+                           <%= 'checked' if @customer.country_id.present? && !['MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK'].include?(@customer.country&.code) %>
+                           class="btn-check" id="international_shipping" data-region="international">
+                    <label class="btn btn-outline-primary btn-region" for="international_shipping">
+                      <i class="bi bi-airplane me-2"></i>International
+                    </label>
+                  </div>
+                </div>
                 
                 <div class="mb-3">
                   <label for="customer_address_line1" class="yae-label">Address Line 1</label>
@@ -119,7 +147,9 @@
                     <input type="text" name="customer[city]" id="customer_city" 
                            value="<%= @customer.city %>" class="yae-input" placeholder="City">
                   </div>
-                  <div class="col-md-6">
+
+                  <!-- Canadian Province -->
+                  <div class="col-md-6" id="province_field">
                     <label for="customer_province_id" class="yae-label">Province</label>
                     <select name="customer[province_id]" id="customer_province_id" class="yae-select">
                       <option value="">Select Province</option>
@@ -130,15 +160,45 @@
                       <% end %>
                     </select>
                   </div>
+
+                  <!-- International/Teyvat Country -->
+                  <div class="col-md-6" id="country_field" style="display: none;">
+                    <label for="customer_country_id" class="yae-label">
+                      <span id="country_label">Country</span>
+                    </label>
+                    <select name="customer[country_id]" id="customer_country_id" class="yae-select">
+                      <option value="">Select Country/Nation</option>
+                      <optgroup label="Teyvat Nations">
+                        <% Country.where(code: ['MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK']).each do |country| %>
+                          <option value="<%= country.id %>" 
+                                  data-code="<%= country.code %>"
+                                  <%= 'selected' if @customer.country_id == country.id %>>
+                            <%= country.name %>
+                          </option>
+                        <% end %>
+                      </optgroup>
+                      <optgroup label="Real World Countries">
+                        <% Country.where.not(code: ['CA', 'MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK']).each do |country| %>
+                          <option value="<%= country.id %>" 
+                                  data-code="<%= country.code %>"
+                                  <%= 'selected' if @customer.country_id == country.id %>>
+                            <%= country.name %>
+                          </option>
+                        <% end %>
+                      </optgroup>
+                    </select>
+                  </div>
                 </div>
 
                 <div class="mb-3">
-                  <label for="customer_postal_code" class="yae-label">Postal code</label>
+                  <label for="customer_postal_code" class="yae-label">
+                    <span id="postal_code_label">Postal code</span>
+                  </label>
                   <input type="text" name="customer[postal_code]" id="customer_postal_code" 
                          value="<%= @customer.postal_code %>" class="yae-input yae-input-postal" 
                          placeholder="A1A 1A1" maxlength="7">
                   <small class="yae-help-text">
-                    <i class="bi bi-mailbox me-1"></i>Format: A1A 1A1
+                    <i class="bi bi-mailbox me-1"></i><span id="postal_code_format">Format: A1A 1A1</span>
                   </small>
                 </div>
 
@@ -214,19 +274,107 @@
 </div>
 
 <script>
-// Auto-format postal code
+// Auto-format postal code for Canada
 document.addEventListener('DOMContentLoaded', function() {
   const postalInput = document.querySelector('input[name="customer[postal_code]"]');
+  const canadaRadio = document.getElementById('canada_shipping');
+  const teyvatRadio = document.getElementById('teyvat_shipping');
+  const internationalRadio = document.getElementById('international_shipping');
+  const provinceField = document.getElementById('province_field');
+  const countryField = document.getElementById('country_field');
+  const provinceSelect = document.getElementById('customer_province_id');
+  const countrySelect = document.getElementById('customer_country_id');
+  const countryLabel = document.getElementById('country_label');
+  const postalCodeLabel = document.getElementById('postal_code_label');
+  const postalCodeFormat = document.getElementById('postal_code_format');
   
+  const teyvatCodes = ['MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK'];
+  
+  // Check if customer has Teyvat address on load
+  <% if @customer.country_id.present? && ['MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK'].include?(@customer.country&.code) %>
+    teyvatRadio.checked = true;
+  <% end %>
+  
+  function toggleShippingRegion() {
+    const isCanada = canadaRadio.checked;
+    const isTeyvat = teyvatRadio.checked;
+    
+    if (isCanada) {
+      provinceField.style.display = 'block';
+      countryField.style.display = 'none';
+      provinceSelect.disabled = false;
+      countrySelect.disabled = true;
+      countrySelect.value = '';
+      postalCodeLabel.textContent = 'Postal code';
+      postalInput.placeholder = 'A1A 1A1';
+      postalCodeFormat.textContent = 'Format: A1A 1A1';
+    } else if (isTeyvat) {
+      provinceField.style.display = 'none';
+      countryField.style.display = 'block';
+      provinceSelect.disabled = true;
+      provinceSelect.value = '';
+      countrySelect.disabled = false;
+      countryLabel.textContent = 'Teyvat Nation';
+      postalCodeLabel.textContent = 'Region Code';
+      postalInput.placeholder = 'Enter region code';
+      postalCodeFormat.textContent = 'Enter your region code';
+      filterCountryOptions('teyvat');
+    } else {
+      provinceField.style.display = 'none';
+      countryField.style.display = 'block';
+      provinceSelect.disabled = true;
+      provinceSelect.value = '';
+      countrySelect.disabled = false;
+      countryLabel.textContent = 'Country';
+      postalCodeLabel.textContent = 'Postal/Zip Code';
+      postalInput.placeholder = 'Enter postal/zip code';
+      postalCodeFormat.textContent = 'Enter your postal or zip code';
+      filterCountryOptions('international');
+    }
+  }
+  
+  function filterCountryOptions(region) {
+    const optgroups = countrySelect.querySelectorAll('optgroup');
+    
+    if (region === 'teyvat') {
+      optgroups.forEach(optgroup => {
+        if (optgroup.label === 'Teyvat Nations') {
+          optgroup.style.display = 'block';
+        } else {
+          optgroup.style.display = 'none';
+        }
+      });
+      
+      const selectedOption = countrySelect.options[countrySelect.selectedIndex];
+      if (selectedOption && selectedOption.dataset.code && !teyvatCodes.includes(selectedOption.dataset.code)) {
+        countrySelect.value = '';
+      }
+    } else {
+      optgroups.forEach(optgroup => {
+        optgroup.style.display = 'block';
+      });
+    }
+  }
+  
+  canadaRadio.addEventListener('change', toggleShippingRegion);
+  teyvatRadio.addEventListener('change', toggleShippingRegion);
+  internationalRadio.addEventListener('change', toggleShippingRegion);
+  
+  // Initialize on page load
+  toggleShippingRegion();
+  
+  // Postal code formatting for Canada only
   if (postalInput) {
     postalInput.addEventListener('input', function(e) {
-      let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-      
-      if (value.length > 3) {
-        value = value.slice(0, 3) + ' ' + value.slice(3, 6);
+      if (canadaRadio.checked) {
+        let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        
+        if (value.length > 3) {
+          value = value.slice(0, 3) + ' ' + value.slice(3, 6);
+        }
+        
+        e.target.value = value;
       }
-      
-      e.target.value = value;
     });
   }
 });
@@ -357,6 +505,63 @@ document.addEventListener('DOMContentLoaded', function() {
   .yae-help-text-important {
     color: var(--yae-purple);
     font-weight: 600;
+  }
+
+  /* Region Toggle */
+  .country-toggle {
+    background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 100%);
+    padding: 1.5rem;
+    border-radius: 20px;
+    border: 2px solid #e9d5ff;
+    margin-bottom: 2rem;
+  }
+
+  .country-toggle .form-label {
+    color: var(--yae-purple);
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .btn-group-custom {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .btn-region {
+    flex: 1;
+    min-width: 150px;
+    padding: 1rem 1.5rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    border-radius: 15px;
+  }
+
+  .country-toggle .btn-outline-primary {
+    border: 2px solid #e9d5ff;
+    color: var(--yae-purple);
+    background: white;
+  }
+
+  .country-toggle .btn-check:checked + .btn-outline-primary {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    border-color: var(--yae-purple);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(139, 44, 127, 0.4);
+  }
+
+  .country-toggle .btn-outline-primary:hover {
+    background: var(--yae-light-pink);
+    border-color: var(--yae-purple);
+    color: var(--yae-purple);
+    transform: translateY(-2px);
+  }
+
+  #teyvat_shipping:checked + label {
+    background: linear-gradient(135deg, #FFB142 0%, #E91E8C 100%) !important;
+    border-color: #FFB142 !important;
   }
 
   .yae-file-input {
@@ -495,6 +700,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     .yae-form-actions .yae-btn {
       width: 100%;
+    }
+
+    .btn-group-custom {
+      flex-direction: column;
+    }
+    
+    .btn-region {
+      width: 100%;
+      min-width: unset;
     }
   }
 </style>

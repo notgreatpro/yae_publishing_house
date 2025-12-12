@@ -102,13 +102,36 @@
                     <i class="bi bi-check-circle-fill me-2"></i> Address on file
                   </div>
                   
-                  <address class="yae-address">
-                    <%= @customer.address_line1 %><br>
-                    <% if @customer.address_line2.present? %>
-                      <%= @customer.address_line2 %><br>
-                    <% end %>
-                    <%= @customer.city %>, <%= @customer.province.code %> <%= @customer.postal_code %>
-                  </address>
+                  <% if @customer.province_id.present? %>
+                    <!-- Canadian Address -->
+                    <div class="yae-address-badge yae-address-canada">
+                      <i class="bi bi-flag me-2"></i>Canada
+                    </div>
+                    <address class="yae-address">
+                      <%= @customer.address_line1 %><br>
+                      <% if @customer.address_line2.present? %>
+                        <%= @customer.address_line2 %><br>
+                      <% end %>
+                      <%= @customer.city %>, <%= @customer.province.code %> <%= @customer.postal_code %>
+                    </address>
+                  <% elsif @customer.country_id.present? %>
+                    <!-- International/Teyvat Address -->
+                    <% is_teyvat = ['MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK'].include?(@customer.country.code) %>
+                    <div class="yae-address-badge <%= is_teyvat ? 'yae-address-teyvat' : 'yae-address-international' %>">
+                      <% if is_teyvat %>
+                        <i class="bi bi-stars me-2"></i>Teyvat
+                      <% else %>
+                        <i class="bi bi-airplane me-2"></i>International
+                      <% end %>
+                    </div>
+                    <address class="yae-address">
+                      <%= @customer.address_line1 %><br>
+                      <% if @customer.address_line2.present? %>
+                        <%= @customer.address_line2 %><br>
+                      <% end %>
+                      <%= @customer.city %>, <%= @customer.country.name %> <%= @customer.postal_code %>
+                    </address>
+                  <% end %>
                 <% else %>
                   <div class="yae-alert yae-alert-warning">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i> No shipping address on file
@@ -400,6 +423,32 @@
     color: var(--yae-purple);
     font-weight: 700;
     font-size: 1.3rem;
+  }
+
+  /* Address Badges */
+  .yae-address-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .yae-address-canada {
+    background: linear-gradient(135deg, var(--yae-purple) 0%, var(--yae-dark) 100%);
+    color: white;
+  }
+
+  .yae-address-teyvat {
+    background: linear-gradient(135deg, #FFB142 0%, #E91E8C 100%);
+    color: white;
+  }
+
+  .yae-address-international {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
   }
 
   .yae-address {
