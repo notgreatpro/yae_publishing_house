@@ -399,23 +399,57 @@ puts "  - Pages are editable at /admin/pages"
 # ---------------------------------------- #
 # CATEGORIES
 # ---------------------------------------- #
-puts "\n✨ Creating Categories..."
+# ---------------------------------------- #
+# CATEGORIES
+# ---------------------------------------- #
+puts "\nCreating Categories..."
 categories = {
   light_novels: Category.create!(category_name: "Light Novels", description: "Japanese light novels and serialized stories"),
   manga: Category.create!(category_name: "Manga", description: "Japanese manga and comics"),
   graphic_novels: Category.create!(category_name: "Graphic Novels", description: "Illustrated novels and western comics"),
-  fiction: Category.create!(category_name: "Fiction", description: "Literary fiction and contemporary novels"),
+  fiction: Category.create!(category_name: "Literary Fiction", description: "Literary fiction and contemporary novels"),
   non_fiction: Category.create!(category_name: "Non-Fiction", description: "History, biography, and educational books"),
   fantasy: Category.create!(category_name: "Fantasy", description: "Fantasy adventures and magical worlds"),
   sci_fi: Category.create!(category_name: "Science Fiction", description: "Futuristic and scientific fiction"),
   horror: Category.create!(category_name: "Horror", description: "Thriller, mystery, and horror stories"),
   childrens: Category.create!(category_name: "Children's Books", description: "Books for young readers"),
-  adventure: Category.create!(category_name: "Adventure", description: "Action-packed adventure stories")
+  adventure: Category.create!(category_name: "Adventure", description: "Action-packed adventure stories"),
+  mystery: Category.create!(category_name: "Mystery & Thriller", description: "Detective fiction, crime novels, and suspenseful thrillers"),
+  romance: Category.create!(category_name: "Romance", description: "Love stories and romantic fiction"),
+  historical_fiction: Category.create!(category_name: "Historical Fiction", description: "Stories set in historical periods"),
+  biography: Category.create!(category_name: "Biography & Memoir", description: "True stories of remarkable lives"),
+  self_help: Category.create!(category_name: "Self-Help & Wellness", description: "Personal development and wellness guides"),
+  business: Category.create!(category_name: "Business & Economics", description: "Business strategy, entrepreneurship, and economics"),
+  science: Category.create!(category_name: "Science & Nature", description: "Popular science, nature, and the environment"),
+  history: Category.create!(category_name: "History", description: "Historical accounts and analysis"),
+  philosophy: Category.create!(category_name: "Philosophy", description: "Philosophical texts and discussions"),
+  poetry: Category.create!(category_name: "Poetry", description: "Poetry collections and verse"),
+  drama: Category.create!(category_name: "Drama & Plays", description: "Theatrical plays and dramatic works"),
+  travel: Category.create!(category_name: "Travel", description: "Travel guides and adventure narratives"),
+  cooking: Category.create!(category_name: "Cooking & Food", description: "Cookbooks and culinary explorations"),
+  art: Category.create!(category_name: "Art & Photography", description: "Art books, photography, and design"),
+  religion: Category.create!(category_name: "Religion & Spirituality", description: "Religious texts and spiritual guides"),
+  psychology: Category.create!(category_name: "Psychology", description: "Human behavior and mental processes"),
+  true_crime: Category.create!(category_name: "True Crime", description: "Real criminal cases and investigations"),
+  humor: Category.create!(category_name: "Humor", description: "Comedy, satire, and humorous writing"),
+  young_adult: Category.create!(category_name: "Young Adult", description: "Fiction for teen readers"),
+  classics: Category.create!(category_name: "Classics", description: "Timeless literary works"),
+  dystopian: Category.create!(category_name: "Dystopian", description: "Dystopian and post-apocalyptic fiction"),
+  paranormal: Category.create!(category_name: "Paranormal & Supernatural", description: "Ghosts, vampires, and supernatural beings"),
+  short_stories: Category.create!(category_name: "Short Stories", description: "Collections of short fiction"),
+  essays: Category.create!(category_name: "Essays", description: "Essay collections and literary criticism"),
+  political: Category.create!(category_name: "Politics & Current Affairs", description: "Political analysis and current events"),
+  education: Category.create!(category_name: "Education & Teaching", description: "Educational resources and teaching methods"),
+  technology: Category.create!(category_name: "Technology & Computing", description: "Tech guides, programming, and digital culture"),
+  sports: Category.create!(category_name: "Sports & Recreation", description: "Sports stories and outdoor activities"),
+  music: Category.create!(category_name: "Music", description: "Music history, theory, and biographies"),
+  crafts: Category.create!(category_name: "Crafts & Hobbies", description: "DIY projects and hobby guides"),
+  parenting: Category.create!(category_name: "Parenting & Family", description: "Parenting advice and family dynamics")
 }
 puts "#{categories.count} categories created!"
 
 # Creating jobs
-puts "✨ Creating sample jobs..."
+puts " Creating sample jobs..."
 
 jobs_data = [
   {
