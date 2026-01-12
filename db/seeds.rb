@@ -544,33 +544,60 @@ product_count = 0
 puts "\nCreating Inazuma Books..."
 
 inazuma_books = [
-  { title: "The Saga of Hamavaran Vol. 1", author: :pursina, category: :light_novels, desc: "Epic Hamavaran adventures", pages: 320, price: 16.99 },
-  { title: "The Saga of Hamavaran Vol. 2", author: :pursina, category: :light_novels, desc: "Continuation of Hamavaran's journey", pages: 345, price: 16.99 },
-  { title: "The Saga of Hamavaran Vol. 3", author: :pursina, category: :light_novels, desc: "Final battle for Hamavaran", pages: 368, price: 16.99 },
-  { title: "New Chronicles of the Six Kitsune Vol. 1", author: :yae_miko, category: :light_novels, desc: "Mystical kitsune tales", pages: 290, price: 15.99 },
-  { title: "New Chronicles Vol. 2", author: :yae_miko, category: :light_novels, desc: "More adventures", pages: 305, price: 15.99 },
-  { title: "New Chronicles Vol. 3", author: :yae_miko, category: :light_novels, desc: "Kitsune face new trials", pages: 312, price: 15.99 },
-  { title: "A Legend of Sword Vol. 1", author: :zhenyu, category: :adventure, desc: "Swords and heroes", pages: 280, price: 14.99 },
-  { title: "A Legend of Sword Vol. 2", author: :zhenyu, category: :adventure, desc: "Journeys continue", pages: 295, price: 14.99 },
-  { title: "A Legend of Sword Vol. 3", author: :zhenyu, category: :adventure, desc: "Final duel", pages: 310, price: 14.99 },
-  { title: "Pretty Please, Kitsune Guuji?", author: :yae_miko, category: :light_novels, desc: "Fun Inazuman comedy novel", pages: 265, price: 13.99 },
-  { title: "Shogun Almighty", author: :yae_miko, category: :light_novels, desc: "Overpowered Raiden reincarnation story", pages: 240, price: 13.99 },
-  { title: "Flowers for Princess Fischl Vol. 1", author: :mr_nine, category: :fantasy, desc: "Princess Fischl in the Abyss", pages: 255, price: 14.99 },
-  { title: "Princess Mina Vol. 1", author: :yae_miko, category: :light_novels, desc: "Tragic princess tale", pages: 300, price: 15.99 },
-  { title: "Princess Mina Vol. 2", author: :yae_miko, category: :light_novels, desc: "Kingdom rebuilds", pages: 315, price: 15.99 },
-  { title: "Treasured Tales of Chouken Shinkageuchi", author: :yae_miko, category: :non_fiction, desc: "Traditional Inazuman tales", pages: 280, price: 18.99 },
-  { title: "Teyvat Travel Guide: Inazuma", author: :yae_miko, category: :non_fiction, desc: "Complete Inazuma guide", pages: 420, price: 22.99 },
-  { title: "Inazuma Cuisine", author: :yae_miko, category: :non_fiction, desc: "Traditional recipes", pages: 350, price: 24.99 },
-  { title: "The Sacred Sakura: A History", author: :yae_miko, category: :non_fiction, desc: "History of Sacred Sakura", pages: 385, price: 26.99 },
-  { title: "Thunder's Eternity", author: :yae_miko, category: :non_fiction, desc: "Shogun philosophy", pages: 340, price: 21.99 },
-  { title: "Vision Hunt Decree Analysis", author: :yae_miko, category: :non_fiction, desc: "History of Vision Hunt era", pages: 410, price: 28.99 }
+  # The Saga of Hamavaran series
+  { title: "The Saga of Hamavaran (Preface)", author: :pursina, category: :light_novels, desc: "The prefaces of the new light novel 'The Saga of Hamavaran', now released into their own separate volume due to a labeling model adjustment!", pages: 45, price: 16.99 },
+  { title: "The Saga of Hamavaran (I)", author: :pursina, category: :light_novels, desc: "A fruitful new writer recruitment drive and the phenomenal success of 'The Novel is Amazing!' we have received many highly original works from up-and-coming writers all over the world.", pages: 320, price: 16.99 },
+  { title: "The Saga of Hamavaran (II)", author: :pursina, category: :light_novels, desc: "Continuation of Hamavaran's epic journey", pages: 345, price: 16.99 },
+  
+  # Treasured Tales of the Chouken Shinkageuchi
+  { title: "Treasured Tales of the Chouken Shinkageuchi (I)", author: :kuroda, category: :non_fiction, desc: "A traditional Inazuman novel about the Raiden Shogun and her kagemusha, depicting their valor and the great valor of the Shogun's trusted general.", pages: 280, price: 18.99 },
+  
+  # The Serpent and Drakes of Tokoyokoku
+  { title: "The Serpent and Drakes of Tokoyokoku", author: :unknown, category: :non_fiction, desc: "A novel based on Watatsumi Island's folktales about the unique cosmological outlook of the ancient people before the Archon War.", pages: 290, price: 16.99 },
+  
+  # Teyvat Travel Guide
+  { title: "Teyvat Travel Guide - Inazuma", author: :alice, category: :non_fiction, desc: "Complete travel guide to Inazuma", pages: 420, price: 22.99 },
+  
+  # Shogun Almighty: Reborn as Raiden With Unlimited Power
+  { title: "Shogun Almighty: Reborn as Raiden With Unlimited Power", author: :kuroda, category: :light_novels, desc: "A popular light novel in Inazuma about being reborn and reincarnated into the Raiden Shogun", pages: 240, price: 13.99 },
+  
+  # Pretty Please, Kitsune Guuji?
+  { title: "Pretty Please, Kitsune Guuji?", author: :murata, category: :light_novels, desc: "A popular light novel in Inazuma which tells the tale that a certain 'good-at-everything' Kitsune Guuji is popular", pages: 265, price: 13.99 },
+  
+  # Hex & Hound series
+  { title: "Hex & Hound (X)", author: :kuroda, category: :light_novels, desc: "Popular detective mystery novel series", pages: 310, price: 16.99 },
+  { title: "Hex & Hound (XI)", author: :kuroda, category: :light_novels, desc: "Continuation of the mystery series", pages: 315, price: 16.99 },
+  
+  # New Chronicles of the Six Kitsune
+  { title: "New Chronicles of the Six Kitsune: Prologue", author: :kuroda, category: :light_novels, desc: "Stories about memories are always closely intertwined with transience. This volume is old and new, an adaptation of Inazuma's 'Chronicles of the Six Kitsune'", pages: 60, price: 15.99 },
+  { title: "New Chronicles of the Six Kitsune (I)", author: :kuroda, category: :light_novels, desc: "Stories about memories intertwined with transience", pages: 290, price: 15.99 },
+  { title: "New Chronicles of the Six Kitsune (II)", author: :kuroda, category: :light_novels, desc: "More mystical kitsune adventures", pages: 305, price: 15.99 },
+  { title: "New Chronicles of the Six Kitsune (IV)", author: :kuroda, category: :light_novels, desc: "Kitsune face new trials", pages: 312, price: 15.99 },
+  { title: "New Chronicles of the Six Kitsune (V)", author: :kuroda, category: :light_novels, desc: "Further chronicles of the kitsune", pages: 318, price: 15.99 },
+  
+  # A Legend of Sword series
+  { title: "A Legend of Sword (I)", author: :zhenyu, category: :adventure, desc: "Amid a sea of stars that spin in reverse, light-centuries of war unfold down on the planet's surface", pages: 280, price: 14.99 },
+  { title: "A Legend of Sword (II)", author: :zhenyu, category: :adventure, desc: "The journey continues with new battles", pages: 295, price: 14.99 },
+  { title: "A Legend of Sword (III)", author: :zhenyu, category: :adventure, desc: "Further adventures in the sword saga", pages: 310, price: 14.99 },
+  { title: "A Legend of Sword (IV)", author: :zhenyu, category: :adventure, desc: "The saga deepens", pages: 305, price: 14.99 },
+  { title: "A Legend of Sword (VI)", author: :zhenyu, category: :adventure, desc: "Continuing the epic tale", pages: 320, price: 14.99 },
+  
+  # Princess Mina of the Fallen Nation series
+  { title: "Princess Mina of the Fallen Nation (I)", author: :kuroda, category: :light_novels, desc: "The princess who was prophesied to bring destruction witnesses the moment it unfolds", pages: 300, price: 15.99 },
+  { title: "Princess Mina of the Fallen Nation (II)", author: :kuroda, category: :light_novels, desc: "Thirteen years of peace were had before the era of warring states began", pages: 315, price: 15.99 },
+  { title: "Princess Mina of the Fallen Nation (III)", author: :kuroda, category: :light_novels, desc: "The kingdom attempts to rebuild", pages: 308, price: 15.99 },
+  { title: "Princess Mina of the Fallen Nation (IV)", author: :kuroda, category: :light_novels, desc: "Continuation of Princess Mina's journey", pages: 295, price: 15.99 },
+  { title: "Princess Mina of the Fallen Nation (V)", author: :kuroda, category: :light_novels, desc: "Further trials for the fallen princess", pages: 310, price: 15.99 },
+  
+  # Flowers for Princess Fischl
+  { title: "Flowers for Princess Fischl (0)", author: :mr_nine, category: :fantasy, desc: "The preliminary volume of the 'Flowers for Princess Fischl' series, originally came in a violet and black wooden box as a limited edition gift", pages: 85, price: 14.99 }
 ]
 
 inazuma_books.each do |book|
   product = Product.create!(
     title: book[:title],
     isbn: Faker::Code.isbn,
-    description: Faker::Lorem.paragraph(sentence_count: 3),
+    description: book[:desc],
     current_price: book[:price],
     stock_quantity: rand(20..100),
     category: categories[book[:category]],
@@ -585,7 +612,6 @@ inazuma_books.each do |book|
 end
 
 puts "✓ #{inazuma_books.count} Inazuma books created!"
-
 # ---------------------------------------- #
 # REAL WORLD BOOKS
 # ---------------------------------------- #
