@@ -83,90 +83,103 @@
             <div class="yae-section-body">
               
               <!-- Country/Region Selection Toggle -->
-              <div class="country-toggle mb-4">
-                <label class="form-label fw-bold">
-                  <i class="bi bi-globe me-2"></i>Shipping Region
+            <div class="country-toggle mb-4">
+              <label class="form-label fw-bold">
+                <i class="bi bi-globe me-2"></i>Shipping Region
+              </label>
+              <div class="btn-group-custom" role="group">
+                <% 
+                  # Determine which radio should be checked based on saved address
+                  has_province = @customer.province_id.present?
+                  has_country = @customer.country_id.present?
+                  
+                  # Check if the country is a Teyvat nation
+                  teyvat_codes = ['MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK']
+                  is_teyvat = has_country && !has_province && @customer.country&.code.in?(teyvat_codes)
+                  is_international = has_country && !has_province && !is_teyvat
+                  is_canada = has_province || (!has_country && !has_province)
+                %>
+                
+                <%= radio_button_tag :is_canada, '1', is_canada, 
+                    class: 'btn-check', id: 'canada_shipping' %>
+                <label class="btn btn-outline-primary btn-region" for="canada_shipping">
+                  <i class="bi bi-flag me-2"></i>Canada
                 </label>
-                <div class="btn-group-custom" role="group">
-                  <%= radio_button_tag :is_canada, '1', @customer.is_canada? || @customer.province_id.present?, 
-                      class: 'btn-check', id: 'canada_shipping' %>
-                  <label class="btn btn-outline-primary btn-region" for="canada_shipping">
-                    <i class="bi bi-flag me-2"></i>Canada
+                
+                <%= radio_button_tag :is_canada, '0', is_teyvat, 
+                    class: 'btn-check', id: 'teyvat_shipping', data: { region: 'teyvat' } %>
+                <label class="btn btn-outline-primary btn-region" for="teyvat_shipping">
+                  <i class="bi bi-stars me-2"></i>Teyvat
+                </label>
+                
+                <%= radio_button_tag :is_canada, '0', is_international, 
+                    class: 'btn-check', id: 'international_shipping', data: { region: 'international' } %>
+                <label class="btn btn-outline-primary btn-region" for="international_shipping">
+                  <i class="bi bi-airplane me-2"></i>International
+                </label>
+              </div>
+            </div>
+
+            <% if @customer.has_complete_address? %>
+              <div class="yae-address-options">
+                <div class="yae-address-option">
+                  <%= radio_button_tag :use_saved_address, '1', true, class: 'yae-radio-input', id: 'use_saved_yes' %>
+                  <label class="yae-address-label" for="use_saved_yes">
+                    <div class="yae-option-header">
+                      <i class="bi bi-bookmark-check-fill me-2"></i>
+                      <strong>Use saved address</strong>
+                    </div>
+                    <div class="yae-saved-address">
+                      <p class="mb-1"><i class="bi bi-person me-2"></i><%= @customer.first_name %> <%= @customer.last_name %></p>
+                      <p class="mb-1"><i class="bi bi-geo-alt me-2"></i><%= @customer.address_line1 %></p>
+                      <% if @customer.address_line2.present? %>
+                        <p class="mb-1 ms-4"><%= @customer.address_line2 %></p>
+                      <% end %>
+                      <p class="mb-1 ms-4">
+                        <%= @customer.city %>, 
+                        <%= @customer.province&.code || @customer.country&.name %>
+                        <%= @customer.postal_code %>
+                      </p>
+                    </div>
                   </label>
-                  
-                  <%= radio_button_tag :is_canada, '0', false, class: 'btn-check', id: 'teyvat_shipping', data: { region: 'teyvat' } %>
-                  <label class="btn btn-outline-primary btn-region" for="teyvat_shipping">
-                    <i class="bi bi-stars me-2"></i>Teyvat
-                  </label>
-                  
-                  <%= radio_button_tag :is_canada, '0', !@customer.is_canada? && @customer.country_id.present?, 
-                      class: 'btn-check', id: 'international_shipping', data: { region: 'international' } %>
-                  <label class="btn btn-outline-primary btn-region" for="international_shipping">
-                    <i class="bi bi-airplane me-2"></i>International
+                </div>
+
+                <div class="yae-address-option">
+                  <%= radio_button_tag :use_saved_address, '0', false, class: 'yae-radio-input', id: 'use_saved_no' %>
+                  <label class="yae-address-label" for="use_saved_no">
+                    <i class="bi bi-plus-circle-fill me-2"></i>
+                    <strong>Use a different address</strong>
                   </label>
                 </div>
               </div>
 
-              <% if @customer.has_complete_address? %>
-                <div class="yae-address-options">
-                  <div class="yae-address-option">
-                    <%= radio_button_tag :use_saved_address, '1', true, class: 'yae-radio-input', id: 'use_saved_yes' %>
-                    <label class="yae-address-label" for="use_saved_yes">
-                      <div class="yae-option-header">
-                        <i class="bi bi-bookmark-check-fill me-2"></i>
-                        <strong>Use saved address</strong>
-                      </div>
-                      <div class="yae-saved-address">
-                        <p class="mb-1"><i class="bi bi-person me-2"></i><%= @customer.first_name %> <%= @customer.last_name %></p>
-                        <p class="mb-1"><i class="bi bi-geo-alt me-2"></i><%= @customer.address_line1 %></p>
-                        <% if @customer.address_line2.present? %>
-                          <p class="mb-1 ms-4"><%= @customer.address_line2 %></p>
-                        <% end %>
-                        <p class="mb-1 ms-4">
-                          <%= @customer.city %>, 
-                          <%= @customer.province&.code || @customer.country&.name %>
-                          <%= @customer.postal_code %>
-                        </p>
-                      </div>
-                    </label>
-                  </div>
+              <div id="new-address-fields" style="display: none;">
+            <% else %>
+              <div id="new-address-fields">
+            <% end %>
 
-                  <div class="yae-address-option">
-                    <%= radio_button_tag :use_saved_address, '0', false, class: 'yae-radio-input', id: 'use_saved_no' %>
-                    <label class="yae-address-label" for="use_saved_no">
-                      <i class="bi bi-plus-circle-fill me-2"></i>
-                      <strong>Use a different address</strong>
-                    </label>
-                  </div>
-                </div>
-
-                <div id="new-address-fields" style="display: none;">
-              <% else %>
-                <div id="new-address-fields">
-              <% end %>
-
-                  <div class="yae-form-section">
-                    <div class="row g-3">
-                      <div class="col-md-6">
-                        <label for="first_name" class="yae-form-label">
-                          <i class="bi bi-person me-1"></i>First Name
-                        </label>
-                        <%= text_field_tag :first_name, @customer.first_name, 
-                            required: !@customer.has_complete_address?, 
-                            class: 'yae-form-input',
-                            placeholder: 'John' %>
-                      </div>
-                      
-                      <div class="col-md-6">
-                        <label for="last_name" class="yae-form-label">
-                          <i class="bi bi-person me-1"></i>Last Name
-                        </label>
-                        <%= text_field_tag :last_name, @customer.last_name, 
-                            required: !@customer.has_complete_address?, 
-                            class: 'yae-form-input',
-                            placeholder: 'Doe' %>
-                      </div>
+                <div class="yae-form-section">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="first_name" class="yae-form-label">
+                        <i class="bi bi-person me-1"></i>First Name
+                      </label>
+                      <%= text_field_tag :first_name, @customer.first_name, 
+                          required: !@customer.has_complete_address?, 
+                          class: 'yae-form-input',
+                          placeholder: 'John' %>
                     </div>
+                    
+                    <div class="col-md-6">
+                      <label for="last_name" class="yae-form-label">
+                        <i class="bi bi-person me-1"></i>Last Name
+                      </label>
+                      <%= text_field_tag :last_name, @customer.last_name, 
+                          required: !@customer.has_complete_address?, 
+                          class: 'yae-form-input',
+                          placeholder: 'Doe' %>
+                    </div>
+                  </div>
 
                     <div class="mt-3">
                       <label for="address_line1" class="yae-form-label">
@@ -449,8 +462,6 @@
     </div>
   </div>
 </div>
-<script src="https://js.stripe.com/v3/"></script>
-
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const stripeKey = '<%= Rails.configuration.stripe[:publishable_key].to_s %>';
@@ -576,7 +587,12 @@
     const taxMessage = document.getElementById('tax_message');
 
     // Tax rates data from backend
-    const provinceTaxes = JSON.parse(provinceSelect.dataset.provinces);
+    const provinceTaxes = JSON.parse(provinceSelect.dataset.provinces).map(p => ({
+      ...p,
+      gst_rate: parseFloat(p.gst_rate) || 0,
+      pst_rate: parseFloat(p.pst_rate) || 0,
+      hst_rate: parseFloat(p.hst_rate) || 0
+    }));
     const countryTaxes = JSON.parse(countrySelect.dataset.countries);
     const subtotal = <%= @subtotal_after_discount %>;
 
@@ -607,6 +623,13 @@
         
         // Filter country select to show only Teyvat nations
         filterCountryOptions('teyvat');
+        // Clear selection if switching to Teyvat with a non-Teyvat country selected
+        if (countrySelect.value) {
+          const selectedCountry = countryTaxes.find(c => c.id === parseInt(countrySelect.value));
+          if (selectedCountry && !teyvatCodes.includes(selectedCountry.code)) {
+            countrySelect.value = '';
+          }
+        }
         updateTaxInfo('country');
       } else {
         provinceField.style.display = 'none';
@@ -619,6 +642,12 @@
         
         // Show all countries
         filterCountryOptions('international');
+        if (countrySelect.value) {
+          const selectedCountry = countryTaxes.find(c => c.id === parseInt(countrySelect.value));
+          if (selectedCountry && teyvatCodes.includes(selectedCountry.code)) {
+            countrySelect.value = '';
+          }
+        }
         updateTaxInfo('country');
       }
     }
@@ -719,15 +748,224 @@
     provinceSelect.addEventListener('change', () => updateTaxInfo('province'));
     countrySelect.addEventListener('change', () => updateTaxInfo('country'));
 
-    // Initialize on page load
-    toggleShippingRegion();
-    
-    // Set initial tax if province is already selected
-    if (provinceSelect.value) {
-      updateTaxInfo('province');
+    // ========================================
+    // TEYVAT ADDRESS VALIDATION
+    // ========================================
+    function checkSavedAddressMatch() {
+      const usingSavedAddress = document.querySelector('input[name="use_saved_address"]:checked')?.value === '1';
+      
+      if (usingSavedAddress) {
+        const savedCountryId = parseInt('<%= @customer.country_id.to_i %>');
+        const savedProvinceId = parseInt('<%= @customer.province_id.to_i %>');
+        
+        // Check if saved address is Canada (has province)
+        if (savedProvinceId > 0) {
+          if (teyvatRadio.checked) {
+            showAddressWarning('Your saved address is in Canada, not Teyvat. Please select "Canada" as the shipping region.');
+            return false;
+          } else if (internationalRadio.checked) {
+            showAddressWarning('Your saved address is in Canada, not International. Please select "Canada" as the shipping region.');
+            return false;
+          }
+        }
+        // Check if saved address is International/Teyvat (has country, no province)
+        else if (savedCountryId > 0) {
+          const savedCountry = countryTaxes.find(c => c.id === savedCountryId);
+          
+          if (savedCountry) {
+            const isSavedTeyvat = teyvatCodes.includes(savedCountry.code);
+            
+            // Check if user selected wrong region for their saved address
+            if (isSavedTeyvat && internationalRadio.checked) {
+              showAddressWarning(`Your saved address is in ${savedCountry.name} (Teyvat), not International. Please select "Teyvat" as the shipping region.`);
+              return false;
+            } else if (isSavedTeyvat && canadaRadio.checked) {
+              showAddressWarning(`Your saved address is in ${savedCountry.name} (Teyvat), not Canada. Please select "Teyvat" as the shipping region.`);
+              return false;
+            } else if (!isSavedTeyvat && teyvatRadio.checked) {
+              showAddressWarning(`Your saved address is in ${savedCountry.name} (International), not Teyvat. Please select "International" as the shipping region.`);
+              return false;
+            } else if (!isSavedTeyvat && canadaRadio.checked) {
+              showAddressWarning(`Your saved address is in ${savedCountry.name} (International), not Canada. Please select "International" as the shipping region.`);
+              return false;
+            }
+          }
+        }
+      }
+      
+      hideAddressWarning();
+      return true;
     }
+
+    function showAddressWarning(message) {
+      let warning = document.getElementById('address-mismatch-warning');
+      
+      if (!warning) {
+        warning = document.createElement('div');
+        warning.id = 'address-mismatch-warning';
+        warning.className = 'yae-alert yae-alert-warning mt-3';
+        warning.style.cssText = `
+          background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+          border: 2px solid #f59e0b;
+          color: #92400e;
+          padding: 1.25rem 1.5rem;
+          border-radius: 15px;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          font-weight: 600;
+        `;
+        
+        const countryToggle = document.querySelector('.country-toggle');
+        countryToggle.parentNode.insertBefore(warning, countryToggle.nextSibling);
+      }
+      
+      warning.innerHTML = `
+        <i class="bi bi-exclamation-triangle-fill" style="font-size: 1.5rem;"></i>
+        <span>${message}</span>
+      `;
+      warning.style.display = 'flex';
+    }
+
+    function hideAddressWarning() {
+      const warning = document.getElementById('address-mismatch-warning');
+      if (warning) {
+        warning.style.display = 'none';
+      }
+    }
+
+    // Check on radio button change
+    canadaRadio.addEventListener('change', checkSavedAddressMatch);
+    teyvatRadio.addEventListener('change', checkSavedAddressMatch);
+    internationalRadio.addEventListener('change', checkSavedAddressMatch);
+
+    // Check when saved address option changes
+    const savedAddressRadios = document.querySelectorAll('input[name="use_saved_address"]');
+    savedAddressRadios.forEach(radio => {
+      radio.addEventListener('change', checkSavedAddressMatch);
+    });
+
+    // Prevent form submission if there's a mismatch
+    form.addEventListener('submit', function(event) {
+      const usingSavedAddress = document.querySelector('input[name="use_saved_address"]:checked')?.value === '1';
+      
+      if (usingSavedAddress && !checkSavedAddressMatch()) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Scroll to the warning
+        const warning = document.getElementById('address-mismatch-warning');
+        if (warning) {
+          warning.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        submitButton.disabled = false;
+        displayError.textContent = 'Please select the correct shipping region for your saved address.';
+        
+        return false;
+      }
+    }, true);
+
+    // ========================================
+    // INITIALIZE ON PAGE LOAD - FIXED FOR SAVED ADDRESSES
+    // ========================================
+    const savedCountryId = parseInt('<%= @customer.country_id.to_i %>');
+    const savedProvinceId = parseInt('<%= @customer.province_id.to_i %>');
+
+    console.log('Saved Province ID:', savedProvinceId);
+    console.log('Saved Country ID:', savedCountryId);
+    console.log('Province Taxes:', provinceTaxes);
+    console.log('Subtotal:', subtotal);
+
+    // Determine which shipping region should be selected based on saved address
+    if (savedProvinceId > 0) {
+      // User has a province - it's Canada
+      console.log('User has Canadian address');
+      canadaRadio.checked = true;
+      teyvatRadio.checked = false;
+      internationalRadio.checked = false;
+      // Set the province select value
+      provinceSelect.value = savedProvinceId;
+      
+      // Manually calculate and display tax for saved Canadian address
+      const province = provinceTaxes.find(p => p.id === savedProvinceId);
+      console.log('Found province:', province);
+      
+      if (province) {
+        let taxDetails = [];
+        if (province.hst_rate > 0) {
+          taxDetails.push(`HST: ${province.hst_rate}%`);
+        } else {
+          if (province.gst_rate > 0) taxDetails.push(`GST: ${province.gst_rate}%`);
+          if (province.pst_rate > 0) taxDetails.push(`PST: ${province.pst_rate}%`);
+        }
+        
+        const totalRate = province.hst_rate || (province.gst_rate + province.pst_rate);
+        const totalTax = subtotal * (totalRate / 100);
+        const total = subtotal + totalTax;
+        
+        console.log('Total Rate:', totalRate);
+        console.log('Total Tax:', totalTax);
+        console.log('Total:', total);
+        
+        taxMessage.innerHTML = `<strong>${province.name}:</strong> ${taxDetails.join(', ')} = <strong>${totalRate}% total tax</strong>`;
+        document.getElementById('tax-display').textContent = formatCurrency(totalTax);
+        document.getElementById('total-display').textContent = formatCurrency(total);
+      }
+    } else if (savedCountryId > 0) {
+      // User has a country but no province - it's international or Teyvat
+      const savedCountry = countryTaxes.find(c => c.id === savedCountryId);
+      if (savedCountry && teyvatCodes.includes(savedCountry.code)) {
+        // It's a Teyvat nation - select Teyvat radio
+        teyvatRadio.checked = true;
+        canadaRadio.checked = false;
+        internationalRadio.checked = false;
+        countrySelect.value = savedCountryId;
+        
+        // Manually calculate and display tax for saved Teyvat address
+        if (savedCountry.tax_rate > 0) {
+          const totalTax = subtotal * (savedCountry.tax_rate / 100);
+          const total = subtotal + totalTax;
+          
+          taxMessage.innerHTML = `⚡ <strong>${savedCountry.name}:</strong> ${savedCountry.tax_name} <strong>${savedCountry.tax_rate}%</strong>`;
+          document.getElementById('tax-display').textContent = formatCurrency(totalTax);
+          document.getElementById('total-display').textContent = formatCurrency(total);
+        } else {
+          taxMessage.innerHTML = `⚡ <strong>${savedCountry.name}:</strong> ${savedCountry.tax_name || 'No additional taxes'}`;
+          document.getElementById('tax-display').textContent = formatCurrency(0);
+          document.getElementById('total-display').textContent = formatCurrency(subtotal);
+        }
+      } else if (savedCountry) {
+        // It's an international country - select International radio
+        internationalRadio.checked = true;
+        canadaRadio.checked = false;
+        teyvatRadio.checked = false;
+        countrySelect.value = savedCountryId;
+        
+        // Manually calculate and display tax for saved international address
+        if (savedCountry.tax_rate > 0) {
+          const totalTax = subtotal * (savedCountry.tax_rate / 100);
+          const total = subtotal + totalTax;
+          
+          taxMessage.innerHTML = `<strong>${savedCountry.name}:</strong> ${savedCountry.tax_name} <strong>${savedCountry.tax_rate}%</strong>`;
+          document.getElementById('tax-display').textContent = formatCurrency(totalTax);
+          document.getElementById('total-display').textContent = formatCurrency(total);
+        } else {
+          taxMessage.innerHTML = `<strong>${savedCountry.name}:</strong> ${savedCountry.tax_name || 'No additional taxes'}`;
+          document.getElementById('tax-display').textContent = formatCurrency(0);
+          document.getElementById('total-display').textContent = formatCurrency(subtotal);
+        }
+      }
+    }
+
+    // Now toggle the UI based on which radio button is checked
+    toggleShippingRegion();
+
+    // Check for address mismatch on initial load
+    checkSavedAddressMatch();
   });
 </script>
+<script src="https://js.stripe.com/v3/"></script>
 <style>
   :root {
     --yae-pink: #E91E8C;

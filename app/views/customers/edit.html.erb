@@ -121,11 +121,11 @@
                     </label>
                     
                     <input type="radio" name="customer[is_canada]" value="0"
-                           <%= 'checked' if @customer.country_id.present? && !['MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK'].include?(@customer.country&.code) %>
-                           class="btn-check" id="international_shipping" data-region="international">
-                    <label class="btn btn-outline-primary btn-region" for="international_shipping">
-                      <i class="bi bi-airplane me-2"></i>International
-                    </label>
+                        <%= 'checked' if @customer.country_id.present? && @customer.province_id.blank? && !['MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK'].include?(@customer.country&.code) %>
+                        class="btn-check" id="international_shipping" data-region="international">
+                      <label class="btn btn-outline-primary btn-region" for="international_shipping">
+                        <i class="bi bi-airplane me-2"></i>International
+                      </label>
                   </div>
                 </div>
                 

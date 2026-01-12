@@ -36,16 +36,15 @@ class Customer < ApplicationRecord
   
   # Check if customer has complete address (for checkout validation)
   def has_complete_address?
-    if is_canada?
-      address_line1.present? && city.present? && postal_code.present? && province_id.present?
-    else
-      address_line1.present? && city.present? && postal_code.present? && country_id.present?
-    end
+    address_line1.present? && 
+    city.present? && 
+    postal_code.present? && 
+    (province_id.present? || country_id.present?)
   end
   
   # Check if this is a Canadian address
   def is_canada?
-    is_canada == true || (country.present? && country.canada?)
+    province_id.present?
   end
   
   # Check if product is in wishlist
@@ -60,6 +59,6 @@ class Customer < ApplicationRecord
 
   def self.ransackable_attributes(auth_object = nil)
     ["id", "email", "first_name", "last_name", "address_line1", "address_line2", 
-     "city", "postal_code", "province_id", "country_id", "is_canada", "created_at", "updated_at"]
+     "city", "postal_code", "province_id", "country_id", "created_at", "updated_at"]
   end
 end

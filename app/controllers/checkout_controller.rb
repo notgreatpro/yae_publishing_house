@@ -69,6 +69,45 @@ class CheckoutController < ApplicationController
     
     # Get address from params or use customer's saved address
     address_params = if params[:use_saved_address] == '1' && current_customer.has_complete_address?
+      # When using saved address, determine is_canada based on whether they have a province
+      saved_is_canada = current_customer.province_id.present?
+      saved_province = current_customer.province
+      saved_country = current_customer.country
+      
+      # Validate that the selected shipping region matches the saved address
+      teyvat_codes = ['MD', 'LY', 'IZ', 'SM', 'FT', 'NT', 'SN', 'KH', 'NK']
+      
+      # If saved address is Canada (has province)
+      if saved_is_canada
+        if !is_canada
+          @order = current_customer.orders.build
+          region_name = params[:is_canada] == '0' ? 'International/Teyvat' : 'other region'
+          @order.errors.add(:base, "Your saved address is in Canada (#{saved_province.name}), not #{region_name}. Please select 'Canada' as the shipping region.")
+          raise ActiveRecord::RecordInvalid.new(@order)
+        end
+      # If saved address is International/Teyvat (has country, no province)
+      elsif saved_country.present?
+        is_saved_teyvat = teyvat_codes.include?(saved_country.code)
+        
+        # Check for mismatches
+        if is_saved_teyvat && is_canada
+          @order = current_customer.orders.build
+          @order.errors.add(:base, "Your saved address is in #{saved_country.name} (Teyvat), not Canada. Please select 'Teyvat' as the shipping region.")
+          raise ActiveRecord::RecordInvalid.new(@order)
+        elsif is_saved_teyvat && !is_canada && params[:country_id].present? && params[:country_id].to_i != saved_country.id
+          @order = current_customer.orders.build
+          @order.errors.add(:base, "Your saved address is in #{saved_country.name} (Teyvat), not International. Please select 'Teyvat' as the shipping region.")
+          raise ActiveRecord::RecordInvalid.new(@order)
+        elsif !is_saved_teyvat && is_canada
+          @order = current_customer.orders.build
+          @order.errors.add(:base, "Your saved address is in #{saved_country.name} (International), not Canada. Please select 'International' as the shipping region.")
+          raise ActiveRecord::RecordInvalid.new(@order)
+        elsif !is_saved_teyvat && !is_canada
+          # Both are international - but user might have selected wrong country in dropdown
+          # This is okay as long as they're using saved address - we'll use the saved country
+        end
+      end
+      
       {
         address_line1: current_customer.address_line1,
         address_line2: current_customer.address_line2,
@@ -76,7 +115,7 @@ class CheckoutController < ApplicationController
         postal_code: current_customer.postal_code,
         province_id: current_customer.province_id,
         country_id: current_customer.country_id,
-        is_canada: current_customer.is_canada
+        is_canada: saved_is_canada
       }
     else
       base_params = {
@@ -182,7 +221,6 @@ class CheckoutController < ApplicationController
     flash[:alert] = "An error occurred: #{e.message}"
     redirect_to checkout_path
   end
-
   private
 
   def ensure_cart_not_empty
